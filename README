@@ -15,31 +15,6 @@ How to use:
             -i </path/to/file>
             -o </path/to/file>
 
-        HFold_interacting:
-            --so <oligo sequence>
-            --or <oligo structure>   
-            --st <exon sequence>
-            --tr <exon structure>
-            -i </path/to/file>
-            -o </path/to/file>
-
-        HFold_interacting (multi-model):
-            --so <oligo sequence>
-            --or <oligo structure>   
-            --st <exon sequence>
-            --tr <exon structure>
-            -i </path/to/file>
-            -o </path/to/file>  
-            --t1 <model type>
-            --t2 <model type>  
-
-
-        HFold_iterative: 
-            -s <sequence>
-            -r <structure>
-            -i </path/to/file>
-            -o </path/to/file>
-
         Remarks:
             make sure the <arguments> are enclosed in "", for example -r "..().." instead of -r ..()..
             input file for -i must be .txt
@@ -53,28 +28,18 @@ How to use:
     Structure requirements:
         -pseudoknot free
         -containing only characters ._(){}[]
+        Remarks:
+            Restricted structure symbols:
+                () restricted base pair
+                _ no restriction
 
-    Model type requirements:
-        -available models: RNA/DNA  
 
     Input file requirements:
-        For HFold/HFold_iterative:
             Line1: Sequence
             Line2: Structure
         sample:
             GCAACGAUGACAUACAUCGCUAGUCGACGC
             (____________________________)
-
-        For HFold_interacting:
-            Line1: Oligo Sequence 
-            Line2: Oligo structure
-            Line1: Exon Sequence that is longer than the Oligo Sequence
-            Line2: Exon structure 
-        sample:
-            GCAACGAUGACAUACAUCGCUAGUCGACGC
-            (____________________________)
-            GCAACGAUGACAUACAUCGCUAGUCGACGCGCAACGAUGACAUACAUCGCUAGUCGACGC
-            (__________________________________________________________)
 
     Example:
     #assume you are in the directory where the HFold/HFold_interacting/HFold_iterative executable is loacted
@@ -85,11 +50,6 @@ How to use:
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt"
 
-    ./HFold_interacting -i "/home/username/Desktop/myinputfile.txt" -o "outputfile.txt"
-    ./HFold_interacting --so "GCAACGAUGACAUACAUCGCUAGUCGACGC" --or "(____________________________)" --st "GCAACGAUGACAUACAUCGCUAGUCGACGCGCAACGAUGACAUACAUCGCUAGUCGACGC" --tr "(__________________________________________________________)"
-    ./HFold_interacting --so "GCAACGAUGACAUACAUCGCUAGUCGACGC" --or "(____________________________)" --st "GCAACGAUGACAUACAUCGCUAGUCGACGCGCAACGAUGACAUACAUCGCUAGUCGACGC" --tr "(__________________________________________________________)" -o "outputfile.txt"
-    
-    
 Exit code:
     0       success
     1	    invalid argument error 
