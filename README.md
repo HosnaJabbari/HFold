@@ -1,13 +1,35 @@
-Description:
+# HFold
+
+#### Description:
 These methods are base on hierarchical folding hypothesis
 
-Supported OS: *nix operating system
+#### Supported OS: 
+*nix operating system
 
-How to install:
-type "make"
+#### Steps for installation:
+1. [Download the repository](https://github.com/HosnaJabbari/HFold.git) and extract the files onto your system.        
+2. Install Simfold (if you do not have it installed already) by navigating to the Simfold directory         
 
-How to use:
-    
+Note: To install the library to a custom path, use ./configure --prefix=<custom library path> instead.    
+   Default path is /usr/local
+```
+autoreconf -i 
+./configure  or ./configure --prefix=/path/you/want/to/install/simfold
+make  
+make install
+```
+3. Install HFold by navigating to the HFold directory        
+
+Note: <path to Simfold installation> is where Simfold was installed. The default path is /usr/local. If you did not specify a custom prefix when installing Simfold, use /usr/local
+```
+autoreconf -i     
+./configure SIMFOLD_HOME=<path to Simfold installation>    
+make  
+```
+4. Run HFold by following the usage instructions below.   
+
+
+#### How to use:
     Arguments:
         HFold:
             -s <sequence>
@@ -41,8 +63,8 @@ How to use:
             GCAACGAUGACAUACAUCGCUAGUCGACGC
             (____________________________)
 
-    Example:
-    #assume you are in the directory where the HFold/HFold_interacting/HFold_iterative executable is loacted
+#### Example:
+    assume you are in the directory where the HFold executable is loacted
     ./HFold -i "/home/username/Desktop/myinputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "outputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "/home/username/Desktop/some_folder/outputfile.txt"
@@ -50,7 +72,8 @@ How to use:
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt"
 
-Exit code:
+    
+#### Exit code:
     0       success
     1	    invalid argument error 
     3	    thread error
