@@ -6,8 +6,19 @@ These methods are base on hierarchical folding hypothesis
 #### Supported OS: 
 *nix operating system
 
-#### How to install:
-type "make"
+#### Steps for installation:
+1. [Download the repository](https://github.com/HosnaJabbari/HFold.git) and extract the files onto your system.
+2. Install Simfold (if you do not have it installed already) by  
+   To install the library to a custom path, use ./configure --prefix=<custom library path> instead.
+   Default path is /usr/local
+<pre><code>autoreconf -i 
+./configure  or ./configure --prefix=/path/you/want/to/install/simfold
+make  
+make install
+</code></pre>
+3. Install HFold by 
+4. Run HFold by following the usage instructions below.   
+
 
 #### How to use:
     Arguments:
@@ -43,15 +54,15 @@ type "make"
             GCAACGAUGACAUACAUCGCUAGUCGACGC
             (____________________________)
 
-    Example:
-    #assume you are in the directory where the HFold/HFold_interacting/HFold_iterative executable is loacted
-    ./HFold -i "/home/username/Desktop/myinputfile.txt"
+#### Example:
+    assume you are in the directory where the HFold executable is loacted
+    <pre><code>./HFold -i "/home/username/Desktop/myinputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "outputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "/home/username/Desktop/some_folder/outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt"
-
+    </code></pre>
 #### Exit code:
     0       success
     1	    invalid argument error 
