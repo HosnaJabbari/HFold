@@ -7,16 +7,24 @@ These methods are base on hierarchical folding hypothesis
 *nix operating system
 
 #### Steps for installation:
-1. [Download the repository](https://github.com/HosnaJabbari/HFold.git) and extract the files onto your system.
-2. Install Simfold (if you do not have it installed already) by  
-   To install the library to a custom path, use ./configure --prefix=<custom library path> instead.
+1. [Download the repository](https://github.com/HosnaJabbari/HFold.git) and extract the files onto your system.        
+2. Install Simfold (if you do not have it installed already) by navigating to the Simfold directory         
+
+Note: To install the library to a custom path, use ./configure --prefix=<custom library path> instead.    
    Default path is /usr/local
-<pre><code>autoreconf -i 
+```
+autoreconf -i 
 ./configure  or ./configure --prefix=/path/you/want/to/install/simfold
 make  
 make install
-</code></pre>
-3. Install HFold by 
+```
+3. Install HFold by navigating to the HFold directory
+   Note: <path to Simfold installation> is where Simfold was installed. The default path is /usr/local. If you did not specify a custom prefix when installing Simfold, use /usr/local
+```
+autoreconf -i     
+./configure SIMFOLD_HOME=<path to Simfold installation>    
+make  
+```
 4. Run HFold by following the usage instructions below.   
 
 
@@ -56,13 +64,15 @@ make install
 
 #### Example:
     assume you are in the directory where the HFold executable is loacted
-    <pre><code>./HFold -i "/home/username/Desktop/myinputfile.txt"
+    <pre><code>
+    ./HFold -i "/home/username/Desktop/myinputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "outputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "/home/username/Desktop/some_folder/outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt"
     </code></pre>
+    
 #### Exit code:
     0       success
     1	    invalid argument error 
