@@ -64,14 +64,13 @@ make
 
 #### Example:
     assume you are in the directory where the HFold executable is loacted
-    <pre><code>
     ./HFold -i "/home/username/Desktop/myinputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "outputfile.txt"
     ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "/home/username/Desktop/some_folder/outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt"
-    </code></pre>
+
     
 #### Exit code:
     0       success
