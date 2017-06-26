@@ -1,13 +1,15 @@
-Description:
+# HFold
+
+#### Description:
 These methods are base on hierarchical folding hypothesis
 
-Supported OS: *nix operating system
+#### Supported OS: 
+*nix operating system
 
-How to install:
+#### How to install:
 type "make"
 
-How to use:
-    
+#### How to use:
     Arguments:
         HFold:
             -s <sequence>
@@ -50,7 +52,7 @@ How to use:
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "outputfile.txt"
     ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt"
 
-Exit code:
+#### Exit code:
     0       success
     1	    invalid argument error 
     3	    thread error
