@@ -18,7 +18,7 @@ autoreconf -i
 make  
 make install
 ```
-3. Install HFold by navigating to the HFold directory        
+3. Install HFold by navigating to the HFold-master directory        
 
 Note: <path to Simfold installation> is where Simfold was installed. The default path is /usr/local. If you did not specify a custom prefix when installing Simfold, use /usr/local
 ```
