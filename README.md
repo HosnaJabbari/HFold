@@ -7,8 +7,13 @@ These methods are base on hierarchical folding hypothesis
 *nix operating system
 
 #### Steps for installation:
-1. [Download the repository](https://github.com/HosnaJabbari/HFold/archive/master.zip) and extract the files onto your system.        
-2. Install Simfold ~~(if you do not have it installed already)~~ (install this into another directory if you already have simfold installed, this might be different then what you currently have) by navigating to the Simfold directory         
+1. Make sure you have automake, libtool installed by 
+```
+which <program_name>
+```
+[helpful link](https://stackoverflow.com/questions/9575989/install-autoreconf-on-osx-lion#comment55274804_9782529)       
+2. [Download the repository](https://github.com/HosnaJabbari/HFold/archive/master.zip) and extract the files onto your system.        
+3. Install Simfold ~~(if you do not have it installed already)~~ (install this into another directory if you already have simfold installed, this might be different then what you currently have) by navigating to the Simfold directory         
 
 Note: To install the library to a custom path, use ./configure --prefix=<custom library path> instead.    
 ```
@@ -17,7 +22,7 @@ autoreconf -i
 make  
 make install
 ```
-3. Install HFold by navigating to the HFold-master directory        
+4. Install HFold by navigating to the HFold-master directory        
 
 Note: \<path to Simfold installation\> is where Simfold was installed. If you did not specify a custom prefix when installing Simfold, type which Simfold to locate the path 
 ```
@@ -25,7 +30,7 @@ autoreconf -i
 ./configure SIMFOLD_HOME=<path to Simfold installation>    
 make  
 ```
-4. Run HFold by following the usage instructions below.   
+5. Run HFold by following the usage instructions below.   
 
 
 #### How to use:
