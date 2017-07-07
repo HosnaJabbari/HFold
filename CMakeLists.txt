@@ -1,6 +1,6 @@
 # Ian Wark July 6 2017
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 project(HFold)
 
 # only continue if we know we already have boost
@@ -17,13 +17,13 @@ set(SOURCE
     hfold.h HFold.cpp
 )
 
-# enable c++11
-add_compile_options(-std=c++11)
-
 # set path for executable to be created
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 # create executable
 add_executable(HFold ${SOURCE})
+
+# enable C++11
+target_compile_features(Sparse_CCJ PRIVATE cxx_nullptr)
 
 # link to simfold
 target_link_libraries(HFold LINK_PUBLIC simfold)
