@@ -23,7 +23,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 add_executable(HFold ${SOURCE})
 
 # enable C++11
-target_compile_features(Sparse_CCJ PRIVATE cxx_nullptr)
+target_compile_features(HFold PRIVATE cxx_nullptr)
 
 # link to simfold
 target_link_libraries(HFold LINK_PUBLIC simfold)
