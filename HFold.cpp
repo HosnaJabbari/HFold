@@ -14,6 +14,8 @@
 #include "constants.h"
 #include "params.h"
 
+#include <iostream>
+
 
 // Hosna June 20th, 2007
 //#include "W_final.h"
@@ -146,13 +148,13 @@ int main (int argc, char *argv[])
 
 	if(!validateSequence(sequence)){
 		printf("-s is invalid\n");
-		printUsage();
+		//printUsage();
 		exit(1);
 	}
 
 	if(!validateStructure(restricted, sequence)){
 		printf("-r is invalid\n");
-		printUsage();
+		//printUsage();
 		exit(1);
 	}else{
 		replaceBrackets(restricted);
