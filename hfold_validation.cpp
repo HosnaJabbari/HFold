@@ -27,7 +27,7 @@ void replaceBrackets(char* structure){
     } else
     // if closed bracket
     if (curr == '}' || curr == ']') {
-      //*it = ')';
+      *it = ')';
     }
   }
 
