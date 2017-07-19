@@ -30,8 +30,6 @@ void replaceBrackets(char* structure){
       *it = ')';
     }
   }
-
-  std::cout << structure << std::endl;
 }
 
 //check if structure is valid
@@ -55,7 +53,7 @@ bool validateStructure(char* structure, char* sequence){
         printf("Length of sequence and corresponding structure must have same length.\n");
         return false;
     }
-	
+
     //check if any characters other than ._(){}[]
     for(char* it = structure; *it; ++it) {
         char curr = *it;
@@ -68,7 +66,7 @@ bool validateStructure(char* structure, char* sequence){
             return false;
         }
     }
-    
+
     std::string openBracketArray ("({[");
     std::string closeBracketArray (")}]");
     std::stack<char> mystack;
@@ -78,7 +76,7 @@ bool validateStructure(char* structure, char* sequence){
         //printf("d: %c\n",structure[i]);
         if(curr == '(' || curr == '{' || curr == '[') { //is open bracket
             mystack.push(structure[i]);
-        } else 
+        } else
         if(curr == ')' || curr == '}' || curr == ']') { //is close bracket
 
             // if stack is empty that means there are more right brackets than left brackets
@@ -101,8 +99,8 @@ bool validateStructure(char* structure, char* sequence){
         return false;
     }
 
-    return true;      
-	
+    return true;
+
 }
 
 //check length and if any characters other than GCAUT
@@ -119,7 +117,7 @@ bool validateSequence(const char* string){
   for(const char* it = string; *it; ++it) {
     char curr = toupper(*it);
     if (!(curr == 'G' || curr == 'C' || curr == 'A' || curr == 'U' || curr == 'T')) {
-        printf("Sequence contains character '%c' that is not G,C,A,U, or T.\n",curr); 
+        printf("Sequence contains character '%c' that is not G,C,A,U, or T.\n",curr);
         return false;
     }
   }
@@ -134,7 +132,7 @@ void addPath(char** output_path, char* input_path){
 	std::string temp_out_path = *output_path;
 	std::string temp_in_path = input_path;
 	std::size_t out_path_found = temp_out_path.rfind("/");
-	
+
 	if(out_path_found == std::string::npos){ //if out path does not contain '/'
 		std::size_t in_path_found = temp_in_path.rfind("/");
 		if(in_path_found != std::string::npos){ //if in path contain '/'
@@ -145,7 +143,7 @@ void addPath(char** output_path, char* input_path){
 			temp_out_path.copy(*output_path, temp_out_path.length(), 0);
 		}
 	}
-	
+
 }
 
 //assume '.' exist, if not found then do nothings
@@ -153,8 +151,8 @@ void addPath(char** output_path, char* input_path){
 void addTimestamp(char** path){
 	std::string temp = *path;
 	//std::cout << temp << '\n';
-	std::size_t found = temp.find_last_of("."); 
-  	
+	std::size_t found = temp.find_last_of(".");
+
 	time_t rawtime;
 	struct tm * timeinfo;
 	char buffer [80];
@@ -209,7 +207,7 @@ bool validateInteractingInputFile(char* path, char* seq1, char* struc1, char* se
         return false;
     }
 
-    
+
     return true;
 }
 
@@ -226,7 +224,7 @@ bool validateHFOLDInputFile(char* path, char* seq1, char* struc1){
         return false;
     }
     fscanf(fp,"%s\n%s\n",seq1,struc1);
-    
+
     fclose(fp);
 
     if(!(validateSequence(seq1))){
