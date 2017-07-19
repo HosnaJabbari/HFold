@@ -1277,12 +1277,15 @@ void pseudo_loop::compute_WIP_pkonly(int i, int j, h_str_features *fres){
 	}
 	int m1 = INF, m2 = INF, m3 = INF, m4 = INF, m5 = INF;
 
+    // Ian Wark July 19 2017
+    // fres[i].pair < 0 changed to fres[i].pair < FRES_RESTRICTED_MIN (which equals -1 at time of writing)
+    // otherwise it will create pairs in spots where the restricted structure says there should be no pairs
 	// branch 1:
-	if (fres[i].pair < 0){
+	if (fres[i].pair < FRES_RESTRICTED_MIN){
 		m1 = get_WIP(i+1,j) + cp_penalty;
 	}
 	// branch 2:
-	if (fres[j].pair < 0){
+	if (fres[j].pair < FRES_RESTRICTED_MIN){
 		m2 = get_WIP(i,j-1) + cp_penalty;
 	}
 	//branch 3:
@@ -1572,7 +1575,13 @@ void pseudo_loop::compute_BE_pmo(int i, int j, int ip, int jp, h_str_features * 
 //		printf("coming to BE to calculate BE(6,69,11,24) \n");
 //	}
 
-	if (!( i >= 0 && i <= ip && ip < jp && jp <= j && j < nb_nucleotides && fres[i].pair >= 0 && fres[j].pair >= 0 && fres[ip].pair >= 0 && fres[jp].pair >= 0 && fres[i].pair == j && fres[j].pair == i && fres[ip].pair == jp && fres[jp].pair == ip)){ //impossible cases
+    // Ian Wark July 19 2017
+    // fres[i].pair >= 0 changed to fres[i].pair >= FRES_RESTRICTED_MIN (which equals -1 at time of writing)
+    // otherwise it will create pairs in spots where the restricted structure says there should be no pairs
+
+	if (!( i >= 0 && i <= ip && ip < jp && jp <= j && j < nb_nucleotides
+	&& fres[i].pair >= FRES_RESTRICTED_MIN && fres[j].pair >= FRES_RESTRICTED_MIN && fres[ip].pair >= FRES_RESTRICTED_MIN && fres[jp].pair >= FRES_RESTRICTED_MIN
+	&& fres[i].pair == j && fres[j].pair == i && fres[ip].pair == jp && fres[jp].pair == ip)){ //impossible cases
 //		if (debug && i == 1 && ip == 11){
 //			printf("BE(%d,%d,%d,%d): Impossible case!! \n",i,j,ip,jp);
 //		}
@@ -1738,6 +1747,7 @@ int pseudo_loop::get_WI_pkonly(int i, int j){
 int pseudo_loop::get_VP(int i, int j){
 	// Hosna, March 16, 2012
 	// two bases should be at least 3 bases apart
+
 	if (j-i < TURN || i >= j || fres[i].pair >= 0 || fres[j].pair >= 0 || this->is_weakly_closed(i,j) == 1){
 		return INF;
 	}
