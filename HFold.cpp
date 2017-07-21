@@ -238,6 +238,8 @@ int main (int argc, char *argv[])
         printf ("RES: %s  %.2lf\n", structure, energy);
 	}
     
+    free(inputPath);
+    free(outputPath);
 
     return 0;
 }
