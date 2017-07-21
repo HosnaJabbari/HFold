@@ -65,7 +65,6 @@ void s_min_folding::allocate_space()
     if (W == NULL) giveup ("Cannot allocate memory", "energy");
     for (i=0; i < nb_nucleotides; i++) W[i] = 0;
 
-    // Memory leak is here
     int_sequence = new int[nb_nucleotides];
     if (int_sequence == NULL) giveup ("Cannot allocate memory", "energy");
     for (i=0; i < nb_nucleotides; i++) int_sequence[i] = nuc_to_int(sequence[i]);
