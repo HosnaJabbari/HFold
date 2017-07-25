@@ -45,8 +45,8 @@
 // the original value of the matrices should be set to -INF and then be changed to their correct value
 #define MINUS_INF             -1600000      // a very small value (minus infinity)
 
-void detect_original_pairs_arcs(const char *structure, int *p_table, int *arc_table);
-void detect_original_PKed_pairs(const char *structure, int *p_table);
+void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table);
+void detect_original_PKed_pairs(char *structure, int *p_table);
 double compute_h_sensitivity (char *ref_structure, char *pred_structure);
 double compute_h_ppv (char *ref_structure, char *pred_structure);
 void h_fill_data_structures_with_new_parameters (char *filename);
