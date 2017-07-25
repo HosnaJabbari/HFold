@@ -44,7 +44,7 @@ void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table)
 // PRE:  structure contains the desired structure
 // POST: pairs will contain the index of each base pair
 //               or -1 if it does not pair
-// 
+//
 {
 		//printf("structure: %s\n", structure);
         int i, j, struct_len;
@@ -117,7 +117,7 @@ void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table)
 						break;
 			  }
           }
-	
+
 	/* for (i=137; i<struct_len; i++){
 			printf("p_table[%d] = %d AND arc_table[%d]=%d \n\n",i,p_table[i],i,arc_table[i]);
 		}
@@ -127,7 +127,7 @@ void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table)
             printf ("The given structure is not valid: %d more left parentheses than right parentheses\n", st.top);
             exit (1);
         }
-	
+
 }
 
 /**
@@ -169,7 +169,7 @@ void detect_original_PKed_pairs(char *structure, int *p_table)
 			case '(':
 				h_push (&st, i);
 				break;
-				 
+
 			case '[':
 				h_push (&st_brack, i);
 				break;
@@ -187,7 +187,7 @@ void detect_original_PKed_pairs(char *structure, int *p_table)
 				break;
 		}
 	}
-        
+
 	if (st.top != STACK_EMPTY || st_brack.top != STACK_EMPTY) { //0 || st_brack.top != 0)
     	printf ("The given structure is not valid: %d more left parenthesis than right parentheses\n", st.top);
         exit (1);
@@ -528,7 +528,7 @@ void detect_h_structure_features (char *structure, h_str_features *f)
 		f[i].pair = i_pair;//p_table[i];
         f[i].arc = arc_table[i];
 
-		
+
         if (i_pair>i)//p_table[i] > i)
         {
             //f[i].pair = p_table[i]; //Hosna March 8, 2012, this statement seemed redundant! so removed
@@ -543,7 +543,7 @@ void detect_h_structure_features (char *structure, h_str_features *f)
 						printf("END OF THE LOOP \n");
 						printf("p_table[%d]=%d \n",i,p_table[i]);
 						printf("f[%d].pair = %d, f[%d].type = %c, f[%d].arc = %d \n",i,f[i].pair,i,f[i].type,i,f[i].arc);
-						
+
 					} */
                 continue;
             }
@@ -579,12 +579,12 @@ void detect_h_structure_features (char *structure, h_str_features *f)
                     f[i].bri[j] = bri[j];
             }
         }
-		
+
 		/* if (i>=136){
 							printf("END OF THE LOOP \n");
 							printf("p_table[%d]=%d \n",i,p_table[i]);
 							printf("f[%d].pair = %d, f[%d].type = %c, f[%d].arc = %d \n",i,f[i].pair,i,f[i].type,i,f[i].arc);
-							
+
 						} */
     }
     if (debug){
@@ -915,7 +915,7 @@ double hfold_interacting(char *sequence, char *restricted, char *structure){
     if (min_fold == NULL) giveup ("Cannot allocate memory", "HFoldInteracting");
     double energy = min_fold->hfold_interacting();
     min_fold->return_structure (structure);
-    return energy;   
+    return energy;
 }
 
 double hfold_interacting_pkonly(char *sequence, char *restricted, char *structure){
