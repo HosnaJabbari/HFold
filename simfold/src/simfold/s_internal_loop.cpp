@@ -2722,7 +2722,7 @@ void s_internal_loop::count_get_energy (int i, int j, int ip, int jp, int *seque
                             energy += misc.internal22_delta_AC;
                             break;
                         default:
-                            printf ("ERROR: result %d for k=%d, l=%d, o=%d, p=%d, ABORT!\n", result, kk, ll, oo, pp);
+                            fprintf(stderr,"ERROR: result %d for k=%d, l=%d, o=%d, p=%d, ABORT!\n", result, kk, ll, oo, pp);
                             exit(1);
                     }
                     index = structure_type_index (type);
@@ -3059,7 +3059,7 @@ void s_internal_loop::count_get_energy (int i, int j, int ip, int jp, int *seque
         for (int myi=i; myi <= ip; myi++)    printf ("%c", int_to_nuc(sequence[myi]));
         printf (" ");
         for (int myi=jp; myi <= j; myi++)    printf ("%c", int_to_nuc(sequence[myi]));
-        printf (" size1 = %d, size2 = %d, i = %d, j = %d, ip = %d, jp = %d\n", branch1, branch2, i, j, ip, jp);
+        fprintf(stderr," size1 = %d, size2 = %d, i = %d, j = %d, ip = %d, jp = %d\n", branch1, branch2, i, j, ip, jp);
         exit(1);
     }
 //     else

@@ -3110,7 +3110,7 @@ void s_partition_function::compute_logZ_gradient ()
     index_should_be = structure_type_index("tstackh[0][3][0][0]");                
     if (index_param != index_should_be)
     {
-        printf ("Index param after stack = %d, should be %d\n", index_param, index_should_be);
+        fprintf(stderr,"Index param after stack = %d, should be %d\n", index_param, index_should_be);
         exit(1);
     }                
     
@@ -3274,7 +3274,7 @@ void s_partition_function::compute_logZ_gradient ()
     index_should_be = structure_type_index("misc.internal_AU_closure");                
     if (index_param != index_should_be)
     {
-        printf ("Index param after tstackh = %d, should be %d\n", index_param, index_should_be);
+        fprintf(stderr,"Index param after tstackh = %d, should be %d\n", index_param, index_should_be);
         exit(1);
     }                
                                 
@@ -3555,7 +3555,7 @@ void s_partition_function::compute_logZ_gradient ()
         index_should_be = structure_type_index("int11[0][3][3][3][0][3]");     
         if (index_param != index_should_be)
         {
-            printf ("Index param after tstacki = %d, should be %d\n", index_param, index_should_be);
+            fprintf(stderr,"Index param after tstacki = %d, should be %d\n", index_param, index_should_be);
             exit(1);
         }                
                                         
@@ -3717,7 +3717,7 @@ void s_partition_function::compute_logZ_gradient ()
             index_should_be = structure_type_index("int21[1][2][0][0][1][2][0]");
             if (index_param != index_should_be)
             {
-                printf ("Index param after int11 = %d, should be %d\n", index_param, index_should_be);
+                fprintf(stderr,"Index param after int11 = %d, should be %d\n", index_param, index_should_be);
                 exit(1);
             }                 
             
@@ -3881,7 +3881,7 @@ void s_partition_function::compute_logZ_gradient ()
             index_should_be = structure_type_index("int22[0][3][0][0][3][0][0][0]");                                
             if (index_param != index_should_be)
             {
-                printf ("Index param after int21 = %d, should be %d\n", index_param, index_should_be);
+                fprintf(stderr,"Index param after int21 = %d, should be %d\n", index_param, index_should_be);
                 exit(1);
             }                                     
             // energies int22                                
@@ -3976,7 +3976,7 @@ void s_partition_function::compute_logZ_gradient ()
                                                                                 sprintf (type, "misc.internal22_delta_AC");
                                                                                 break;
                                                                             default: 
-                                                                                printf ("ERROR: result %d for k=%d, l=%d, o=%d, p=%d, ABORT!\n", result, kknuc, llnuc, oonuc, ppnuc);
+                                                                                fprintf(stderr,"ERROR: result %d for k=%d, l=%d, o=%d, p=%d, ABORT!\n", result, kknuc, llnuc, oonuc, ppnuc);
                                                                                 exit(1);
                                                                         }
                                                                         tindex = structure_type_index (type);
@@ -4066,7 +4066,7 @@ void s_partition_function::compute_logZ_gradient ()
                                                                                     sprintf (type, "misc.internal22_delta_AC");
                                                                                     break;
                                                                                 default: 
-                                                                                    printf ("ERROR: result %d for k=%d, l=%d, o=%d, p=%d, ABORT!\n", result, kknuc, llnuc, oonuc, ppnuc);
+                                                                                    fprintf(stderr,"ERROR: result %d for k=%d, l=%d, o=%d, p=%d, ABORT!\n", result, kknuc, llnuc, oonuc, ppnuc);
                                                                                     exit(1);
                                                                             }
                                                                             tindex = structure_type_index (type);
@@ -4086,7 +4086,7 @@ void s_partition_function::compute_logZ_gradient ()
             index_should_be = structure_type_index("dangle_top[0][3][0]");                                                
             if (index_param != index_should_be)
             {
-                printf ("Index param after int22 = %d, should be %d\n", index_param, index_should_be);
+                fprintf(stderr,"Index param after int22 = %d, should be %d\n", index_param, index_should_be);
                 exit(1);
             }              
                                         
@@ -4298,7 +4298,7 @@ void s_partition_function::compute_logZ_gradient ()
     index_should_be = structure_type_index("dangle_bot[0][3][0]");            
     if (index_param != index_should_be)
     {
-        printf ("Index param after dangle_top = %d, should be %d\n", index_param, index_should_be);
+        fprintf(stderr,"Index param after dangle_top = %d, should be %d\n", index_param, index_should_be);
         exit(1);
     }      
 
@@ -4517,7 +4517,7 @@ void s_partition_function::compute_logZ_gradient ()
     index_should_be = structure_type_index("internal_penalty_by_size[4]");            
     if (index_param != index_should_be)
     {
-        printf ("Index param after dangle_bot = %d, should be %d\n", index_param, index_should_be);
+        fprintf(stderr,"Index param after dangle_bot = %d, should be %d\n", index_param, index_should_be);
         exit(1);
     }
           

@@ -106,7 +106,7 @@ int main (int argc, char *argv[])
 			strcpy(inputPath,optarg);
 			//printf("file: %s %d\n", file,access(file, F_OK|R_OK));
 			if(access(inputPath, F_OK) == -1) { //if file does not exist
-				printf("Input file not exist\n");
+				fprintf(stderr, "Input file not exist\n");
 				exit(4);
 			}	
 			if (!validateHFOLDInputFile(inputPath, sequence, restricted)) {
@@ -147,13 +147,13 @@ int main (int argc, char *argv[])
 	}
 
 	if(!validateSequence(sequence)){
-		printf("-s is invalid\n");
+		fprintf(stderr, "-s is invalid\n");
 		//printUsage();
 		exit(1);
 	}
 
 	if(!validateStructure(restricted, sequence)){
-		printf("-r is invalid\n");
+		fprintf(stderr, "-r is invalid\n");
 		//printUsage();
 		exit(1);
 	}else{
@@ -215,8 +215,8 @@ int main (int argc, char *argv[])
         if ((restricted[i] == '(' || restricted[i] == ')' || restricted[i] == '.') &&
             (restricted[i] != structure[i]))
         {
-            printf ("There is something wrong with the structure, doesn't match restricted\n");
-			printf ("  %s\n  %s\n  %s\t%.2lf\n", sequence, restricted, structure, energy);
+            fprintf(stderr, "There is something wrong with the structure, doesn't match restricted\n");
+			fprintf(stderr, "  %s\n  %s\n  %s\t%.2lf\n", sequence, restricted, structure, energy);
 			exit(1);
         }
     }

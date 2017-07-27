@@ -56,7 +56,7 @@ int main (int argc, char *argv[])
     // open file and check if operation was successful
     if ( (file = fopen (argv[1],"r")) == NULL )
     {
-            printf("Cannot open file: %s\n", argv[2]);
+            fprintf(stderr,"Cannot open file: %s\n", argv[2]);
             exit(0);
     }
     // if file was opened, read first line

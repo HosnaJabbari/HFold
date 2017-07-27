@@ -788,7 +788,7 @@ void s_hairpin_loop::count_get_energy (int i, int j, int* sequence, char *cseque
         printf ("Size is %d ", j-i-1);
         for (int myi = i; myi <= j ; myi++)
             printf ("%c", csequence[myi]);
-        printf ("\n");
+        fprintf(stderr,"\n");
         exit(1);
     }
     else

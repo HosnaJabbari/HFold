@@ -304,7 +304,7 @@ void s_min_folding::backtrack (seq_interval *cur_interval)
                 insert_node (i+1, j-1, LOOP);
             else
             {
-                printf ("NOT GOOD STACK, i=%d, j=%d\n", i, j);
+                fprintf(stderr,"NOT GOOD STACK, i=%d, j=%d\n", i, j);
                 exit (0);
             }
         }
@@ -338,7 +338,7 @@ void s_min_folding::backtrack (seq_interval *cur_interval)
                 insert_node (best_ip, best_jp, LOOP);
             else
             {
-                printf ("NOT GOOD INTER, i=%d, j=%d, best_ip=%d, best_jp=%d\n", i, j, best_ip, best_jp);
+                fprintf(stderr,"NOT GOOD INTER, i=%d, j=%d, best_ip=%d, best_jp=%d\n", i, j, best_ip, best_jp);
                 exit (0);
             }
         }
@@ -713,7 +713,7 @@ void s_min_folding::backtrack_restricted (seq_interval *cur_interval, str_featur
                 insert_node (i+1, j-1, LOOP);
             else
             {
-                printf ("NOT GOOD RESTR STACK, i=%d, j=%d\n", i, j);
+                fprintf(stderr,"NOT GOOD RESTR STACK, i=%d, j=%d\n", i, j);
                 exit (0);
             }
 
@@ -750,7 +750,7 @@ void s_min_folding::backtrack_restricted (seq_interval *cur_interval, str_featur
                 insert_node (best_ip, best_jp, LOOP);
             else
             {
-                printf ("NOT GOOD RESTR INTER, i=%d, j=%d, best_ip=%d, best_jp=%d\n", i, j, best_ip, best_jp);
+                fprintf(stderr,"NOT GOOD RESTR INTER, i=%d, j=%d, best_ip=%d, best_jp=%d\n", i, j, best_ip, best_jp);
                 exit (0);
             }
         }

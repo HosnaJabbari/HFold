@@ -970,12 +970,12 @@ void init_data(char *arg, char *config_file, int what, double temperature)
 
     if (what != RNA && what != DNA)
     {
-        printf ("Please specify what to fold: RNA or DNA\n");
+        fprintf(stderr,"Please specify what to fold: RNA or DNA\n");
         exit(1);
     }
     if (temperature < 0 || temperature > 100)
     {
-        printf ("Temperature must be between 0 and 100 degrees Celsius\n");
+        fprintf(stderr,"Temperature must be between 0 and 100 degrees Celsius\n");
         exit(1);
     }
 
@@ -1470,7 +1470,7 @@ void init_data_pmo(char *arg, char *config_file, double temperature)
 
     if (temperature < 0 || temperature > 100)
     {
-        printf ("Temperature must be between 0 and 100 degrees Celsius\n");
+        fprintf(stderr,"Temperature must be between 0 and 100 degrees Celsius\n");
         exit(1);
     }
 

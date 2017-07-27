@@ -124,7 +124,7 @@ void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table)
 		printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"); */
         if (st.top != STACK_EMPTY)//0)
         {
-            printf ("The given structure is not valid: %d more left parentheses than right parentheses\n", st.top);
+            fprintf(stderr,"The given structure is not valid: %d more left parentheses than right parentheses\n", st.top);
             exit (1);
         }
 
@@ -189,7 +189,7 @@ void detect_original_PKed_pairs(char *structure, int *p_table)
 	}
 
 	if (st.top != STACK_EMPTY || st_brack.top != STACK_EMPTY) { //0 || st_brack.top != 0)
-    	printf ("The given structure is not valid: %d more left parenthesis than right parentheses\n", st.top);
+    	fprintf(stderr,"The given structure is not valid: %d more left parenthesis than right parentheses\n", st.top);
         exit (1);
     }
 }
@@ -474,7 +474,7 @@ int h_pop (stack_ds *st)
 {
     if (st->top <= STACK_EMPTY)//0)
     {
-        printf ("The given structure is not valid: more right parentheses than left parentheses\n");
+        fprintf(stderr,"The given structure is not valid: more right parentheses than left parentheses\n");
         exit (1);
     }
     int result = st->elem[st->top];

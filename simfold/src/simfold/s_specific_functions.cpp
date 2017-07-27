@@ -805,9 +805,9 @@ double simfold_restricted (char *sequence, char *restricted, char *structure)
         if ((restricted[i] == '(' || restricted[i] == ')' || restricted[i] == '.') &&
             (restricted[i] != structure[i]))
         {
-            printf ("ERROR!!! There is something wrong with the structure, doesn't match restricted\n");
-            printf ("  %s\n  %s\n  %s\t%.2lf\n", sequence, restricted, structure, min_energy);
-            printf ("ERROR!!! There is something wrong with the structure, doesn't match restricted\n");
+            fprintf(stderr,"ERROR!!! There is something wrong with the structure, doesn't match restricted\n");
+            fprintf(stderr,"  %s\n  %s\n  %s\t%.2lf\n", sequence, restricted, structure, min_energy);
+            fprintf(stderr,"ERROR!!! There is something wrong with the structure, doesn't match restricted\n");
             exit(1);
         }    
     }
@@ -815,9 +815,9 @@ double simfold_restricted (char *sequence, char *restricted, char *structure)
     double correct_energy = free_energy_simfold_restricted (sequence, structure, restricted);
     if (fabs (correct_energy-min_energy) > 1.0)
     {
-        printf ("ERROR!!! The dp energy is different from the energy calculated at the end!!\n");
-        printf ("%s\n%s\n%s\n correct_energy=%.2lf, energy=%.2lf\n", sequence, restricted, structure, correct_energy, min_energy);
-        printf ("ERROR!!! The dp energy is different from the energy calculated at the end!!\n");
+        fprintf(stderr,"ERROR!!! The dp energy is different from the energy calculated at the end!!\n");
+        fprintf(stderr,"%s\n%s\n%s\n correct_energy=%.2lf, energy=%.2lf\n", sequence, restricted, structure, correct_energy, min_energy);
+        fprintf(stderr,"ERROR!!! The dp energy is different from the energy calculated at the end!!\n");
         exit(1);
     }
     return min_energy;
@@ -961,7 +961,7 @@ int simfold_ordered_suboptimals (char *sequence, int number, char structures[][M
 
     if (number > MAXSUBSTR/2)
     {
-        printf ("Desired number of suboptimal structures should be at most %d\n", MAXSUBSTR/2);
+        fprintf(stderr,"Desired number of suboptimal structures should be at most %d\n", MAXSUBSTR/2);
         exit(1);
     }
 
