@@ -23,7 +23,7 @@
 //#include "hfold_interacting.h"
 
 //kevin June 23 2017
-#include "hfold_validation.h" 
+#include "hfold_validation.h"
 #include <unistd.h>
 
 
@@ -35,7 +35,6 @@ int main (int argc, char *argv[])
     char structure[MAXSLEN];
     char restricted[MAXSLEN];
     double energy;
-    char structures[MAXSUBSTR][MAXSLEN];
     double energies[MAXSUBSTR];
 /*
     if (argc != 3)
@@ -51,7 +50,7 @@ int main (int argc, char *argv[])
 
     //kevin: june 22 2017
 	//validation for command line argument
-    char* inputPath; 
+    char* inputPath;
 	inputPath = (char*) malloc(sizeof(char) * 1000);
 
 	char* outputPath;
@@ -63,6 +62,7 @@ int main (int argc, char *argv[])
 	bool outputPathFound = false;
 	bool errorFound = false;
 	int option;
+
 	//kevin: june 22 2017 https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt
 	while ((option = getopt (argc, argv, "s:r:i:o:")) != -1){
 		switch (option)
@@ -108,7 +108,7 @@ int main (int argc, char *argv[])
 			if(access(inputPath, F_OK) == -1) { //if file does not exist
 				fprintf(stderr, "Input file not exist\n");
 				exit(4);
-			}	
+			}
 			if (!validateHFOLDInputFile(inputPath, sequence, restricted)) {
 				printf("Input file is invalid\n");
 				errorFound = true;
@@ -121,7 +121,7 @@ int main (int argc, char *argv[])
 			//printf("access: %d\n",access(outputPath, F_OK));
 			if(access(outputPath, F_OK) != -1) { //if file already exist
 				addTimestamp(&outputPath);
-			}	
+			}
 			outputPathFound = true;
 			break;
 		default:
@@ -164,7 +164,7 @@ int main (int argc, char *argv[])
 	if(outputPathFound && inputPathFound){
 		addPath(&outputPath, inputPath);
 		//printf("out path: %s\n",outputPath);
-	}	
+	}
 	//kevin: june 22 2017
 	//end of validation for command line arguments
 
@@ -195,7 +195,7 @@ int main (int argc, char *argv[])
 	// Hosna, July 18, 2012
 	// In simfold we have the following for RNA && temp=37
 	fill_data_structures_with_new_parameters ("./simfold/params/turner_parameters_fm363_constrdangles.txt");
-	
+
 	// Hosna, July 25, 2012
 	// in HotKnots and ComputeEnergy package the most up-to-date parameters set is DP09.txt
 	// so we add it here
@@ -221,8 +221,8 @@ int main (int argc, char *argv[])
         }
     }
 
-    //kevin 22 June 2017 
-	//different ways of outputing 
+    //kevin 22 June 2017
+	//different ways of outputing
 	if(outputPathFound){
 		FILE* fp;
 		fp = fopen(outputPath,"w");
@@ -230,14 +230,14 @@ int main (int argc, char *argv[])
 			fprintf(fp,"Sequence: %s\n",sequence);
 			fprintf(fp,"Input_structure: %s\n",restricted);
 			fprintf(fp,"Output_structure: %s\n",structure);
-			fprintf(fp,"Energy: %.2lf\n",energy);	
-			fclose(fp);	
+			fprintf(fp,"Energy: %.2lf\n",energy);
+			fclose(fp);
 		}
 	}else{
 		printf ("Seq: %s\n", sequence);
         printf ("RES: %s  %.2lf\n", structure, energy);
 	}
-    
+
     free(inputPath);
     free(outputPath);
 
