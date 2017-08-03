@@ -35,7 +35,7 @@ int main (int argc, char *argv[])
     char structure[MAXSLEN];
     char restricted[MAXSLEN];
     double energy;
-    double energies[MAXSUBSTR];
+	
 /*
     if (argc != 3)
     {
