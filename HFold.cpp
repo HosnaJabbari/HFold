@@ -20,7 +20,6 @@
 // Hosna June 20th, 2007
 //#include "W_final.h"
 #include "hfold.h"
-//#include "hfold_interacting.h"
 
 //kevin June 23 2017
 #include "hfold_validation.h"
@@ -35,7 +34,7 @@ int main (int argc, char *argv[])
     char structure[MAXSLEN];
     char restricted[MAXSLEN];
     double energy;
-	
+
 /*
     if (argc != 3)
     {
