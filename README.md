@@ -89,12 +89,12 @@ This can be useful if you are getting errors about your compiler not having C++1
 
 #### Example:
     assume you are in the directory where the HFold executable is loacted
-    ./HFold -i "/home/username/Desktop/myinputfile.txt"
-    ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "outputfile.txt"
-    ./HFold -i "/home/username/Desktop/myinputfile.txt" -o "/home/username/Desktop/some_folder/outputfile.txt"
-    ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)"
-    ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "outputfile.txt"
-    ./HFold -s "GCAACGAUGACAUACAUCGCUAGUCGACGC" -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt"
+    ./HFold --i "/home/username/Desktop/myinputfile.txt"
+    ./HFold --i "/home/username/Desktop/myinputfile.txt" --o "outputfile.txt"
+    ./HFold --i "/home/username/Desktop/myinputfile.txt" --o "/home/username/Desktop/some_folder/outputfile.txt"
+    ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)"
+    ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "outputfile.txt"
+    ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "/home/username/Desktop/some_folder/outputfile.txt"
 
     
 #### Exit code:

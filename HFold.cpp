@@ -23,6 +23,7 @@
 
 //kevin June 23 2017
 #include "hfold_validation.h"
+#include <getopt.h>
 #include <unistd.h>
 
 
@@ -62,13 +63,33 @@ int main (int argc, char *argv[])
 	bool errorFound = false;
 	int option;
 
-	//kevin: june 22 2017 https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt
-	while ((option = getopt (argc, argv, "s:r:i:o:")) != -1){
+
+	//kevin: june 23 2017 https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html
+        static struct option long_options[] = 
+                {
+                        {"s", required_argument, 0, 's'},
+                        {"r", required_argument, 0, 'r'},
+                        {"i", required_argument, 0, 'i'},
+                        {"o", required_argument, 0, 'o'},
+                        {0, 0, 0, 0}
+                };
+
+
+	while (1){
+		// getopt_long stores the option index here.
+                int option_index = 0;
+
+		option = getopt_long (argc, argv, "s:r:i:o:", long_options, &option_index);
+
+		// Detect the end of the options
+		if (option == -1)
+			break;
+
 		switch (option)
 		{
 		case 's':
 			if(sequenceFound){
-				printf("-s is duplicated\n");
+				fprintf(stderr, "-s is duplicated\n");
 				errorFound = true;
 				break;
 			}
@@ -83,22 +104,21 @@ int main (int argc, char *argv[])
 			break;
 		case 'r':
 			if(restrictedFound || inputPathFound){
-				printf("-r is duplicated\n");
+				fprintf(stderr, "-r is duplicated\n");
 				errorFound = true;
 				break;
 			}
 			if(inputPathFound){
-				printf("Cannot combine -i with -s/-r \n");
+				fprintf(stderr, "Cannot combine -i with -s/-r \n");
 				errorFound = true;
 				break;
 			}
 			strcpy(restricted, optarg);
-			//printf("restricted: %s\n",restricted);
 			restrictedFound = true;
 			break;
 		case 'i':
 			if(restrictedFound || sequenceFound){
-				printf("Cannot combine -i with -s/-r \n");
+				fprintf(stderr, "Cannot combine -i with -s/-r \n");
 				errorFound = true;
 				break;
 			}
@@ -109,7 +129,7 @@ int main (int argc, char *argv[])
 				exit(4);
 			}
 			if (!validateHFOLDInputFile(inputPath, sequence, restricted)) {
-				printf("Input file is invalid\n");
+				fprintf(stderr, "Input file is invalid\n");
 				errorFound = true;
 				break;
 			}
@@ -117,7 +137,7 @@ int main (int argc, char *argv[])
 			break;
 		case 'o':
 			strcpy(outputPath, optarg);
-			//printf("access: %d\n",access(outputPath, F_OK));
+			//printf("access: %d\n",access(output_path, F_OK));
 			if(access(outputPath, F_OK) != -1) { //if file already exist
 				addTimestamp(&outputPath);
 			}
@@ -129,8 +149,6 @@ int main (int argc, char *argv[])
 		}
 		//clean up when error
 		if(errorFound){
-            free(inputPath);
-			free(outputPath);
 			printUsage();
 			exit(1);
 		}
@@ -253,14 +271,14 @@ void printUsage(){
 	printf ("\t\t() restricted base pair\n");
 	printf ("\t\t _ no restriction\n");
 */
-	printf("Usage ./HFold -s <sequence> -r <structure> [-o </path/to/file>]\n");
+	printf("Usage ./HFold --s <sequence> --r <structure> [--o </path/to/file>]\n");
 	printf("or\n");
-	printf("Usage ./HFold -i </path/to/file> [-o </path/to/file>]\n");
+	printf("Usage ./HFold --i </path/to/file> [--o </path/to/file>]\n");
 	printf ("  Restricted structure symbols:\n");
 	printf ("    () restricted base pair\n");
 	printf ("    _ no restriction\n");
 	printf("Example:\n");
-	printf("./HFold -s \"GCAACGAUGACAUACAUCGCUAGUCGACGC\" -r \"(____________________________)\"\n");
-	printf("./HFold -i \"/home/username/Desktop/myinputfile.txt\" -o \"/home/username/Desktop/some_folder/outputfile.txt\"\n");
+	printf("./HFold --s \"GCAACGAUGACAUACAUCGCUAGUCGACGC\" --r \"(____________________________)\"\n");
+	printf("./HFold --i \"/home/username/Desktop/myinputfile.txt\" --o \"/home/username/Desktop/some_folder/outputfile.txt\"\n");
 	printf("Please read README for more details\n");
 }
