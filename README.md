@@ -1,7 +1,9 @@
 # HFold
 
 #### Description:
-This software is still under development
+HFold is an algorithm for predicting the pseudoknotted secondary structures of RNA using strict Hierarchical Folding.
+
+Paper: https://www.researchgate.net/publication/221313477_HFold_RNA_Pseudoknotted_Secondary_Structure_Prediction_Using_Hierarchical_Folding
 
 #### Supported OS: 
 Linux 
