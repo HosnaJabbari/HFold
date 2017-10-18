@@ -3,6 +3,11 @@
 cmake_minimum_required(VERSION 3.1)
 project(HFold)
 
+# enable c++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # only continue if we know we already have boost
 # create simfold library
 add_subdirectory(simfold)
@@ -25,9 +30,6 @@ add_definitions("-DSIMFOLD_HOME=\"${SIMFOLD_HOME}\"")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 # create executable
 add_executable(HFold ${SOURCE})
-
-# enable C++11
-target_compile_features(HFold PRIVATE cxx_nullptr)
 
 # link to simfold
 target_link_libraries(HFold LINK_PUBLIC simfold)

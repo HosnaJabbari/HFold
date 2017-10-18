@@ -26,6 +26,9 @@
 #include <getopt.h>
 #include <unistd.h>
 
+// Ian Wark October 18 2017
+#include "shape_data.h"
+
 
 void printUsage();
 
@@ -71,6 +74,9 @@ int main (int argc, char *argv[])
                         {"r", required_argument, 0, 'r'},
                         {"i", required_argument, 0, 'i'},
                         {"o", required_argument, 0, 'o'},
+                        {"shape", required_argument, 0, 'g'},
+                        {"b", required_argument, 0, 'h'},
+                        {"m", required_argument, 0, 'm'},
                         {0, 0, 0, 0}
                 };
 
@@ -143,6 +149,28 @@ int main (int argc, char *argv[])
 			}
 			outputPathFound = true;
 			break;
+                case 'g': //--shape (shape file path)
+                        if(!sequenceFound){
+				fprintf(stderr, "Must define sequence before shape file\n");
+				errorFound = true;
+				break;
+			}
+                        // important that this is before set_shape_file
+                        shape.set_sequence_length(strlen(sequence));
+                        shape.set_shape_file(std::string(optarg));
+                        break;
+                case 'h': //--b (shape intercept)
+                        if (shape.is_number(optarg))
+                                shape.set_b(atof(optarg));
+                        else
+                                errorFound = true;
+                        break;
+                case 'm': //--m (shape slope)
+                        if (shape.is_number(optarg))
+                                shape.set_m(atof(optarg));
+                        else
+                                errorFound = true;
+                        break;
 		default:
 			errorFound = true;
 			break;
@@ -279,6 +307,17 @@ void printUsage(){
 	printf ("    _ no restriction\n");
 	printf("Example:\n");
 	printf("./HFold --s \"GCAACGAUGACAUACAUCGCUAGUCGACGC\" --r \"(____________________________)\"\n");
-	printf("./HFold --i \"/home/username/Desktop/myinputfile.txt\" --o \"/home/username/Desktop/some_folder/outputfile.txt\"\n");
+	printf("./HFold --i \"/home/username/Desktop/myinputfile.txt\" --o \"/home/username/Desktop/some_folder/outputfile.txt\"\n\n");
+
+	printf("You can also include SHAPE data to be used.\n");
+        printf("The SHAPE data must be in a file with 1 number per line.\n");
+	printf("The number corresponds with each nucleotide in order, and the file must be exactly the same length as the sequence.\n");
+        printf("--shape (\"filename\") to specify a file for shape data\n");
+        printf("--b (number) to specify an intercept for the shape data (default is -0.600000)\n");
+        printf("--m (number) to specify a slope for the shape data (default is 1.800000)\n\n");
+
+	printf("Example:\n");
+        printf("./HFold --s \"GCAACGAUGACAUACAUCGCUAGUCGACGC\" --r \"(____________________________)\" --shape \"shapefile\" --b -0.4 --m 1.3\n\n");
+
 	printf("Please read README for more details\n");
 }
