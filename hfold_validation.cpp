@@ -213,29 +213,39 @@ bool validateInteractingInputFile(char* path, char* seq1, char* struc1, char* se
 
 //check if input file is in correct format and store value into corresponding variable
 //return true on success, false on fail
-bool validateHFOLDInputFile(char* path, char* seq1, char* struc1){
+bool validateHFOLDInputFile(char* fileName, char* sequence, char* structure, bool* sequenceFound, bool* structureFound){
     //printf("path: %s\n", path);
     FILE* fp;
     char line[MAXSLEN];
 
-    fp = fopen(path, "r");
+    fp = fopen(fileName, "r");
     if(!fp){
         printf("File not found\n");
         return false;
     }
-    fscanf(fp,"%s\n%s\n",seq1,struc1);
-
+    fscanf(fp,"%s\n%s\n",sequence,structure);
+    //printf("%s|%s|%s|%s|\n",seq1,struc1,seq2,struc2);
     fclose(fp);
 
-    if(!(validateSequence(seq1))){
+    if(!(validateSequence(sequence))){
         printf("Line 1 is invalid\n");
         return false;
-    }
+    }else{
+		*sequenceFound = true;
+	}
 
-    if(!(validateStructure(struc1,seq1))){
-        printf("Line 2 is invalid\n");
-        return false;
-    }
+
+	if(strlen(structure) != 0){
+		if(!(validateStructure(structure,sequence))){
+			printf("Line 2 is invalid\n");
+			return false;
+		}else{
+			printf("1\n");
+			*structureFound = true;
+		}
+	}
+
+
 
     return true;
 }

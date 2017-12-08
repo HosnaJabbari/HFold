@@ -24,4 +24,4 @@ void addPath(char** output_path, char* input_path);
 //return true on success, false on fail
 bool validateInteractingInputFile(char* path, char* seq1, char* struc1, char* seq2, char* struc2);
 
-bool validateHFOLDInputFile(char* path, char* seq1, char* struc1);
+bool validateHFOLDInputFile(char* fileName, char* sequence, char* structure, bool* sequenceFound, bool* structureFound);

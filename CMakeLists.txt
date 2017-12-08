@@ -20,6 +20,7 @@ set(SOURCE
     h_common.h h_common.cpp 
     hfold_validation.h hfold_validation.cpp 
     hfold.h HFold.cpp
+    Result.h Result.cpp
 )
 
 # pass SIMFOLD_HOME to binary

@@ -14,7 +14,7 @@
 #include "h_common.h"
 
 
-
+#define debug 0
 
 // Hosna June 20th, 2007
 // calls the constructor for s_min_folding
