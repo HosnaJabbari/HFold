@@ -61,17 +61,25 @@ After installing you can move the executables wherever you wish, but you should 
 #### How to use:
     Arguments:
         HFold:
-            -s <sequence>
-            -r <structure>
-            -i </path/to/file>
-            -o </path/to/file>
+            --s <sequence>
+            --r <structure>
+            --i </path/to/file>
+            --o </path/to/file>
+            --shape </path/to/file>
+            --b <number>
+            --m <number>
 
         Remarks:
-            make sure the <arguments> are enclosed in "", for example -r "..().." instead of -r ..()..
-            input file for -i must be .txt
-            if -i is provided with just a file name without a path, it is assuming the file is in the diretory where the executable is called
-            if -o is provided with just a file name without a path, the output file will be generated in the diretory where the executable is called
-            if -o is provided with just a file name without a path, and if -i is provided, then the output file will be generated in the directory where the input file is located
+            Required arguments: 
+            --s <sequence> and --r <structure> 
+            or 
+            --i </path/to/file>
+            
+            make sure the <arguments> are enclosed in "", for example --r "..().." instead of --r ..()..
+            input file for --i must be .txt
+            if --i is provided with just a file name without a path, it is assuming the file is in the diretory where the executable is called
+            if --o is provided with just a file name without a path, the output file will be generated in the diretory where the executable is called
+            if --o is provided with just a file name without a path, and if -i is provided, then the output file will be generated in the directory where the input file is located
 
 
         You can also include SHAPE data to be used. 
