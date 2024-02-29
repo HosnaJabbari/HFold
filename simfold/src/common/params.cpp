@@ -2164,7 +2164,7 @@ void extrapolate_parameters ()
     // set a fixed value to param_greater_30 for now
     misc.param_greater30 = 1.079;
     // keep misc.gail_rule this fixed
-    misc.gail_rule = 1;
+    misc.gail_rule = 0;
 
     if (parsi_int11 == T99)
     {

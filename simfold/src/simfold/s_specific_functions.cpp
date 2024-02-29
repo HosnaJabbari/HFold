@@ -577,7 +577,17 @@ PARAMTYPE s_calculate_energy (int *sequence, char *csequence, char *structure, s
     return energy;
 }
 
+bool compare_hotspot_ptr(Hotspot &a, Hotspot &b) { 
+    return (a.get_energy() < b.get_energy()); 
+}
 
+//kevin 26 Sept 2017 
+//wrapper to cal get hotspots
+void get_hotspots(char *sequence,std::vector<Hotspot> &hotspot_list, int max_hotspot){
+    s_min_folding *min_fold = new s_min_folding (sequence);
+    min_fold->get_hotspots(hotspot_list,max_hotspot);
+    delete min_fold;
+}
 
 
 PARAMTYPE s_calculate_enthalpy (int *sequence, char *csequence, str_features *f)

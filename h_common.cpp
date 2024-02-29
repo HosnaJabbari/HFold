@@ -12,7 +12,6 @@
 
 // Hosna feb 12, 2008
 #include "W_final.h"
-#include "hfold.h"
 // Hosna, May 3rd, 2012
 //#include "hfold_pkonly.h"
 
@@ -885,24 +884,3 @@ int h_create_string_params(){
 	sprintf (string_params[index++], "cp_penalty");
 	return index;
 }
-
-double hfold(char *sequence, char *restricted, char *structure){
-	W_final *min_fold = new W_final (sequence, restricted);
-	if (min_fold == NULL) giveup ("Cannot allocate memory", "HFold");
-	double energy = min_fold->hfold();
-    min_fold->return_structure (structure);
-    delete min_fold;
-    return energy;
-}
-
-/*
-// Hosna, May 3rd, 2012
-// added function for the pkonly version
-double hfold_pkonly(char *sequence, char *restricted, char *structure){
-	W_final *min_fold = new W_final (sequence, restricted);
-	if (min_fold == NULL) giveup ("Cannot allocate memory", "HFoldPKonly");
-	double energy = min_fold->hfold_pkonly();
-    min_fold->return_structure (structure);
-    return energy;
-}
-*/

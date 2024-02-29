@@ -234,6 +234,13 @@ double W_final::hfold(){
             if (fres[i].pair == -1 || fres[j].pair == -1)   // i or j MUST be unpaired
                 continue;
             V->compute_energy_restricted (i, j, fres);
+			// if(i==67 && j==81) printf("i is %d and j is %d and V is %d\n",i,j,V->get_energy(i,j));
+			// if(i==82 && j==96) printf("i is %d and j is %d and V is %d\n",i,j,V->get_energy(i,j));
+			// if(i==97 && j==206) printf("i is %d and j is %d and V is %d\n",i,j,V->get_energy(i,j));
+			// if(i==102 && j==204) printf("i is %d and j is %d and V is %d\n",i,j,V->get_energy(i,j));
+			// if(i==105 && j==199) printf("i is %d and j is %d and V is %d\n",i,j,V->get_energy(i,j));
+			// if(i==103 && j==203) printf("i is %d and j is %d and V is %d\n",i,j,V->get_energy(i,j));
+
 
         }
         // if I put this before V calculation, WM(i,j) cannot be calculated, because it returns infinity
@@ -263,6 +270,7 @@ double W_final::hfold(){
 			//        	if (debug){
 			//        		printf("WM_final(%d,%d) = %d \n",i,j,vm->get_energy_WM(i,j));
 			//        	}
+			// if(i==216 && j==251) printf("i is %d and j is %d and WMB is %d and WMBP is %d\n",i,j,WMB->get_WMB(i,j),WMB->get_WMBP(i,j));
         }
 
 	}
@@ -398,6 +406,8 @@ int W_final::compute_W_br2_restricted (int j, str_features *fres, int &must_choo
 				}
                 else                    must_choose_this_branch = 0;
             }
+
+
         }
 
         // I have to condition on  fres[i].pair <= -1 to make sure that i can be unpaired
@@ -770,6 +780,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			}
 
 			type = v->get_type (i,j);
+			
 			if (debug)
 				printf ("\t(%d,%d) LOOP - type %c\n", i,j,type);
 			// Hosna, March 8, 2012
@@ -952,7 +963,6 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			if (j==0) return;
 
 			int min = INF, tmp, best_row, i, best_i, acc, energy_ij;
-
 			if (debug)
 				printf ("\t(0,%d) FREE\n", j);
 
@@ -983,6 +993,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					best_i = i;
 					best_row = 1;
 					}
+					
 				}
 
 				if (fres[i].pair <= -1)
@@ -994,12 +1005,15 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 						tmp += dangle_bot [int_sequence[j]]
 							[int_sequence[i+1]]
 							[int_sequence[i]];
+						
 						if (tmp < min)
 						{
 							min = tmp;
 							best_i = i;
 							best_row = 2;
+							if(i==4 && j==242) printf("here");
 						}
+						
 					}
 				}
 				if (fres[j].pair <= -1)

@@ -431,7 +431,7 @@ void pseudo_loop::compute_VP(int i, int j, h_str_features *fres){
 	// Ian Wark July 19 2017
 	// fres[i].pair >= 0 changed to fres[i].pair >= FRES_RESTRICTED_MIN (which equals -1 at time of writing)
 	// otherwise it will create pairs in spots where the restricted structure says it should not be modified
-	if (i == j || weakly_closed[ij] == 1 || fres[i].pair >= FRES_RESTRICTED_MIN || fres[j].pair >= FRES_RESTRICTED_MIN || can_pair(int_sequence[i],int_sequence[j]) != 1)	{
+	if (i == j || j-i<4 || weakly_closed[ij] == 1 || fres[i].pair >= FRES_RESTRICTED_MIN || fres[j].pair >= FRES_RESTRICTED_MIN || can_pair(int_sequence[i],int_sequence[j]) != 1)	{
 		VP[ij] = INF;
 //		if (debug){
 //			printf("VP[%d,%d] = %d and can_pair(%d,%d) = %d\n", i,j, VP[ij],int_sequence[i],int_sequence[j],can_pair(int_sequence[i],int_sequence[j]));
