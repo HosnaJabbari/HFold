@@ -23,6 +23,19 @@
 #include "constants.h"
 #include "structs.h"
 
+#define PRIVATE static
+#define INLINE inline
+
+PRIVATE INLINE int
+E_IntLoop(int *sequence,
+          int           n1,
+          int           n2,
+          int            i,
+          int            j,
+          int            k,
+          int            l
+          );
+
 class s_energy_matrix;
 
 class s_internal_loop
@@ -47,22 +60,16 @@ class s_internal_loop
         PARAMTYPE compute_energy_restricted (int i, int j, str_features *fres);
         // computes the MFE of the structure closed by a restricted internal loop closed by (i,j)
 
-		// Hosna, April 18, 2012
-		PARAMTYPE compute_energy_restricted_pkonly (int i, int j, str_features *fres);
-		// computes the MFE of the structure closed by a restricted internal loop closed by (i,j)
 
-        PARAMTYPE get_energy_str (int i, int j, int ip, int jp);
         // returns the free energy of the structure closed by the internal loop (i,j,ip,jp)
-
+        PARAMTYPE get_energy_str (int i, int j, int k, int l);
 		// Hosna, March 26, 2012
 		// This function is added for non-cannonical base pairs in the restricted struture
-		PARAMTYPE get_energy_str_restricted (int i, int j, int ip, int jp, str_features *fres);
+		PARAMTYPE get_energy_str_restricted (int i, int j, int k, int l, str_features *fres);
 		// returns the free energy of the structure closed by the internal loop (i,j,ip,jp)
 
-        static PARAMTYPE get_energy (int i, int j, int ip, int jp, int *sequence, int *ptable=NULL);
+        static PARAMTYPE get_energy (int i, int j, int k, int l, int *sequence, int *ptable=NULL);
         // returns the free energy of the internal loop closed at (i,j,ip,jp)
-
-        static PARAMTYPE get_energy_00 (int i, int j, int ip, int jp, int *sequence);
 
         static PARAMTYPE get_enthalpy (int i, int j, int ip, int jp, int *sequence);
         // returns the enthalpy of the internal loop closed at (i,j,ip,jp)

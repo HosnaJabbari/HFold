@@ -29,7 +29,6 @@
 #include "simfold.h"
 #include "s_energy_matrix.h"
 #include "s_hairpin_loop.h"
-#include "s_stacked_pair.h"
 #include "s_partition_function_complex.h"
 #include "s_min_folding.h"
 #include "s_sub_folding.h"

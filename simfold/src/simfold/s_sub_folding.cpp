@@ -28,7 +28,6 @@
 #include "common.h"
 #include "simfold.h"
 #include "s_hairpin_loop.h"
-#include "s_stacked_pair.h"
 #include "s_multi_loop_sub.h"
 #include "s_energy_matrix.h"
 
@@ -83,8 +82,6 @@ void s_sub_folding::allocate_space (char *sequence, PARAMTYPE var)
 
     H = new s_hairpin_loop (sequence, int_sequence, nb_nucleotides);
     if (H == NULL) giveup ("Cannot allocate memory", "energy");
-    S = new s_stacked_pair (int_sequence, nb_nucleotides);
-    if (S == NULL) giveup ("Cannot allocate memory", "energy");
     VBI = new s_internal_loop (int_sequence, nb_nucleotides);
     if (VBI == NULL) giveup ("Cannot allocate memory", "energy");
     VM_sub = new s_multi_loop_sub (int_sequence, nb_nucleotides);
@@ -92,10 +89,9 @@ void s_sub_folding::allocate_space (char *sequence, PARAMTYPE var)
     V = new s_energy_matrix (int_sequence, nb_nucleotides);
     if (V == NULL) giveup ("Cannot allocate memory", "energy");
 
-    S->set_energy_matrix (V);
     VBI->set_energy_matrix (V);
     VM_sub->set_energy_matrix (V);
-    V->set_loops (H, S, VBI, NULL, VM_sub);
+    V->set_loops (H, VBI, NULL, VM_sub);
     result_list = NULL;
 	printf("in s_subfolding.cpp: allocate_space() DONE\n");
 }
@@ -112,7 +108,6 @@ s_sub_folding::~s_sub_folding()
     delete V;
     delete VM_sub;
     delete VBI;
-    delete S;
     delete H;
     
     // release the result list       
@@ -574,7 +569,7 @@ void s_sub_folding::backtrack()
         // TODO: uncomment
         if (!ignore_internal)
             backtrack_VBI(i, j);
-        backtrack_stack(i, j);
+        // backtrack_stack(i, j);
         // TODO: uncomment
         if (!ignore_multi)
             backtrack_multi(i, j);
@@ -620,7 +615,7 @@ void s_sub_folding::backtrack_restricted (str_features *fres)
         // Each backtrack will add valid structures to the structure list
         backtrack_hairpin_restricted (i, j, fres);
         backtrack_VBI_restricted (i, j, fres);
-        backtrack_stack(i, j);
+        // backtrack_stack(i, j);
         backtrack_multi(i, j);    
     }
     else if(cur_interval->type == FREE)
@@ -750,8 +745,8 @@ void s_sub_folding::backtrack_VBI(int i, int j)
         for (jp = minq; jp < j; jp++)
         {        
             // M: make sure this is not a stacked pair
-            if (jp == j-1 && ip == i+1)
-                continue;
+            // if (jp == j-1 && ip == i+1)
+            //     continue;
 
             //printf ("Before VBI call: ip=%d, jp=%d\n", ip, jp);
             i_energy = VBI->get_energy_str(i, j, ip, jp); 
@@ -865,44 +860,44 @@ void s_sub_folding::backtrack_VBI_restricted (int i, int j, str_features *fres)
 }
 
 
-void s_sub_folding::backtrack_stack(int i, int j)
-// PRE: Sequence[i] to sequence[j] forms a loop
-// POST: 
-{
-    PARAMTYPE s_energy, increment;
-    s_energy = S->compute_energy(i, j); //
-    increment = s_energy-V->get_energy(i, j);
-    if((s_energy < INF)&&(increment+cur_folding->energy) <= max_energy)
-    {    
-        struct_node* sn1;
-        sn1 = copy_struct();
-        sn1->f[i].pair = j;
-        sn1->f[i].filled = 'Y';
-        sn1->f[i].type = STACK;
-        sn1->f[j].pair = i;
-        sn1->f[j].filled = 'Y';
-        sn1->f[j].type = STACK;
-        sn1->structure[i] = '(';
-        sn1->structure[j] = ')';
-        seq_interval* tmp_in = new seq_interval;    
-        if(!tmp_in){
-            giveup("s_sub_folding", "no memeory");
-        }
-        tmp_in->next = sn1->intervals;        
-        sn1->intervals = tmp_in;                     
+// void s_sub_folding::backtrack_stack(int i, int j)
+// // PRE: Sequence[i] to sequence[j] forms a loop
+// // POST: 
+// {
+//     PARAMTYPE s_energy, increment;
+//     s_energy = S->compute_energy(i, j); //
+//     increment = s_energy-V->get_energy(i, j);
+//     if((s_energy < INF)&&(increment+cur_folding->energy) <= max_energy)
+//     {    
+//         struct_node* sn1;
+//         sn1 = copy_struct();
+//         sn1->f[i].pair = j;
+//         sn1->f[i].filled = 'Y';
+//         sn1->f[i].type = STACK;
+//         sn1->f[j].pair = i;
+//         sn1->f[j].filled = 'Y';
+//         sn1->f[j].type = STACK;
+//         sn1->structure[i] = '(';
+//         sn1->structure[j] = ')';
+//         seq_interval* tmp_in = new seq_interval;    
+//         if(!tmp_in){
+//             giveup("s_sub_folding", "no memeory");
+//         }
+//         tmp_in->next = sn1->intervals;        
+//         sn1->intervals = tmp_in;                     
         
-        sn1->intervals->i = i+1;
-        sn1->intervals->j = j-1;
-        sn1->intervals->type = LOOP;
-        sn1->intervals->energy = V->get_energy(i+1, j-1);//
-        sn1->energy += increment; // need to add the increment        
-        sn1->next = NULL;
+//         sn1->intervals->i = i+1;
+//         sn1->intervals->j = j-1;
+//         sn1->intervals->type = LOOP;
+//         sn1->intervals->energy = V->get_energy(i+1, j-1);//
+//         sn1->energy += increment; // need to add the increment        
+//         sn1->next = NULL;
     
-        if (debug)
-            printf ("Insert node in bt_stack, i=%d, j=%d\n", i, j);
-        insert_node(sn1);
-    }
-}
+//         if (debug)
+//             printf ("Insert node in bt_stack, i=%d, j=%d\n", i, j);
+//         insert_node(sn1);
+//     }
+// }
 
 
 void s_sub_folding::backtrack_multi(int i, int j)

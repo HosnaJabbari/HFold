@@ -13,7 +13,7 @@ class pseudo_loop{
 
 public:
 	// constructor
-	pseudo_loop(char *seq, char* restricted, V_final *V, s_hairpin_loop *H, s_stacked_pair *S, s_internal_loop *VBI, VM_final *VM);
+	pseudo_loop(char *seq, char* restricted, V_final *V, s_hairpin_loop *H, s_internal_loop *VBI, VM_final *VM);
 
 	// destructor
 	~pseudo_loop();
@@ -68,7 +68,6 @@ private:
 	char *restricted;
 
     s_hairpin_loop *H;      // hairpin loop object
-    s_stacked_pair *S;      // stack pair object
     s_internal_loop *VBI;   // internal loop object
     VM_final *VM;	        // multi loop object
     V_final *V;		        // the V object

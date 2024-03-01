@@ -63,7 +63,6 @@ class s_min_folding
     
         char* structure;        // MFE structure
         s_hairpin_loop *H;      // hairpin loop object  
-        s_stacked_pair *S;      // stack pair object 
         s_internal_loop *VBI;   // internal loop object
         s_multi_loop *VM;       // multi loop object
         s_energy_matrix *V;     // the V object

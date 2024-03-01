@@ -983,18 +983,6 @@ void detect_structure_features (char *structure, str_features *f)
                fprintf(stderr,"ERROR! structure is not valid, position %d should be ) and is %c\n%s\n", p_table[i], structure[p_table[i]], structure);
                 exit(1);
             }
-
-            // check if it is stacked pair
-            if (p_table[i+1] == p_table[i]-1 && p_table[i+1] > i+1)
-            {
-                // if the next pair is an angle pair, then this is a multi-loop, deal with it below
-                if (structure[i+1] != '<')
-                {
-                    f[i].type = STACK;
-                    f[p_table[i]].type = STACK;
-                    continue;
-                }
-            }
             // check if it is hairpin, internal loop or multi-loop
             num_branches = 0;
             // one of the branches can be <xxx> and this is a multi-loop no matter what

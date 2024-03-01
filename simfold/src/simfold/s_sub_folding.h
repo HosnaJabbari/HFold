@@ -61,7 +61,7 @@ class s_sub_folding
         PARAMTYPE calculate_enthalpy (int i);
         void backtrack_hairpin(int i, int j);
         void backtrack_VBI(int i, int j);        
-        void backtrack_stack(int i, int j);
+        // void backtrack_stack(int i, int j);
         void backtrack_multi(int i, int j);
         void backtrack_freebases(int i, int j);
         void backtrack_MFM1(int i, int j);
@@ -92,7 +92,7 @@ class s_sub_folding
     
         //char* structure;
         s_hairpin_loop *H;
-        s_stacked_pair *S;
+        // s_stacked_pair *S;
         s_internal_loop *VBI;
         s_multi_loop_sub *VM_sub;
         s_energy_matrix *V;  

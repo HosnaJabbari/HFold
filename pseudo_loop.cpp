@@ -12,7 +12,6 @@
 #include "h_externs.h"
 #include "h_common.h"
 #include "s_hairpin_loop.h"
-#include "s_stacked_pair.h"
 #include "VM_final.h"
 #include "V_final.h"
 #include "s_specific_functions.h"
@@ -23,13 +22,12 @@
 // and -1 means restricted struture says there is no base pair there.
 #define FRES_RESTRICTED_MIN -1
 
-pseudo_loop::pseudo_loop(char *seq, char* restricted, V_final *V, s_hairpin_loop *H, s_stacked_pair *S, s_internal_loop *VBI, VM_final *VM)
+pseudo_loop::pseudo_loop(char *seq, char* restricted, V_final *V, s_hairpin_loop *H, s_internal_loop *VBI, VM_final *VM)
 {
 	this->sequence = seq;
 	this->restricted = restricted;
 	this->V = V;
 	this->H = H;
-	this->S = S;
 	this->VBI = VBI;
 	this->VM = VM;
     allocate_space();
@@ -1549,7 +1547,7 @@ int pseudo_loop::get_e_stP(int i, int j){
 	if (i+1 == j-1){ // TODO: do I need something like that or stack is taking care of this?
 		return INF;
 	}
-	int ss = S->get_energy(i,j,int_sequence);
+	int ss = VBI->get_energy(i,j,i+1,j-1,int_sequence);
 //	if (debug){
 //		printf("stack energy got from simfold is %d \n", ss);
 //	}

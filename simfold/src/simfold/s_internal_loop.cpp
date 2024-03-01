@@ -22,12 +22,100 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
-
-#include "s_internal_loop.h"
-#include "externs.h"
 #include "common.h"
+#include "externs.h"
 #include "simfold.h"
 #include "params.h"
+
+#include "s_internal_loop.h"
+
+
+// Added 2024 Mateo -- behaved the same as ViennaRNA's function of the same name
+PRIVATE INLINE int
+E_IntLoop(int *sequence,
+          int           n1,
+          int           n2,
+          int            i,
+          int            j,
+          int            k,
+          int            l
+          )
+{
+  /* compute energy of degree 2 loop (stack bulge or interior) */
+  int nl, ns, u, energy;
+
+
+  if (n1 > n2) {
+    nl  = n1;
+    ns  = n2;
+  } else {
+    nl  = n2;
+    ns  = n1;
+  }
+
+  if (nl == 0) {
+    return stack[sequence[i]][sequence[j]][sequence[i+1]][sequence[j-1]];  /* stack */
+  }
+  
+
+  if (ns == 0) {
+    /* bulge */
+    energy = (nl <= MAXLOOP) ? penalty_by_size (nl, 'B'):
+             penalty_by_size (30, 'B');
+    if (nl == 1) {
+      energy += stack[sequence[i]][sequence[j]][sequence[k]][sequence[l]];
+    } else {
+        energy += AU_penalty (sequence[i],sequence[j]);
+
+        energy += AU_penalty (sequence[k],sequence[l]);
+    }
+  } else {
+    /* interior loop */
+    if (ns == 1) {
+      if (nl == 1)                    /* 1x1 loop */
+        return int11[sequence[i]][sequence[j]][sequence[i+1]][sequence[j-1]][sequence[k]][sequence[l]];
+
+      if (nl == 2) {
+//         /* 2x1 loop */
+        if (n1 == 1)
+          energy = int21 [sequence[i]][sequence[j]][sequence[i+1]][sequence[j-1]][sequence[k]][sequence[l]][sequence[l+1]];
+        else
+          energy = int21 [sequence[l]][sequence[k]][sequence[j-1]][sequence[k-1]][sequence[j]][sequence[i]][sequence[i+1]];
+        return energy;
+      } else {
+        /* 1xn loop */
+        energy =
+          (nl + 1 <=
+           MAXLOOP) ? (penalty_by_size (nl, 'I')) : (penalty_by_size (30, 'I'));
+        energy  += std::min(misc.asymmetry_penalty_max_correction, (nl - ns) * misc.asymmetry_penalty_array[2]);
+        energy  += tstacki[sequence[i]][sequence[j]][sequence[i+1]][sequence[j-1]] + tstacki[sequence[l]][sequence[k]][sequence[l+1]][sequence[k-1]];
+        return energy;
+      }
+    } else if (ns == 2) {
+      if (nl == 2) {
+        /* 2x2 loop */
+        return int22 [sequence[i]][sequence[j]][sequence[i+1]][sequence[j-1]][sequence[k]][sequence[l]][sequence[k-1]][sequence[l+1]];
+      } else if (nl == 3) {
+        /* 2x3 loop */
+        energy  = penalty_by_size (5, 'I') + misc.asymmetry_penalty_array[2];
+        energy  += tstacki[sequence[i]][sequence[j]][sequence[i+1]][sequence[j-1]] + tstacki[sequence[l]][sequence[k]][sequence[l+1]][sequence[k-1]];
+        return energy;
+      }
+    }
+
+    {
+      /* generic interior loop (no else here!)*/
+        u       = nl + ns;
+        energy  = (u <=MAXLOOP) ? (penalty_by_size (nl, 'I')) : (penalty_by_size (30, 'I'));
+
+        energy  += std::min(misc.asymmetry_penalty_max_correction, (nl - ns) * misc.asymmetry_penalty_array[2]);
+
+        energy  += tstacki[sequence[i]][sequence[j]][sequence[i+1]][sequence[j-1]] + tstacki[sequence[l]][sequence[k]][sequence[l+1]][sequence[k-1]];
+    }
+  }
+
+  return energy;
+}
 
 
 s_internal_loop::s_internal_loop (int *seq, int length)
@@ -45,1080 +133,83 @@ s_internal_loop::~s_internal_loop ()
 }
 
 
-PARAMTYPE s_internal_loop::compute_energy (int i, int j)
 // computes the MFE of the structure closed by an internal loop closed at (i,j)
-{
+// Modified 2024 Mateo
+PARAMTYPE s_internal_loop::compute_energy (int i, int j){
 
-    // TODO
-    //return 0;
-    //printf ("\n1\n");
+    PARAMTYPE energy = INF;
 
-    int ip, jp, minq;
-    PARAMTYPE mmin, ttmp;
-    PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy, en, specialen;
-    int branch1, branch2, l;
-    ttmp = INF;
-    mmin = INF;
-    //specialen = 0;
-    ip_jp_energy = 0;
-    i_j_energy = 0;
-
-    for (ip = i+1; ip <= MIN(j-2-TURN,i+MAXLOOP+1) ; ip++)  // j-2-TURN
+    int max_ip = std::min(j-TURN-2,i+MAXLOOP+1);
+    for (int k = i+1; k <= max_ip ; ++k)  // the -TURN shouldn't be there
     {
-		// Hosna, August 28, 2012
-		// TODO: cannot understand why we have th efollowing calculations, as it makes the following case be missed!
-		// GACAUAUAAUCGCGUGGAUAUGGCACGCAAGUUUCUACCGGGCACCGUAAAUGUCCGAUUAUGUC
-		// (____(_____((__(_______)__))_______________________________)____)
-		// 0....5....1....5....2....5....3....5....4....5....5....5....6...4
-		// in this example int(5,59,11,27) is falsely missed and is equal to INF
-		// So I am changing it to the be jp=ip+1+TURN; jp<j; jp++ instead
-        //minq = MAX (j-i+ip-MAXLOOP-2, ip+1+TURN);    // ip+1+TURN);
-		minq = ip+1 + TURN;
-
-        for (jp = minq; jp < j; jp++)
+        int min_l=std::max(k+TURN+1 + MAXLOOP+2, k+j-i) - MAXLOOP-2;
+        for (int l = j-1; l >= min_l; --l)
         {
-            // could replace the code from now to the end of the function, by get_energy_str
-            // it's very redundant (duplicated code) as it is now, but it's faster.
-            if (sequence[ip]+sequence[jp] == 3 ||
-                sequence[ip]+sequence[jp] == 5)
+            
+            PARAMTYPE ttmp = E_IntLoop(sequence,(k-i-1),(j-l-1),i,j,k,l) + V->get_energy (k, l);
+            energy = std::min(energy,ttmp);
+            
+        }
+    }
+    return energy;
+
+}
+
+// computes the MFE of the structure closed by a restricted internal loop closed by (i,j)
+// Modified 2024 Mateo
+PARAMTYPE s_internal_loop::compute_energy_restricted (int i, int j, str_features *fres){
+
+    PARAMTYPE energy = INF;
+
+    int max_k = std::min(j-TURN-2,i+MAXLOOP+1);
+    for (int k = i+1; k <= max_k ; ++k)  // the -TURN shouldn't be there
+    {
+		if (!exists_restricted (i,k,fres)){
+            int min_l=std::max(k+TURN+1 + MAXLOOP+2, k+j-i) - MAXLOOP-2;
+            for (int l = j-1; l >= min_l; --l)
             {
-
-                branch1 = ip-i-1;
-                branch2 = j-jp-1;
-                if (branch1 == 0 && branch2 == 0)
-                    continue;
-
-                if (branch1 != 0 || branch2 != 0)
-                {
-                    // check if it is a bulge loop of size 1
-                    // check if it is int11 or int21 or int22
-                    // 1x1 internal loop
-                    if (branch1 == 1 && branch2 == 1 && !simple_internal_energy)     // it is int11
-                    {
-                        // int11[i][j][i+1][j-1][ip][jp]
-                        en = int11 [sequence[i]][sequence[j]]
-                                   [sequence[i+1]][sequence[j-1]]
-                                   [sequence[ip]][sequence[jp]];
-                        ttmp = en + V->get_energy (ip, jp);
-                    }
-                    // 1x2 internal loop
-                    else if (branch1 == 1 && branch2 == 2 && !simple_internal_energy)
-                    {
-                        // int21[i][j][i+1][j-1][ip][jp][jp+1]
-                        en = int21 [sequence[i]][sequence[j]]
-                                   [sequence[i+1]][sequence[j-1]]
-                                   [sequence[ip]][sequence[jp]]
-                                   [sequence[jp+1]];
-                        ttmp = en + V->get_energy (ip, jp);
-                    }
-                    // 1x2 internal loop
-                    else if(branch1 == 2 && branch2 == 1 && !simple_internal_energy)
-                    {
-                        // after rotation: int21[jp][ip][j-1][ip-1][j][i][i+1]
-                        en = int21 [sequence[jp]][sequence[ip]]
-                                   [sequence[j-1]][sequence[ip-1]]
-                                   [sequence[j]][sequence[i]]
-                                   [sequence[i+1]];
-                        ttmp = en + V->get_energy (ip, jp);
-                        //printf ("1: ttmp=%g, mmin=%g\n", ttmp, mmin);
-                    }
-                    // 2x2 internal loop
-                    else if (branch1 == 2 && branch2 == 2 && !simple_internal_energy)
-                    {
-                        // int22[i][j][i+1][j-1][ip][jp][ip-1][jp+1]
-                        en = int22 [sequence[i]][sequence[j]]
-                                   [sequence[i+1]][sequence[j-1]]
-                                   [sequence[ip]][sequence[jp]]
-                                   [sequence[ip-1]][sequence[jp+1]];
-                        ttmp = en + V->get_energy (ip, jp);
-                    }
-                    else
-                    {
-                        // this case is not int11, int21, int22
-
-                        // check if it is a bulge
-                        if (branch1 == 0 || branch2 == 0)
-                        {
-                            l = branch1+branch2;
-                            penalty_size = penalty_by_size (l, 'B');
-                            if (l == 1)
-                            {
-                                // bulge of size 1
-                                // stack[i][j][i+1][j-1]
-                                if (parsi_bulge1 == T99)
-                                {
-                                    en = stack [sequence[i]][sequence[j]]
-                                            [sequence[ip]][sequence[jp]];
-                                }
-                                else if (parsi_bulge1 == PARSI || parsi_bulge1 == LAVISH)
-                                {
-                                    int i2, j2, k2, ip2, jp2;       //  bulge1[i2][j2][k2][ip2][jp2], the bulged nucleotide on top
-                                    if (branch1 == 1)
-                                    {
-                                        i2 = sequence[i];
-                                        j2 = sequence[j];
-                                        k2 = sequence[i+1];
-                                        ip2 = sequence[ip];
-                                        jp2 = sequence[jp];
-                                    }
-                                    else        // it's upside down
-                                    {
-                                        i2 = sequence[jp];
-                                        j2 = sequence[ip];
-                                        k2 = sequence[j-1];
-                                        ip2 = sequence[j];
-                                        jp2 = sequence[i];
-                                    }
-                                    en = bulge1[i2][j2][k2][ip2][jp2];
-                                    penalty_size = 0;   // we don't add it for case 1
-                                }
-                                ttmp = en + penalty_size + V->get_energy (ip, jp);
-                            }
-                            else
-                            {
-                                // bulge of size bigger than 1
-                                // check if (i,j) and (ip,jp) can pair
-                                ttmp = penalty_size +
-                                    AU_penalty (sequence[i],sequence[j]) +
-                                    AU_penalty (sequence[ip], sequence[jp]) +
-                                    V->get_energy (ip, jp);
-                            }
-                        }
-                        // it is a regular internal loop (not a bulge)
-                        else
-                        {
-                            l = branch1+branch2;
-                            penalty_size = penalty_by_size (l, 'I');
-                            asym_penalty = asymmetry_penalty (branch1, branch2);
-
-                            if ((branch1 == 1 || branch2 == 1) && misc.gail_rule)
-                            // If gail_rule is set to 1 in miscloop file,
-                            // i_j_energy and ip_jp_energy will be calculated as if it was a loop of As
-                            {
-//#if (MODEL == SIMPLE)
-                                // In the simple model I only use 3 parameters for tstacki,
-                                //  So tstacki[i][j][[0][0] never comes up, I just ignore it
-                                //i_j_energy  =  tstacki[sequence[i]][sequence[j]] [0][0];
-                                //ip_jp_energy = tstacki[sequence[jp]][sequence[ip]] [0][0];
-//#elif (MODEL == EXTENDED)
-                                if (((sequence[i] == A || sequence[i] == G) && sequence[j] == U) ||
-                                      ((sequence[j] == A || sequence[j] == G) && sequence[i] == U))
-                                {
-                                    i_j_energy = misc.internal_AU_closure;
-                                }
-                                if (((sequence[ip] == A || sequence[ip] == G) && sequence[jp] == U) ||
-                                      ((sequence[jp] == A || sequence[jp] == G) && sequence[ip] == U))
-                                {
-                                    ip_jp_energy = misc.internal_AU_closure;
-                                }
-//#endif
-                            }
-                            else
-                            {
-                                i_j_energy   = tstacki[sequence[i]][sequence[j]]
-                                                      [sequence[i+1]][sequence[j-1]];
-                                ip_jp_energy = tstacki[sequence[jp]][sequence[ip]]
-                                                      [sequence[jp+1]][sequence[ip-1]];
-                                //specialen = special_energy_internal (sequence, i,j,ip,jp);
-                                i_j_energy += special_energy_internal (sequence, i,j,ip,jp);
-                            }
-                            ttmp = i_j_energy + ip_jp_energy + penalty_size + // specialen +
-                                         asym_penalty + V->get_energy (ip, jp);
-
-                        }
-                    }
+                if(!exists_restricted (l,j,fres)){
+                    // Hosna, March 26, 2012
+                    // changed to accommodate non-canonical base pairs in the restricted structure
+                    PARAMTYPE ttmp = E_IntLoop(sequence,(k-i-1),(j-l-1),i,j,k,l) + V->get_energy (k, l);
+                    energy = std::min(energy,ttmp);
                 }
             }
-
-            // add the loss
-            if (pred_pairings != NULL && ttmp < INF/2)
-            {
-                pred_pairings[i] = j;     pred_pairings[j] = i;
-                pred_pairings[ip] = jp;   pred_pairings[jp] = ip;
-                for (int kk=i+1; kk < ip; kk++) pred_pairings[kk] = -1;
-                for (int kk=jp+1; kk < j; kk++) pred_pairings[kk] = -1;
-                ttmp = ttmp - loss (i,ip-1) - loss (jp+1,j);
-            }
-
-            if (ttmp < mmin)
-            {
-                mmin = ttmp;
-            }
         }
     }
-    return mmin;
-}
-
-
-PARAMTYPE s_internal_loop::compute_energy_restricted (int i, int j, str_features *fres)
-// computes the MFE of the structure closed by a restricted internal loop closed by (i,j)
-{
-
-    int ip, jp, minq;
-    PARAMTYPE mmin, ttmp;
-    PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy, en;
-    int branch1, branch2, l;
-    mmin = INF;
-
-    for (ip = i+1; ip <= MIN(j-2,i+MAXLOOP+1) ; ip++)  // the -TURN shouldn't be there
-    {
-        // Hosna, August 28, 2012
-		// TODO: cannot understand why we have th efollowing calculations, as it makes the following case be missed!
-		// GACAUAUAAUCGCGUGGAUAUGGCACGCAAGUUUCUACCGGGCACCGUAAAUGUCCGAUUAUGUC
-		// (____(_____((__(_______)__))_______________________________)____)
-		// 0....5....1....5....2....5....3....5....4....5....5....5....6...4
-		// in this example int(5,59,11,27) is falsely missed and is equal to INF
-		// So I am changing it to the be jp=ip+1; jp<j; jp++ instead
-        //minq = MAX (j-i+ip-MAXLOOP-2, ip+1);    // without TURN
-		minq = ip+1;
-        for (jp = minq; jp < j; jp++)
-        {
-            if (exists_restricted (i,ip,fres) || exists_restricted (jp,j,fres))
-                continue;
-            //ttmp = get_energy_str (i, j, ip, jp);
-			// Hosna, March 26, 2012
-			// changed to accommodate non-canonical base pairs in the restricted structure
-			ttmp = get_energy_str_restricted (i, j, ip, jp, fres);
-
-            if (ttmp < mmin)
-            {
-                mmin = ttmp;
-            }
-        }
-    }
-    return mmin;
-}
-
-PARAMTYPE s_internal_loop::compute_energy_restricted_pkonly (int i, int j, str_features *fres)
-// computes the MFE of the structure closed by a restricted internal loop closed by (i,j)
-{
-
-    int ip, jp, minq;
-    PARAMTYPE mmin, ttmp;
-    PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy, en;
-    int branch1, branch2, l;
-    mmin = INF;
-
-	// Hosna, August 31, 2012
-	// The following restriction misses the long restricted loops, so I am chaning it
-    //for (ip = i+1; ip <= MIN(j-2,i+MAXLOOP+1) ; ip++)  // the -TURN shouldn't be there
-	for (ip = i+1; ip <= j-2 ; ip++)  // the -TURN shouldn't be there
-    {
-		// Hosna, August 28, 2012
-		// TODO: cannot understand why we have th efollowing calculations, as it makes the following case be missed!
-		// GACAUAUAAUCGCGUGGAUAUGGCACGCAAGUUUCUACCGGGCACCGUAAAUGUCCGAUUAUGUC
-		// (____(_____((__(_______)__))_______________________________)____)
-		// 0....5....1....5....2....5....3....5....4....5....5....5....6...4
-		// in this example int(5,59,11,27) is falsely missed and is equal to INF
-		// So I am changing it to the be jp=ip+1; jp<j; jp++ instead
-        //minq = MAX (j-i+ip-MAXLOOP-2, ip+1);    // without TURN
-		minq = ip+1;
-        for (jp = minq; jp < j; jp++)
-        {
-            if (exists_restricted (i,ip,fres) || exists_restricted (jp,j,fres)){
-				continue;
-			}
-            //ttmp = get_energy_str (i, j, ip, jp);
-			// pkonly version
-			ttmp = (fres[ip].pair == jp && fres[jp].pair == ip)? get_energy_str_restricted (i, j, ip, jp, fres): INF;
-
-            if (ttmp < mmin)
-            {
-                mmin = ttmp;
-            }
-        }
-    }
-    return mmin;
-}
-
-PARAMTYPE s_internal_loop::get_energy_str_restricted (int i, int j, int ip, int jp, str_features *fres)
-// returns the free energy of the structure closed by the internal loop (i,j,ip,jp)
-// This function is just most of what is inside the second for loop of compute_energy
-
-// Hosna, March 26, 2012
-// cases that need to be considered in this function are:
-// 1) i.j and ip.jp are enforced in the restricted structure and all are non-canonical
-// 2) i.j is enforced in the restricted structure and we have i.j non-canonical but ip.jp is canonical
-// 3) ip.jp is enforced in the restricted structure and we have i.j canonical but ip.jp is non-canonical
-{
-    // TODO
-    //return 0;
-    //printf ("\n2\n");
-
-    PARAMTYPE mmin, ttmp;
-    PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy, en;
-    int branch1, branch2, l;
-    mmin = INF;
-    i_j_energy = 0; ip_jp_energy = 0;
-
-	if ((sequence[ip]+sequence[jp] == 3 || sequence[ip]+sequence[jp] == 5) && can_pair(sequence[i],sequence[j])) // normal case
-	{
-
-		branch1 = ip-i-1;
-		branch2 = j-jp-1;
-
-		if (branch1 != 0 || branch2 != 0)
-		{
-			// check if it is a bulge loop of size 1
-			// check if it is int11 or int21 or int22
-			if (branch1 == 1 && branch2 == 1 && !simple_internal_energy)     // it is int11
-			{
-				// int11[i][j][i+1][j-1][ip][jp]
-				en = int11 [sequence[i]][sequence[j]]
-				[sequence[i+1]][sequence[j-1]]
-				[sequence[ip]][sequence[jp]];
-
-				ttmp = en + V->get_energy (ip, jp);
-
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else if (branch1 == 1 && branch2 == 2 && !simple_internal_energy)
-			{
-				// int21[i][j][i+1][j-1][ip][jp][jp+1]
-				en = int21 [sequence[i]][sequence[j]]
-				[sequence[i+1]][sequence[j-1]]
-				[sequence[ip]][sequence[jp]]
-				[sequence[jp+1]];
-				ttmp = en + V->get_energy (ip, jp);
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else if(branch1 == 2 && branch2 == 1 && !simple_internal_energy)
-			{
-				// after rotation: int21[jp][ip][j-1][ip-1][j][i][i+1]
-				en = int21 [sequence[jp]][sequence[ip]]
-				[sequence[j-1]][sequence[ip-1]]
-				[sequence[j]][sequence[i]]
-				[sequence[i+1]];
-				ttmp = en + V->get_energy (ip, jp);
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else if (branch1 == 2 && branch2 == 2 && !simple_internal_energy)
-			{
-				// int22[i][j][i+1][j-1][ip][jp][ip-1][jp+1]
-				en = int22 [sequence[i]][sequence[j]]
-				[sequence[i+1]][sequence[j-1]]
-				[sequence[ip]][sequence[jp]]
-				[sequence[ip-1]][sequence[jp+1]];
-				ttmp = en + V->get_energy (ip, jp);
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else
-			{
-				// this case is not int11, int21, int22
-
-				// check if it is a bulge
-				if (branch1 == 0 || branch2 == 0)
-				{
-					l = branch1+branch2;
-					penalty_size = penalty_by_size (l, 'B');
-					if (l == 1)
-					{
-						// bulge of size 1
-						// stack[i][j][i+1][j-1]
-						if (parsi_bulge1 == T99)
-						{
-							en = stack [sequence[i]][sequence[j]]
-							[sequence[ip]][sequence[jp]];
-						}
-						else if (parsi_bulge1 == PARSI || parsi_bulge1 == LAVISH)
-						{
-							int i2, j2, k2, ip2, jp2;       //  bulge1[i2][j2][k2][ip2][jp2], the bulged nucleotide on top
-							if (branch1 == 1)
-							{
-								i2 = sequence[i];
-								j2 = sequence[j];
-								k2 = sequence[i+1];
-								ip2 = sequence[ip];
-								jp2 = sequence[jp];
-							}
-							else        // it's upside down
-							{
-								i2 = sequence[jp];
-								j2 = sequence[ip];
-								k2 = sequence[j-1];
-								ip2 = sequence[j];
-								jp2 = sequence[i];
-							}
-							en = bulge1[i2][j2][k2][ip2][jp2];
-							penalty_size = 0;   // we don't add it for case 1
-						}
-
-						ttmp = en + penalty_size + V->get_energy (ip, jp);
-						if (ttmp < mmin)
-						{
-							mmin = ttmp;
-						}
-					}
-					else
-					{
-						// bulge of size bigger than 1
-						// check if (i,j) and (ip,jp) can pair
-						ttmp = penalty_size +
-						AU_penalty (sequence[i],sequence[j]) +
-						AU_penalty (sequence[ip], sequence[jp]) +
-						V->get_energy (ip, jp);
-						if (ttmp < mmin)
-						{
-							mmin = ttmp;
-						}
-					}
-				}
-				// it is an internal loop (not a bulge)
-				else
-				{
-					l = branch1+branch2;
-					penalty_size = penalty_by_size (l, 'I');
-					asym_penalty = asymmetry_penalty (branch1, branch2);
-
-					if ((branch1 == 1 || branch2 == 1) && misc.gail_rule)
-						// If gail_rule is set to 1 in miscloop file,
-						// i_j_energy and ip_jp_energy will be calculated as if it was a loop of As
-					{
-						//#if (MODEL == SIMPLE)
-						// In the simple model I only use 3 parameters for tstacki,
-						//  So tstacki[i][j][[0][0] never comes up, I just ignore it
-						//i_j_energy  =  tstacki[sequence[i]][sequence[j]][0][0];
-						//ip_jp_energy = tstacki[sequence[jp]][sequence[ip]][0][0];
-						//#elif (MODEL == EXTENDED)
-						if (((sequence[i] == A || sequence[i] == G) && sequence[j] == U) ||
-							((sequence[j] == A || sequence[j] == G) && sequence[i] == U))
-						{
-							i_j_energy = misc.internal_AU_closure;
-						}
-						if (((sequence[ip] == A || sequence[ip] == G) && sequence[jp] == U) ||
-							((sequence[jp] == A || sequence[jp] == G) && sequence[ip] == U))
-						{
-							ip_jp_energy = misc.internal_AU_closure;
-						}
-						//#endif
-					}
-					else
-					{
-						i_j_energy   = tstacki[sequence[i]][sequence[j]]
-						[sequence[i+1]][sequence[j-1]];
-
-						ip_jp_energy = tstacki[sequence[jp]][sequence[ip]]
-						[sequence[jp+1]][sequence[ip-1]];
-
-						i_j_energy += special_energy_internal (sequence, i,j,ip,jp);
-
-					}
-					ttmp = i_j_energy + ip_jp_energy + penalty_size +
-					asym_penalty + V->get_energy (ip, jp);
-
-
-					if (ttmp < mmin)
-					{
-						mmin = ttmp;
-					}
-				}
-			}
-		}
-	}  else if((fres[ip].pair==jp && fres[jp].pair==ip && can_pair(sequence[i],sequence[j])) ||
-			   (fres[ip].pair==jp && fres[jp].pair==ip && fres[i].pair==j && fres[j].pair==i) ||
-			   (fres[i].pair==j && fres[j].pair==i && can_pair(sequence[ip],sequence[jp]))){
-		branch1 = ip-i-1;
-		branch2 = j-jp-1;
-
-		if (branch1 != 0 || branch2 != 0)
-		{
-			// check if it is a bulge loop of size 1
-			// check if it is int11 or int21 or int22
-			if (branch1 == 1 && branch2 == 1 && !simple_internal_energy)     // it is int11
-			{
-				// int11[i][j][i+1][j-1][ip][jp]
-				en = int11 [sequence[i]][sequence[j]]
-				[sequence[i+1]][sequence[j-1]]
-				[sequence[ip]][sequence[jp]];
-				en = MIN(0,en); // Hosna, March 26, 2012, added to accommodate non-cannonical base pairs in restricted structure
-
-				ttmp = en + V->get_energy (ip, jp);
-
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else if (branch1 == 1 && branch2 == 2 && !simple_internal_energy)
-			{
-				// int21[i][j][i+1][j-1][ip][jp][jp+1]
-				en = int21 [sequence[i]][sequence[j]]
-				[sequence[i+1]][sequence[j-1]]
-				[sequence[ip]][sequence[jp]]
-				[sequence[jp+1]];
-				en = MIN(0,en); // Hosna, March 26, 2012, added to accommodate non-cannonical base pairs in restricted structure
-				ttmp = en + V->get_energy (ip, jp);
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else if(branch1 == 2 && branch2 == 1 && !simple_internal_energy)
-			{
-				// after rotation: int21[jp][ip][j-1][ip-1][j][i][i+1]
-				en = int21 [sequence[jp]][sequence[ip]]
-				[sequence[j-1]][sequence[ip-1]]
-				[sequence[j]][sequence[i]]
-				[sequence[i+1]];
-				en = MIN(0,en); // Hosna, March 26, 2012, added to accommodate non-cannonical base pairs in restricted structure
-				ttmp = en + V->get_energy (ip, jp);
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else if (branch1 == 2 && branch2 == 2 && !simple_internal_energy)
-			{
-				// int22[i][j][i+1][j-1][ip][jp][ip-1][jp+1]
-				en = int22 [sequence[i]][sequence[j]]
-				[sequence[i+1]][sequence[j-1]]
-				[sequence[ip]][sequence[jp]]
-				[sequence[ip-1]][sequence[jp+1]];
-
-				en = MIN(0,en); // Hosna, March 26, 2012, added to accommodate non-cannonical base pairs in restricted structure
-				ttmp = en + V->get_energy (ip, jp);
-				if (ttmp < mmin)
-				{
-					mmin = ttmp;
-				}
-			}
-			else
-			{
-				// this case is not int11, int21, int22
-
-				// check if it is a bulge
-				if (branch1 == 0 || branch2 == 0)
-				{
-					l = branch1+branch2;
-					penalty_size = penalty_by_size (l, 'B');
-					if (l == 1)
-					{
-						// bulge of size 1
-						// stack[i][j][i+1][j-1]
-						if (parsi_bulge1 == T99)
-						{
-							en = stack [sequence[i]][sequence[j]]
-							[sequence[ip]][sequence[jp]];
-							en = MIN(0,en); // Hosna, March 26, 2012, added to accommodate non-cannonical base pairs in restricted structure
-						}
-						else if (parsi_bulge1 == PARSI || parsi_bulge1 == LAVISH)
-						{
-							int i2, j2, k2, ip2, jp2;       //  bulge1[i2][j2][k2][ip2][jp2], the bulged nucleotide on top
-							if (branch1 == 1)
-							{
-								i2 = sequence[i];
-								j2 = sequence[j];
-								k2 = sequence[i+1];
-								ip2 = sequence[ip];
-								jp2 = sequence[jp];
-							}
-							else        // it's upside down
-							{
-								i2 = sequence[jp];
-								j2 = sequence[ip];
-								k2 = sequence[j-1];
-								ip2 = sequence[j];
-								jp2 = sequence[i];
-							}
-							en = bulge1[i2][j2][k2][ip2][jp2];
-							en = MIN(0,en); // Hosna, March 26, 2012, added to accommodate non-cannonical base pairs in restricted structure
-							penalty_size = 0;   // we don't add it for case 1
-						}
-						ttmp = en + penalty_size + V->get_energy (ip, jp);
-
-						if (ttmp < mmin)
-						{
-							mmin = ttmp;
-						}
-					}
-					else
-					{
-						// bulge of size bigger than 1
-						// check if (i,j) and (ip,jp) can pair
-						ttmp = penalty_size +
-						AU_penalty (sequence[i],sequence[j]) +
-						AU_penalty (sequence[ip], sequence[jp]) +
-						V->get_energy (ip, jp);
-						if (ttmp < mmin)
-						{
-							mmin = ttmp;
-						}
-					}
-				}
-				// it is an internal loop (not a bulge)
-
-				// Hosna, March 26, 2012
-				// the following parts may need modification to accommodate non-canonical base pairs in restricted structure
-				else
-				{
-					l = branch1+branch2;
-					penalty_size = penalty_by_size (l, 'I');
-					asym_penalty = asymmetry_penalty (branch1, branch2);
-
-					if ((branch1 == 1 || branch2 == 1) && misc.gail_rule)
-						// If gail_rule is set to 1 in miscloop file,
-						// i_j_energy and ip_jp_energy will be calculated as if it was a loop of As
-					{
-						//#if (MODEL == SIMPLE)
-						// In the simple model I only use 3 parameters for tstacki,
-						//  So tstacki[i][j][[0][0] never comes up, I just ignore it
-						//i_j_energy  =  tstacki[sequence[i]][sequence[j]][0][0];
-						//ip_jp_energy = tstacki[sequence[jp]][sequence[ip]][0][0];
-						//#elif (MODEL == EXTENDED)
-						if (((sequence[i] == A || sequence[i] == G) && sequence[j] == U) ||
-							((sequence[j] == A || sequence[j] == G) && sequence[i] == U))
-						{
-							i_j_energy = misc.internal_AU_closure;
-						}
-						if (((sequence[ip] == A || sequence[ip] == G) && sequence[jp] == U) ||
-							((sequence[jp] == A || sequence[jp] == G) && sequence[ip] == U))
-						{
-							ip_jp_energy = misc.internal_AU_closure;
-						}
-						//#endif
-					}
-					else // Hosna, June 4, 2012, fixed the non-canonical base pairing problem as folllows
-					{
-						if (can_pair(sequence[i],sequence[j])){
-							i_j_energy   = tstacki[sequence[i]][sequence[j]]
-												[sequence[i+1]][sequence[j-1]];
-						}else{
-							i_j_energy=0;
-						}
-						if(can_pair(sequence[ip],sequence[jp])){
-							ip_jp_energy = tstacki[sequence[jp]][sequence[ip]]
-												[sequence[jp+1]][sequence[ip-1]];
-						}else{
-							ip_jp_energy =0;
-						}
-
-						i_j_energy += special_energy_internal (sequence, i,j,ip,jp);
-					}
-					ttmp = i_j_energy + ip_jp_energy + penalty_size +
-					asym_penalty + V->get_energy (ip, jp);
-
-					if (ttmp < mmin)
-					{
-						mmin = ttmp;
-					}
-				}
-			}
-		}
-
-
-	}
-    if (mmin < INF/2)
-    {
-        // add the loss
-        if (pred_pairings != NULL)
-        {
-            pred_pairings[i] = j;     pred_pairings[j] = i;
-            pred_pairings[ip] = jp;   pred_pairings[jp] = ip;
-            for (int kk=i+1; kk < ip; kk++) pred_pairings[kk] = -1;
-            for (int kk=jp+1; kk < j; kk++) pred_pairings[kk] = -1;
-            mmin = mmin - loss (i,ip-1) - loss (jp+1,j);
-        }
-
-        return mmin;
-    }
-    return INF;
-}
-
-PARAMTYPE s_internal_loop::get_energy_str (int i, int j, int ip, int jp)
-// returns the free energy of the structure closed by the internal loop (i,j,ip,jp)
-// This function is just most of what is inside the second for loop of compute_energy
-{
-    // TODO
-    //return 0;
-    //printf ("\n2\n");
-
-    PARAMTYPE mmin, ttmp;
-    PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy, en;
-    int branch1, branch2, l;
-    mmin = INF;
-    i_j_energy = 0; ip_jp_energy = 0;
-
-            if (sequence[ip]+sequence[jp] == 3 || sequence[ip]+sequence[jp] == 5 )
-            {
-
-                branch1 = ip-i-1;
-                branch2 = j-jp-1;
-
-                if (branch1 != 0 || branch2 != 0)
-                {
-                    // check if it is a bulge loop of size 1
-                    // check if it is int11 or int21 or int22
-                    if (branch1 == 1 && branch2 == 1 && !simple_internal_energy)     // it is int11
-                    {
-                        // int11[i][j][i+1][j-1][ip][jp]
-                        en = int11 [sequence[i]][sequence[j]]
-                                   [sequence[i+1]][sequence[j-1]]
-                                   [sequence[ip]][sequence[jp]];
-
-                        ttmp = en + V->get_energy (ip, jp);
-                        if (ttmp < mmin)
-                        {
-                            mmin = ttmp;
-                        }
-                    }
-                    else if (branch1 == 1 && branch2 == 2 && !simple_internal_energy)
-                    {
-                        // int21[i][j][i+1][j-1][ip][jp][jp+1]
-                        en = int21 [sequence[i]][sequence[j]]
-                                   [sequence[i+1]][sequence[j-1]]
-                                   [sequence[ip]][sequence[jp]]
-                                   [sequence[jp+1]];
-                        ttmp = en + V->get_energy (ip, jp);
-                        if (ttmp < mmin)
-                        {
-                            mmin = ttmp;
-                        }
-                    }
-                    else if(branch1 == 2 && branch2 == 1 && !simple_internal_energy)
-                    {
-                        // after rotation: int21[jp][ip][j-1][ip-1][j][i][i+1]
-                        en = int21 [sequence[jp]][sequence[ip]]
-                                   [sequence[j-1]][sequence[ip-1]]
-                                   [sequence[j]][sequence[i]]
-                                   [sequence[i+1]];
-                        ttmp = en + V->get_energy (ip, jp);
-                        if (ttmp < mmin)
-                        {
-                            mmin = ttmp;
-                        }
-                    }
-                    else if (branch1 == 2 && branch2 == 2 && !simple_internal_energy)
-                    {
-                        // int22[i][j][i+1][j-1][ip][jp][ip-1][jp+1]
-                        en = int22 [sequence[i]][sequence[j]]
-                                   [sequence[i+1]][sequence[j-1]]
-                                   [sequence[ip]][sequence[jp]]
-                                   [sequence[ip-1]][sequence[jp+1]];
-                        ttmp = en + V->get_energy (ip, jp);
-                        if (ttmp < mmin)
-                        {
-                            mmin = ttmp;
-                        }
-                    }
-                    else
-                    {
-                        // this case is not int11, int21, int22
-
-                        // check if it is a bulge
-                        if (branch1 == 0 || branch2 == 0)
-                        {
-                            l = branch1+branch2;
-                            penalty_size = penalty_by_size (l, 'B');
-                            if (l == 1)
-                            {
-                                // bulge of size 1
-                                // stack[i][j][i+1][j-1]
-                                if (parsi_bulge1 == T99)
-                                {
-                                    en = stack [sequence[i]][sequence[j]]
-                                            [sequence[ip]][sequence[jp]];
-                                }
-                                else if (parsi_bulge1 == PARSI || parsi_bulge1 == LAVISH)
-                                {
-                                    int i2, j2, k2, ip2, jp2;       //  bulge1[i2][j2][k2][ip2][jp2], the bulged nucleotide on top
-                                    if (branch1 == 1)
-                                    {
-                                        i2 = sequence[i];
-                                        j2 = sequence[j];
-                                        k2 = sequence[i+1];
-                                        ip2 = sequence[ip];
-                                        jp2 = sequence[jp];
-                                    }
-                                    else        // it's upside down
-                                    {
-                                        i2 = sequence[jp];
-                                        j2 = sequence[ip];
-                                        k2 = sequence[j-1];
-                                        ip2 = sequence[j];
-                                        jp2 = sequence[i];
-                                    }
-                                    en = bulge1[i2][j2][k2][ip2][jp2];
-                                    penalty_size = 0;   // we don't add it for case 1
-                                }
-                                ttmp = en + penalty_size + V->get_energy (ip, jp);
-                                if (ttmp < mmin)
-                                {
-                                    mmin = ttmp;
-                                }
-                            }
-                            else
-                            {
-                                // bulge of size bigger than 1
-                                // check if (i,j) and (ip,jp) can pair
-                                ttmp = penalty_size +
-                                    AU_penalty (sequence[i],sequence[j]) +
-                                    AU_penalty (sequence[ip], sequence[jp]) +
-                                    V->get_energy (ip, jp);
-                                if (ttmp < mmin)
-                                {
-                                    mmin = ttmp;
-                                }
-                            }
-                        }
-                        // it is an internal loop (not a bulge)
-                        else
-                        {
-                            l = branch1+branch2;
-                            penalty_size = penalty_by_size (l, 'I');
-                            asym_penalty = asymmetry_penalty (branch1, branch2);
-
-                            if ((branch1 == 1 || branch2 == 1) && misc.gail_rule)
-                            // If gail_rule is set to 1 in miscloop file,
-                            // i_j_energy and ip_jp_energy will be calculated as if it was a loop of As
-                            {
-//#if (MODEL == SIMPLE)
-                                // In the simple model I only use 3 parameters for tstacki,
-                                //  So tstacki[i][j][[0][0] never comes up, I just ignore it
-                                //i_j_energy  =  tstacki[sequence[i]][sequence[j]][0][0];
-                                //ip_jp_energy = tstacki[sequence[jp]][sequence[ip]][0][0];
-//#elif (MODEL == EXTENDED)
-                                if (((sequence[i] == A || sequence[i] == G) && sequence[j] == U) ||
-                                      ((sequence[j] == A || sequence[j] == G) && sequence[i] == U))
-                                {
-                                    i_j_energy = misc.internal_AU_closure;
-                                }
-                                if (((sequence[ip] == A || sequence[ip] == G) && sequence[jp] == U) ||
-                                      ((sequence[jp] == A || sequence[jp] == G) && sequence[ip] == U))
-                                {
-                                    ip_jp_energy = misc.internal_AU_closure;
-                                }
-//#endif
-                            }
-                            else
-                            {
-                                i_j_energy   = tstacki[sequence[i]][sequence[j]]
-                                                      [sequence[i+1]][sequence[j-1]];
-                                ip_jp_energy = tstacki[sequence[jp]][sequence[ip]]
-                                                      [sequence[jp+1]][sequence[ip-1]];
-                                i_j_energy += special_energy_internal (sequence, i,j,ip,jp);
-                            }
-                            ttmp = i_j_energy + ip_jp_energy + penalty_size +
-                                         asym_penalty + V->get_energy (ip, jp);
-                            if (ttmp < mmin)
-                            {
-                                mmin = ttmp;
-                            }
-                        }
-                    }
-                }
-            }
-    if (mmin < INF/2)
-    {
-        // add the loss
-        if (pred_pairings != NULL)
-        {
-            pred_pairings[i] = j;     pred_pairings[j] = i;
-            pred_pairings[ip] = jp;   pred_pairings[jp] = ip;
-            for (int kk=i+1; kk < ip; kk++) pred_pairings[kk] = -1;
-            for (int kk=jp+1; kk < j; kk++) pred_pairings[kk] = -1;
-            mmin = mmin - loss (i,ip-1) - loss (jp+1,j);
-        }
-
-        return mmin;
-    }
-    return INF;
-}
-
-
-// Not used. Tried to see if the gradient in s_partition_function gets computed faster
-//  if you make a different function for each situation.
-// It doesn't seem to be the case.
-PARAMTYPE s_internal_loop::get_energy_00 (int i, int j, int ip, int jp, int *sequence)
-{
-    PARAMTYPE energy = INF;   // just in case i,j,ip,jp are not closing an internal loop
-    PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy;
-    int branch1, branch2, l;
-
-    branch1 = ip-i-1;
-    branch2 = j-jp-1;
-    l = branch1+branch2;
-    penalty_size = penalty_by_size (l, 'I');
-    asym_penalty = asymmetry_penalty (branch1, branch2);
-
-    i_j_energy  =  tstacki[sequence[i]][sequence[j]]
-                            [0][0];
-    ip_jp_energy = tstacki[sequence[jp]][sequence[ip]]
-                            [0][0];
-    energy = i_j_energy + ip_jp_energy + penalty_size +
-                            asym_penalty;
     return energy;
 }
 
+PARAMTYPE s_internal_loop::get_energy_str (int i, int j, int k, int l)
+// returns the free energy of the structure closed by the internal loop (i,j,ip,jp)
+// This function is just most of what is inside the second for loop of compute_energy
+{
+    PARAMTYPE energy = E_IntLoop(sequence,(k-i-1),(j-l-1),i,j,k,l) + V->get_energy (k, l);
+    if(energy < INF/2) return energy;
+    else return INF;
+}
 
-PARAMTYPE s_internal_loop::get_energy (int i, int j, int ip, int jp, int *sequence, int *ptable)
+PARAMTYPE s_internal_loop::get_energy_str_restricted (int i, int j, int k, int l, str_features *fres){
+    
+    PARAMTYPE energy = E_IntLoop(sequence,(k-i-1),(j-l-1),i,j,k,l) + V->get_energy (k, l);
+    if(energy < INF/2) return energy;
+    else return INF;
+}
+
+
+PARAMTYPE s_internal_loop::get_energy (int i, int j, int k, int l, int *sequence, int *ptable)
 // returns the free energy of the internal loop closed at (i,j,ip,jp)
 // Also called by the partition function
 {
-    // TODO
-    //return 100;
-    //printf ("\n3\n");
 
-    PARAMTYPE energy = INF;   // just in case i,j,ip,jp are not closing an internal loop
-    PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy;
-    int branch1, branch2, l;
 
-    if (exists_restricted_ptable (i,ip,ptable) || exists_restricted_ptable (jp,j,ptable))
+    if (exists_restricted_ptable (i,k,ptable) || exists_restricted_ptable (l,j,ptable))
         return INF;
-
-    branch1 = ip-i-1;
-    branch2 = j-jp-1;
-
-    if (branch1 != 0 || branch2 != 0)
-    {
-        // check if it is a bulge loop of size 1
-        // check if it is int11 or int21 or int22
-        if (branch1 == 1 && branch2 == 1 && !simple_internal_energy)     // it is int11
-        {
-                        // int11[i][j][i+1][j-1][ip][jp]
-            energy = int11 [sequence[i]][sequence[j]]
-                           [sequence[i+1]][sequence[j-1]]
-                           [sequence[ip]][sequence[jp]];
-            check_int11_parameters (sequence[i], sequence[j], sequence[i+1], sequence[j-1], sequence[ip], sequence[jp]);
-        }
-        else if (branch1 == 1 && branch2 == 2 && !simple_internal_energy)
-        {
-            // int21[i][j][i+1][j-1][ip][jp][jp+1]
-            energy = int21 [sequence[i]][sequence[j]]
-                           [sequence[i+1]][sequence[j-1]]
-                           [sequence[ip]][sequence[jp]]
-                           [sequence[jp+1]];
-        }
-        else if(branch1 == 2 && branch2 == 1 && !simple_internal_energy)
-        {
-            // after rotation: int21[jp][ip][j-1][ip-1][j][i][i+1]
-            energy = int21 [sequence[jp]][sequence[ip]]
-                           [sequence[j-1]][sequence[ip-1]]
-                           [sequence[j]][sequence[i]]
-                           [sequence[i+1]];
-        }
-        else if (branch1 == 2 && branch2 == 2 && !simple_internal_energy)
-        {
-            // int22[i][j][i+1][j-1][ip][jp][ip-1][jp+1]
-            energy = int22 [sequence[i]][sequence[j]]
-                           [sequence[i+1]][sequence[j-1]]
-                           [sequence[ip]][sequence[jp]]
-                           [sequence[ip-1]][sequence[jp+1]];
-            //printf ("IN GET_ENERGY int22(%d,%d,%d,%d,%d,%d,%d,%d): %g\n", sequence[i],sequence[j],sequence[i+1],sequence[j-1],sequence[ip],sequence[jp],sequence[ip-1],sequence[jp+1],energy);
-        }
-        else
-        {
-            // this case is not int11, int21, int22
-
-            // check if it is a bulge
-            if (branch1 == 0 || branch2 == 0)
-            {
-                l = branch1+branch2;
-                penalty_size = penalty_by_size (l, 'B');
-                if (l == 1)
-                {
-                    // bulge of size 1
-                    // stack[i][j][i+1][j-1]
-                    if (parsi_bulge1 == T99)
-                    {
-                        energy = stack [sequence[i]][sequence[j]]
-                                    [sequence[ip]][sequence[jp]] +
-                                penalty_size;
-                    }
-                    else if (parsi_bulge1 == PARSI || parsi_bulge1 == LAVISH)
-                    {
-                        int i2, j2, k2, ip2, jp2;       //  bulge1[i2][j2][k2][ip2][jp2], the bulged nucleotide on top
-                        if (branch1 == 1)
-                        {
-                            i2 = sequence[i];
-                            j2 = sequence[j];
-                            k2 = sequence[i+1];
-                            ip2 = sequence[ip];
-                            jp2 = sequence[jp];
-                        }
-                        else        // it's upside down
-                        {
-                            i2 = sequence[jp];
-                            j2 = sequence[ip];
-                            k2 = sequence[j-1];
-                            ip2 = sequence[j];
-                            jp2 = sequence[i];
-                        }
-                        energy = bulge1[i2][j2][k2][ip2][jp2];
-                    }
-                }
-                else
-                {
-                    // bulge of size bigger than 1
-                    // check if (i,j) and (ip,jp) can pair
-                    //printf ("REAL len = %d, pen = %Lg\n", l, penalty_size);
-                    energy = penalty_size +
-                               AU_penalty (sequence[i],sequence[j]) +
-                               AU_penalty (sequence[ip], sequence[jp]);
-                }
-            }
-            // it is an internal loop (not a bulge)
-            else
-            {
-                l = branch1+branch2;
-                penalty_size = penalty_by_size (l, 'I');
-                asym_penalty = asymmetry_penalty (branch1, branch2);
-                //if (l == 5  && abs(branch1-branch2) == 3)
-                //    printf ("REAL pen = %Lg, asym = %Lf\n", penalty_size, asym_penalty);
-
-
-                if ((branch1 == 1 || branch2 == 1) && misc.gail_rule)
-                // If gail_rule is set to 1 in miscloop file,
-                // i_j_energy and ip_jp_energy will be calculated as if it was a loop of As
-                {
-                    i_j_energy = 0;
-                    ip_jp_energy = 0;
-
-//#if (MODEL == SIMPLE)
-                    // In the simple model I only use 3 parameters for tstacki,
-                    //  So tstacki[i][j][[0][0] never comes up, I just ignore it
-                    //i_j_energy  =  tstacki[sequence[i]][sequence[j]][0][0];
-                    //ip_jp_energy = tstacki[sequence[jp]][sequence[ip]][0][0];
-//#elif (MODEL == EXTENDED)
-                    if (((sequence[i] == A || sequence[i] == G) && sequence[j] == U) ||
-                          ((sequence[j] == A || sequence[j] == G) && sequence[i] == U))
-                    {
-                        i_j_energy = misc.internal_AU_closure;
-                    }
-                    if (((sequence[ip] == A || sequence[ip] == G) && sequence[jp] == U) ||
-                          ((sequence[jp] == A || sequence[jp] == G) && sequence[ip] == U))
-                    {
-                        ip_jp_energy = misc.internal_AU_closure;
-                    }
-//#endif
-                    //printf ("IN GET_ENERGY, energy is %lf\n", i_j_energy + ip_jp_energy);
-                }
-                else
-                {
-                    i_j_energy   = tstacki[sequence[i]][sequence[j]]
-                                          [sequence[i+1]][sequence[j-1]];
-                    ip_jp_energy = tstacki[sequence[jp]][sequence[ip]]
-                                          [sequence[jp+1]][sequence[ip-1]];
-                    i_j_energy += special_energy_internal (sequence, i,j,ip,jp);
-                }
-                energy = i_j_energy + ip_jp_energy + penalty_size +
-                                         asym_penalty;
-            }
-        }
-    }
-    //printf ("REAL:   i=%d, j=%d, ip=%d, jp=%d, energy=%g\n", i, j, ip, jp, energy);
-    return energy;
+    
+    PARAMTYPE energy = E_IntLoop(sequence,(k-i-1),(j-l-1),i,j,k,l);
+    if(energy < INF/2) return energy;
+    else return INF;
+   
 }
 
 // NOT UPDATED FOR MODEL=EXTENDED

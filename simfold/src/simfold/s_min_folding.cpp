@@ -27,7 +27,6 @@
 #include "common.h"
 #include "simfold.h"
 #include "s_hairpin_loop.h"
-#include "s_stacked_pair.h"
 #include "s_multi_loop.h"
 #include "s_energy_matrix.h"
 #include "s_specific_functions.h"
@@ -71,8 +70,6 @@ void s_min_folding::allocate_space()
 
     H = new s_hairpin_loop (sequence, int_sequence, nb_nucleotides);
     if (H == NULL) giveup ("Cannot allocate memory", "energy");
-    S = new s_stacked_pair (int_sequence, nb_nucleotides);
-    if (S == NULL) giveup ("Cannot allocate memory", "energy");
     VBI = new s_internal_loop (int_sequence, nb_nucleotides);
     if (VBI == NULL) giveup ("Cannot allocate memory", "energy");
     VM = new s_multi_loop (int_sequence, nb_nucleotides);
@@ -86,10 +83,10 @@ void s_min_folding::allocate_space()
     for (i=0; i<nb_nucleotides; i++)  structure[i] = '.';
     structure[nb_nucleotides] = '\0';
 
-    S->set_energy_matrix (V);
+    // S->set_energy_matrix (V);
     VBI->set_energy_matrix (V);
     VM->set_energy_matrix (V);
-    V->set_loops (H, S, VBI, VM, NULL);
+    V->set_loops (H, VBI, VM, NULL);
 }
 
 
@@ -99,7 +96,6 @@ s_min_folding::~s_min_folding()
     delete V;
     delete VM;
     delete VBI;
-    delete S;
     delete H;
     delete [] f;
     delete [] W;
@@ -296,18 +292,6 @@ void s_min_folding::backtrack (seq_interval *cur_interval)
         type = V->get_type (i,j);
         if (debug)
             printf ("\t(%d,%d) LOOP - type %c\n", i,j,type);
-        if (type == STACK)
-        {
-            f[i].type = STACK;
-            f[j].type = STACK;
-            if (i+1 < j-1)
-                insert_node (i+1, j-1, LOOP);
-            else
-            {
-                fprintf(stderr,"NOT GOOD STACK, i=%d, j=%d\n", i, j);
-                exit (0);
-            }
-        }
         else if (type == HAIRP)
         {
             f[i].type = HAIRP;
@@ -320,10 +304,12 @@ void s_min_folding::backtrack (seq_interval *cur_interval)
             // detect the other closing pair
             int ip, jp, best_ip, best_jp, minq;
             PARAMTYPE tmp, min = INF;
-            for (ip = i+1; ip <= MIN(j-2,i+MAXLOOP+1); ip++)
+            int max_ip = std::min(j-TURN-2,i+MAXLOOP+1);
+            for (ip = i+1; ip <= max_ip; ip++)
             {
-                minq = MAX (j-i+ip-MAXLOOP-2, ip+1);
-                for (jp = minq; jp < j; jp++)
+                
+                int min_jp=std::max(ip+TURN+1 + MAXLOOP+2, ip+j-i) - MAXLOOP-2;
+                for (int jp = j-1; jp >= min_jp; --jp)
                 {
                     tmp = VBI->get_energy_str (i,j,ip,jp);
                     if (tmp < min)
@@ -705,19 +691,7 @@ void s_min_folding::backtrack_restricted (seq_interval *cur_interval, str_featur
         type = V->get_type (i,j);
         if (debug)
             printf ("\t(%d,%d) LOOP - type %c\n", i,j,type);
-        if (type == STACK)
-        {
-            f[i].type = STACK;
-            f[j].type = STACK;
-            if (i+1 < j-1)
-                insert_node (i+1, j-1, LOOP);
-            else
-            {
-                fprintf(stderr,"NOT GOOD RESTR STACK, i=%d, j=%d\n", i, j);
-                exit (0);
-            }
 
-        }
         else if (type == HAIRP)
         {
             f[i].type = HAIRP;
@@ -730,19 +704,22 @@ void s_min_folding::backtrack_restricted (seq_interval *cur_interval, str_featur
             // detect the other closing pair
             int ip, jp, best_ip, best_jp, minq;
             PARAMTYPE tmp, min = INF;
-            for (ip = i+1; ip <= MIN(j-2,i+MAXLOOP+1); ip++)
+            int max_ip = std::min(j-TURN-2,i+MAXLOOP+1);
+            for (ip = i+1; ip <= max_ip; ip++)
             {
-                minq = MAX (j-i+ip-MAXLOOP-2, ip+1);
-                for (jp = minq; jp < j; jp++)
-                {
-                    if (exists_restricted (i,ip,fres) || exists_restricted (jp,j,fres))
-                        continue;
-                    tmp = VBI->get_energy_str (i,j,ip,jp);
-                    if (tmp < min)
+                if (!exists_restricted (i,ip,fres)){
+                    int min_l=std::max(ip+TURN+1 + MAXLOOP+2, ip+j-i) - MAXLOOP-2;
+                    for (int jp = j-1; jp >= min_l; --jp)
                     {
-                        min = tmp;
-                        best_ip = ip;
-                        best_jp = jp;
+                        if (!exists_restricted (jp,j,fres)){
+                            tmp = VBI->get_energy_str (i,j,ip,jp);
+                            if (tmp < min)
+                            {
+                                min = tmp;
+                                best_ip = ip;
+                                best_jp = jp;
+                            }
+                        }
                     }
                 }
             }
@@ -1387,8 +1364,6 @@ void s_min_folding::print_result ()
         {
             if (f[i].type == HAIRP)
                 energy = V->get_energy(i, f[i].pair);
-            else if (f[i].type == STACK)
-                energy = V->get_energy(i, f[i].pair) - V->get_energy(i+1, f[i+1].pair);
             /*
             else if (f[i].type == INTER)
             {

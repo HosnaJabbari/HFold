@@ -20,7 +20,6 @@
 #ifndef ENERGY_MATRIX_H
 #define ENERGY_MATRIX_H
 
-#include "s_stacked_pair.h"
 #include "s_hairpin_loop.h"
 #include "s_internal_loop.h"
 #include "s_multi_loop.h"
@@ -31,7 +30,6 @@ class s_energy_matrix
 {
     public:
 
-        friend class s_stacked_pair;
         friend class s_internal_loop;
         friend class s_multi_loop;
 
@@ -41,12 +39,11 @@ class s_energy_matrix
         ~s_energy_matrix ();
         // The destructor
 
-        void set_loops (s_hairpin_loop *H, s_stacked_pair *S,
+        void set_loops (s_hairpin_loop *H,
                         s_internal_loop *VBI, s_multi_loop *VM, s_multi_loop_sub *VM_sub)
         // Set the local loops to the given values
         {
             this->H = H;
-            this->S = S;
             this->VBI = VBI;
             this->VM = VM;
             this->VM_sub = VM_sub;
@@ -58,7 +55,6 @@ class s_energy_matrix
 
         void compute_energy_restricted (int i, int j, str_features *fres);
 
-		void compute_energy_restricted_pkonly (int i, int j, str_features *fres);
 		// April 18, 2012, Hosna:
 		// this is the necessary change for having the pkonly variation of HFold
 
@@ -84,7 +80,6 @@ class s_energy_matrix
     protected:
     //private:
         s_hairpin_loop *H;
-        s_stacked_pair *S;
         s_internal_loop *VBI;
         s_multi_loop *VM;
         s_multi_loop_sub *VM_sub;

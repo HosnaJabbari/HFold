@@ -31,14 +31,12 @@
 #include "simfold.h"
 #include "s_energy_matrix.h"
 #include "s_hairpin_loop.h"
-#include "s_stacked_pair.h"
 
 
 s_energy_matrix::s_energy_matrix (int *seq, int length)
 // The constructor
 {
     this->H = NULL;
-    this->S = NULL;
     this->VBI = NULL;
     this->VM = NULL;
 
@@ -79,7 +77,6 @@ void s_energy_matrix::compute_energy (int i, int j)
     min_en[0] = INF;
     min_en[1] = INF;
     min_en[2] = INF;
-    min_en[3] = INF;
 
     if (can_pair (sequence[i], sequence[j]))    // if i and j can pair
     {
@@ -87,18 +84,16 @@ void s_energy_matrix::compute_energy (int i, int j)
         min_en[0] = H->compute_energy (i, j);
         if (i<=j-TURN-1)
         {
-            min_en[1] = S->compute_energy (i, j);
-
             // TODO: uncomment
             if (!ignore_internal)
-                min_en[2] = VBI->compute_energy (i, j);
+                min_en[1] = VBI->compute_energy (i, j);
             if (!ignore_multi)
-                min_en[3] = VM->compute_energy (i, j);
+                min_en[2] = VM->compute_energy (i, j);
         }
     }
 
     // see which of them is the minimum
-    for (k=0; k<4; k++)
+    for (k=0; k<3; k++)
     {
         if (min_en[k] < min)
         {
@@ -110,9 +105,8 @@ void s_energy_matrix::compute_energy (int i, int j)
     switch (min_rank)
     {
         case  0: type = HAIRP; break;
-        case  1: type = STACK; break;
-        case  2: type = INTER; break;
-        case  3: type = MULTI; break;
+        case  1: type = INTER; break;
+        case  2: type = MULTI; break;
         default: type = NONE;
     }
 
@@ -134,7 +128,7 @@ void s_energy_matrix::compute_energy (int i, int j)
 void s_energy_matrix::compute_energy_restricted (int i, int j, str_features *fres)
 // compute the V(i,j) value, if the structure must be restricted
 {
-    PARAMTYPE min, min_en[4];
+    PARAMTYPE min, min_en[3];
     int k, min_rank;
     char type;
 
@@ -143,7 +137,6 @@ void s_energy_matrix::compute_energy_restricted (int i, int j, str_features *fre
     min_en[0] = INF;
     min_en[1] = INF;
     min_en[2] = INF;
-    min_en[3] = INF;
 
 	// Hosna, March 26, 2012
 	// if the restricted base pairs are non-canonical then checking for can_pair only will cause missing those base pairs
@@ -156,13 +149,12 @@ void s_energy_matrix::compute_energy_restricted (int i, int j, str_features *fre
             if (!exists_restricted (i, j, fres))
                 min_en[0] = H->compute_energy_restricted (i, j, fres); // there was a stupid bug here, I was calling H->compute_energy instead of the restricted version. Fixed on June 30, 2007.
 
-            min_en[1] = S->compute_energy_restricted (i, j,fres);//S->compute_energy (i, j); Hosna, March 26, 2012
-            min_en[2] = VBI->compute_energy_restricted (i, j, fres);
-            min_en[3] = VM->compute_energy_restricted (i, j, fres);
+            min_en[1] = VBI->compute_energy_restricted (i, j, fres);
+            min_en[2] = VM->compute_energy_restricted (i, j, fres);
         }
     }
 
-    for (k=0; k<4; k++)
+    for (k=0; k<3; k++)
     {
         if (min_en[k] < min)
         {
@@ -174,9 +166,8 @@ void s_energy_matrix::compute_energy_restricted (int i, int j, str_features *fre
     switch (min_rank)
     {
         case  0: type = HAIRP; break;
-        case  1: type = STACK; break;
-        case  2: type = INTER; break;
-        case  3: type = MULTI; break;
+        case  1: type = INTER; break;
+        case  2: type = MULTI; break;
         default: type = NONE;
     }
 
@@ -191,74 +182,11 @@ void s_energy_matrix::compute_energy_restricted (int i, int j, str_features *fre
     }
 }
 
-// Hosna, April 18, 2012
-// pkonly version
-void s_energy_matrix::compute_energy_restricted_pkonly (int i, int j, str_features *fres)
-// compute the V(i,j) value, if the structure must be restricted
-{
-    PARAMTYPE min, min_en[4];
-    int k, min_rank;
-    char type;
-
-    min_rank = -1;
-    min = INF/2;
-    min_en[0] = INF;
-    min_en[1] = INF;
-    min_en[2] = INF;
-    min_en[3] = INF;
-
-	if (fres[i].pair == j && fres[j].pair ==i)
-    {
-        if (fres[i].pair == i+1)
-            min_en[0] = 0;
-        else
-        {
-            if (!exists_restricted (i, j, fres))
-                min_en[0] = H->compute_energy_restricted (i, j, fres);
-
-            min_en[1] = S->compute_energy_restricted_pkonly (i, j,fres);
-            min_en[2] = VBI->compute_energy_restricted_pkonly (i, j, fres);
-            min_en[3] = VM->compute_energy_restricted (i, j, fres); // should be left as is, Hosna April 18, 2012
-        }
-    }
-
-    for (k=0; k<4; k++)
-    {
-        if (min_en[k] < min)
-        {
-            min = min_en[k];
-            min_rank = k;
-        }
-    }
-
-    switch (min_rank)
-    {
-        case  0: type = HAIRP; break;
-        case  1: type = STACK; break;
-        case  2: type = INTER; break;
-        case  3: type = MULTI; break;
-        default: type = NONE;
-    }
-
-    if (min_rank > -1)
-    {
-        if (debug)
-            printf ("V(%d,%d) type %c energy %d\n", i, j, type, min);
-    }
-
-    if (min < INF/2)
-    {
-        int ij = index[i]+j-i;
-        nodes[ij].energy = min;
-        nodes[ij].type = type;
-    }
-}
-
 
 void s_energy_matrix::compute_energy_sub (int i, int j)
 // suboptimals computation for V(i,j)
 {
-    PARAMTYPE min, min_en[4];
+    PARAMTYPE min, min_en[3];
     int k, min_rank;
     char type;
     int ij;
@@ -270,19 +198,17 @@ void s_energy_matrix::compute_energy_sub (int i, int j)
     min_en[0] = INF;
     min_en[1] = INF;
     min_en[2] = INF;
-    min_en[3] = INF;
 
     if (can_pair (sequence[i], sequence[j]))
     {
         min_en[0] = H->compute_energy (i, j);
         if (i<=j-TURN-1)
         {
-            min_en[1] = S->compute_energy (i, j);
             // TODO: uncomment
             if (!ignore_internal)
-                min_en[2] = VBI->compute_energy (i, j);
+                min_en[1] = VBI->compute_energy (i, j);
             if (!ignore_multi)
-                min_en[3] = VM_sub->compute_energy (i, j);
+                min_en[2] = VM_sub->compute_energy (i, j);
         }
     }
 
@@ -298,9 +224,8 @@ void s_energy_matrix::compute_energy_sub (int i, int j)
     switch (min_rank)
       {
       case  0: type = HAIRP; break;
-      case  1: type = STACK; break;
-      case  2: type = INTER; break;
-      case  3: type = MULTI; break;
+      case  1: type = INTER; break;
+      case  2: type = MULTI; break;
       default: type = NONE;
     }
 
@@ -319,7 +244,7 @@ void s_energy_matrix::compute_energy_sub (int i, int j)
 void s_energy_matrix::compute_energy_sub_restricted (int i, int j, str_features *fres)
 // compute the V(i,j) value - suboptimals and restricted
 {
-    PARAMTYPE min, min_en[4];
+    PARAMTYPE min, min_en[3];
     int k, min_rank;
     char type;
 
@@ -328,18 +253,16 @@ void s_energy_matrix::compute_energy_sub_restricted (int i, int j, str_features 
     min_en[0] = INF;
     min_en[1] = INF;
     min_en[2] = INF;
-    min_en[3] = INF;
 
     if (can_pair (sequence[i], sequence[j]))
     {
         min_en[0] = H->compute_energy_restricted (i, j, fres);
-        min_en[1] = S->compute_energy (i, j);
-        min_en[2] = VBI->compute_energy_restricted (i, j, fres);
+        min_en[1] = VBI->compute_energy_restricted (i, j, fres);
         // I don't need restricted for VM_sub because I include dangling ends all the time
-        min_en[3] = VM_sub->compute_energy (i, j);
+        min_en[2] = VM_sub->compute_energy (i, j);
     }
 
-    for (k=0; k<4; k++)
+    for (k=0; k<3; k++)
     {
         if (min_en[k] < min)
         {
@@ -351,9 +274,8 @@ void s_energy_matrix::compute_energy_sub_restricted (int i, int j, str_features 
     switch (min_rank)
     {
         case  0: type = HAIRP; break;
-        case  1: type = STACK; break;
-        case  2: type = INTER; break;
-        case  3: type = MULTI; break;
+        case  1: type = INTER; break;
+        case  2: type = MULTI; break;
         default: type = NONE;
     }
 
@@ -377,7 +299,7 @@ void s_energy_matrix::compute_hotspot_energy (int i, int j, int is_stack)
     //printf("in compute_hotspot_energy i:%d j:%d\n",i,j);
     PARAMTYPE energy = 0;
     if(is_stack){
-        energy = S->compute_energy (i, j);
+        energy = VBI->get_energy_str(i, j,i+1,j-1);
         // printf("stack: %d\n",energy);
     }else{
         energy = H->compute_energy (i, j);

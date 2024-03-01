@@ -534,8 +534,8 @@ void detect_h_structure_features (char *structure, h_str_features *f)
 			int i_pair_plus1 = p_table[i+1];
             if (i_pair_plus1 == i_pair-1 && i_pair_plus1 > i+1)//(p_table[i+1] == p_table[i]-1 && p_table[i+1] > i+1)
             {
-                f[i].type = STACK;
-                f[i_pair].type = STACK;//f[p_table[i]].type = STACK;
+                f[i].type = INTER;
+                f[i_pair].type = INTER;//f[p_table[i]].type = STACK;
 				/* if (i>=136){
 						printf("END OF THE LOOP \n");
 						printf("p_table[%d]=%d \n",i,p_table[i]);

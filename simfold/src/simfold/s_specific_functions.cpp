@@ -27,7 +27,6 @@
 #include "externs.h"
 #include "common.h"
 #include "simfold.h"
-#include "s_stacked_pair.h"
 #include "s_specific_functions.h"
 #include "s_min_folding.h"
 #include "s_sub_folding.h"
@@ -314,7 +313,7 @@ double free_energy_simfold_restricted (char *sequence, char *structure, char *re
     int nb_nucleotides;
         
     nb_nucleotides = strlen(sequence); 
-    
+
     str_features *fres;
     if ((fres = new str_features[nb_nucleotides]) == NULL) giveup ("Cannot allocate memory", "str_features");   
     // detect the structure features
@@ -483,14 +482,6 @@ PARAMTYPE s_calculate_energy (int *sequence, char *csequence, char *structure, s
         {
             continue;
         }       
-
-        if (f[i].type == STACK)
-        {
-            en = s_stacked_pair::get_energy (i, f[i].pair, sequence);
-            if (debug)            
-                printf ("%d stack \t- add energy %6d\n", i, en);        
-            energy += en;
-        }
         else if (f[i].type == HAIRP)
         {
             en = s_hairpin_loop::get_energy (i, f[i].pair, sequence, csequence, ptable_restricted);
@@ -503,7 +494,6 @@ PARAMTYPE s_calculate_energy (int *sequence, char *csequence, char *structure, s
                 printf ("%d hairpin \t- add energy %6d\n", i, en);
             energy += en;
         }
-
         else if (f[i].type == INTER)
         {
             int ip, jp;
@@ -511,7 +501,7 @@ PARAMTYPE s_calculate_energy (int *sequence, char *csequence, char *structure, s
             jp = f[f[i].bri[0]].pair;
             cannot_add_dangling[ip-1] = 1;
             cannot_add_dangling[jp+1] = 1;
-            en = s_internal_loop::get_energy (i, f[i].pair, ip, jp, sequence, ptable_restricted);
+            en = s_internal_loop::get_energy (i, f[i].pair, ip, jp, sequence, ptable_restricted);            
             if (debug)
                 printf ("%d internal \t- add energy %6d\n", i, en);        
             energy += en;
@@ -677,14 +667,6 @@ PARAMTYPE s_calculate_enthalpy (int *sequence, char *csequence, str_features *f)
         if (f[i].pair < i)
         {
             continue;
-        }
-
-        if (f[i].type == STACK)
-        {
-            en = s_stacked_pair::get_enthalpy (i, f[i].pair, sequence);
-            if (debug)
-                printf ("%d stack \t- add energy %6d\n", i, en);
-            energy += en;
         }
         else if (f[i].type == HAIRP)
         {

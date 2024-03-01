@@ -27,7 +27,6 @@
 #include "string.h"
 #include "s_specific_functions.h"
 #include "s_hairpin_loop.h"
-#include "s_stacked_pair.h"
 #include "s_internal_loop.h"
 #include "s_min_folding.h"
 #include "s_sub_folding.h"
@@ -1481,15 +1480,6 @@ double count_types (int link, int *sequence, char *csequence, char *structure, c
         if (f[i].pair < i || f[i].type == NONE)
         {
             continue;
-        }
-
-        if (f[i].type == STACK)
-        {
-            en = s_stacked_pair::get_energy (i, f[i].pair, sequence);
-            if (debug)
-                printf ("%d stack \t- add energy %6g\n", i, en);
-            energy += en;
-            if (counter != NULL)    s_stacked_pair::count_get_energy (i, f[i].pair, sequence, counter);
         }
         else if (f[i].type == HAIRP)    // means we don't have x's inside
         {

@@ -134,7 +134,7 @@ enum bases {A=0,C=1,G=2,T=3,U=3,X=4};
 
 #define NONE            'N'         // no structure
 #define HAIRP           'H'         // closes a hairpin loop
-#define STACK           'S'         // closes a stacked pair
+// #define STACK           'S'         // closes a stacked pair
 #define INTER           'I'         // closes an internal loop
 #define MULTI           'M'         // closes a regular multi-loop
 #define MULTI_LINK      'O'         // closes a special multi-loop

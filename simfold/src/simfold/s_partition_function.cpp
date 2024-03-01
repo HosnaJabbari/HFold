@@ -32,7 +32,6 @@
 #include "simfold.h"
 #include "s_energy_matrix.h"
 #include "s_hairpin_loop.h"
-#include "s_stacked_pair.h"
 #include "s_partition_function.h"
 #include "s_min_folding.h"
 #include "s_sub_folding.h"
@@ -1008,20 +1007,6 @@ void s_partition_function::compute_up (int i, int j)
 //     if (i==0 && j==8)    printf ("r1 up[0,8] = %g\n", up[ij]);
     // stack pair
 
-    if (can_pair (sequence[i+1], sequence[j-1]))
-    {
-        en_stack = s_stacked_pair::get_energy (i, j, sequence);
-        //printf ("REAL    i=%d, j=%d, en_stack=%g, %d%d%d%d\n", i, j, en_stack, sequence[i], sequence[j], sequence[i+1], sequence[j-1]);
-        if (en_stack >= INF/2)
-        {
-            //printf ("** Infinite stack   (%d, %d) !\n", i, j);
-        }
-        else
-        {
-            PFTYPE exp_stack = EXP (en_stack * oneoverRT);
-            up[ij] += exp_stack * up [ip1jm1];
-        }
-    }
 //     if (i==0 && j==8)    printf ("r2 up[0,8] = %g\n", up[ij]);
 
     // TODO: remove return;
@@ -1031,11 +1016,12 @@ void s_partition_function::compute_up (int i, int j)
         // internal loop/bulge
         // just remove TURN, because in the restricted case TURN is 0
         //for (ip = i+1; ip <= MIN(j-2-TURN,i+MAXLOOP+1) ; ip++)
-        for (ip = i+1; ip <= MIN(j-2,i+MAXLOOP+1) ; ip++)
+        int max_ip = std::min(j-TURN-2,i+MAXLOOP+1);
+        for (ip = i+1; ip <= max_ip; ip++)
         {
-            //minq = MAX (j-i+ip-MAXLOOP-2, ip+1+TURN);
-            minq = MAX (j-i+ip-MAXLOOP-2, ip+1);
-            for (jp = minq; jp < j; jp++)
+            
+            int min_jp=std::max(ip+TURN+1 + MAXLOOP+2, ip+j-i) - MAXLOOP-2;
+            for (int jp = j-1; jp >= min_jp; --jp)
             {
                 if (sequence[ip]+sequence[jp] == 3 ||
                     sequence[ip]+sequence[jp] == 5)
@@ -1580,7 +1566,7 @@ void s_partition_function::compute_p (int h, int l)
         hm1lp1 = index[h-1] + l+1 - h+1;
         if (can_pair (sequence[h-1], sequence[l+1]))
         {
-            en_stack = s_stacked_pair::get_energy (h-1, l+1, sequence);
+            en_stack = s_internal_loop::get_energy (h-1, l+1, h, l, sequence, ptable_restricted);
             if (en_stack >= INF/2)
             {
                 //printf ("** Infinite stack   (%d, %d) !\n", h-1, l+1);
@@ -3145,7 +3131,7 @@ void s_partition_function::compute_logZ_gradient ()
                                                 {
                                                     iipjjp = index[iip]+jjp-iip;
                                                     if (iip == ii+1 && jjp == jj-1)    // stack pair
-                                                        en_stack = s_stacked_pair::get_energy (ii, jj, sequence);
+                                                        en_stack = s_internal_loop::get_energy (ii, jj, iip, jjp, sequence, ptable_restricted);
                                                     else    // bulge
                                                     {
                                                         if (parsi_bulge1 == LAVISH) continue;
@@ -3188,7 +3174,7 @@ void s_partition_function::compute_logZ_gradient ()
                                                         iipjjp = index[jjp]+iip-jjp;
                                                         if (up[iipjjp] == 0)  continue;
                                                         if (iip == ii+1 && jjp == jj-1)    // stack pair
-                                                            en_stack = s_stacked_pair::get_energy (jjp, iip, sequence);
+                                                            en_stack = s_internal_loop::get_energy (jjp, iip, jj, ii, sequence, ptable_restricted);
                                                         else    // bulge
                                                         {
                                                             if (parsi_bulge1 == LAVISH) continue;
