@@ -1,40 +1,102 @@
-# Ian Wark July 6 2017
-
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.8)
 project(HFold)
 
-# enable c++11
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \ -std=c++17 \ -O3")
-# only continue if we know we already have boost
-# create simfold library
-add_subdirectory(simfold)
 
-set(SOURCE
-    W_final.cpp 
-    pseudo_loop.cpp 
-    V_final.cpp 
-    VM_final.cpp
-    h_common.cpp 
-    hfold_validation.cpp 
-    HFold.cpp
-    cmdline.cc
-    Result.cc
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \ -O3 \ -w")
+
+SET(SOURCE
+#   src/simfold.cpp
+  src/W_final.cpp 
+  src/pseudo_loop.cpp 
+  src/V_final.cpp 
+  src/VM_final.cpp
+  src/h_common.cpp 
+  src/hfold_validation.cpp 
+  src/HFold.cpp
+  src/cmdline.cc
+  src/Result.cc
+  src/params.cpp
+  src/init.cpp 		
+  src/s_energy_matrix.cpp src/s_internal_loop.cpp	
+  src/s_multi_loop.cpp
+  src/Hotspot.cc
 )
 
-# pass SIMFOLD_HOME to binary
-set(SIMFOLD_HOME ${CMAKE_SOURCE_DIR}/simfold)
-add_definitions("-DSIMFOLD_HOME=\"${SIMFOLD_HOME}\"")
+set(constraints_SOURCE
+    src/ViennaRNA/constraints/constraints.c
+    src/ViennaRNA/constraints/hard.c
+    src/ViennaRNA/constraints/SHAPE.c
+    src/ViennaRNA/constraints/soft.c
+) 
+set(datastructures_SOURCE
+    src/ViennaRNA/datastructures/basic_datastructures.c
+    src/ViennaRNA/datastructures/char_stream.c
+    src/ViennaRNA/datastructures/lists.c
+)
+set(io_SOURCE
+    src/ViennaRNA/io/file_formats.c
+    src/ViennaRNA/io/io_utils.c
+)
+set(landscape_SOURCE
+    src/ViennaRNA/landscape/move.c
+)
+set(loops_SOURCE
+    src/ViennaRNA/loops/external_pf.c
+    src/ViennaRNA/loops/external.c
+    src/ViennaRNA/loops/hairpin.c
+    src/ViennaRNA/loops/internal.c
+    src/ViennaRNA/loops/multibranch.c
+)
+set(params_SOURCE
+    src/ViennaRNA/params/default.c
+    src/ViennaRNA/params/params.c
+    src/ViennaRNA/params/io.c
+)
+set(utils_SOURCE
+    src/ViennaRNA/utils/cpu.c
+    src/ViennaRNA/utils/higher_order_functions.c
+    src/ViennaRNA/utils/string_utils.c
+    src/ViennaRNA/utils/structure_utils.c
+    src/ViennaRNA/utils/utils.c
+)
+set(vienna_SOURCE
+    ${constraints_SOURCE} ${datastructures_SOURCE}
+    ${io_SOURCE} ${landscape_SOURCE}
+    ${loops_SOURCE} ${params_SOURCE}
+    ${utils_SOURCE}
+    src/ViennaRNA/alphabet.c
+    src/ViennaRNA/boltzmann_sampling.c
+    src/ViennaRNA/centroid.c
+    src/ViennaRNA/cofold.c
+    src/ViennaRNA/commands.c
+    src/ViennaRNA/dp_matrices.c
+    src/ViennaRNA/equilibrium_probs.c
+    src/ViennaRNA/eval.c
+    src/ViennaRNA/fold_compound.c
+    src/ViennaRNA/fold.c
+    src/ViennaRNA/gquad.c
+    src/ViennaRNA/grammar.c
+    src/ViennaRNA/MEA.c
+    src/ViennaRNA/mfe.c
+    src/ViennaRNA/mm.c
+    src/ViennaRNA/model.c
+    src/ViennaRNA/part_func.c
+    src/ViennaRNA/ribo.c
+    src/ViennaRNA/sequence.c
+    src/ViennaRNA/subopt.c
+    src/ViennaRNA/unstructured_domains.c  
+)
 
-# set path for executable to be created
-# create executable
+add_library(RNA STATIC ${vienna_SOURCE})
+# configure_file(RNA.pc.in RNA.pc @ONLY)
+
+target_include_directories(RNA PRIVATE .)
+
 add_executable(HFold ${SOURCE})
 
-# enable C++11
-target_compile_features(HFold PRIVATE cxx_nullptr)
+target_link_libraries(HFold PRIVATE RNA)
 
-# link to simfold
-target_link_libraries(HFold LINK_PUBLIC simfold)
+include_directories(src)
