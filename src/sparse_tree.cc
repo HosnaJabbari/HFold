@@ -1,6 +1,6 @@
+#include "sparse_tree.hh"
 #include <iomanip>
 #include <vector>
-#include "sparse_tree.hh"
 
 #define maxSize 14 // 2^14 for sparse table
 

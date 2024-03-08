@@ -21,8 +21,10 @@
 #define ENERGY_MATRIX_H
 
 #include "base_types.hh"
-#include <string>
 #include "sparse_tree.hh"
+#include <string>
+#include <vector>
+
 extern "C" {
 #include "ViennaRNA/pair_mat.h"
 #include "ViennaRNA/loops/all.h"

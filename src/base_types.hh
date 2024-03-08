@@ -1,6 +1,6 @@
 #ifndef BASETYPES
 #define BASETYPES
-#include <iostream>
+#include <cstdint>
 
 //! type of energy
 typedef int_least32_t energy_t;

@@ -40,7 +40,7 @@ VM_final::~VM_final()
 void VM_final::compute_energy(cand_pos_t i, cand_pos_t j, str_features *fres, sparse_tree &tree){
 	// Hosna June 26, 2007
 	// I have to figure out how to calculate the energy here
-
+    if(j-i+1<4) return;
 	// here comes the copied part from simfold with all dangling energies
 	int min = INF, tmp, k;
     int iplus1k;

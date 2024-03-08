@@ -1,16 +1,15 @@
+#include "W_final.h"
+#include "pseudo_loop.h"
+#include "V_final.h"
+#include "constants.h"
+#include "h_struct.h"
+#include "h_externs.h"
+#include "h_common.h"
 
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-
-#include "pseudo_loop.h"
-#include "V_final.h"
-#include "W_final.h"
-#include "constants.h"
-#include "h_struct.h"
-#include "h_externs.h"
-#include "h_common.h"
 
 
 // Hosna June 20th, 2007
@@ -18,10 +17,9 @@
 // to create all the matrixes required for simfold
 // and then calls allocate_space in here to allocate
 // space for WMB and V_final
-W_final::W_final(std::string seq,std::string res,char *cseq, char *restricted, bool pk_free) : params_(scale_parameters())
+W_final::W_final(std::string seq,std::string res, char *restricted, bool pk_free) : params_(scale_parameters())
 {
 	seq_ = seq;
-	this->sequence = cseq;
 	this->restricted = restricted;
 	this->res = res;
 	this->n = seq.length();
@@ -42,14 +40,9 @@ W_final::~W_final()
 	delete WMB;
 	delete V;
 	delete [] f;
-    delete [] int_sequence;
 	free(params_);
 	free(S_);
 	free(S1_);
-
-	// Ian Wark July 21 2017
-	// we don't need this, this is done in s_min_folding
-	//delete [] int_sequence;
 }
 
 // Hosna June 20th, 2007
@@ -59,9 +52,6 @@ void W_final::space_allocation(){
 	// From simfold
 	f = new minimum_fold [n];
     if (f == NULL) giveup ("Cannot allocate memory", "energy");
-	int_sequence = new int[n];
-    if (int_sequence == NULL) giveup ("Cannot allocate memory", "energy");
-    for (int i=0; i < n; i++) int_sequence[i] = nuc_to_int(sequence[i]);
 
     V = new s_energy_matrix (seq_, n,params_);
     if (V == NULL) giveup ("Cannot allocate memory", "energy");
@@ -76,7 +66,7 @@ void W_final::space_allocation(){
 	v->setloops(this->V,vm);
 
 	// Hosna: June 20th 2007
-    WMB = new pseudo_loop (seq_,sequence,restricted,v,vm,params_);
+    WMB = new pseudo_loop (seq_,restricted,v,vm,params_);
     if (WMB == NULL) giveup ("Cannot allocate memory", "W_final");
 
     // Hosna: June 20th 2007
@@ -90,18 +80,6 @@ void W_final::space_allocation(){
 
 
 double W_final::hfold(sparse_tree &tree){
-
-	h_str_features *h_fres;
-    if ((h_fres = new h_str_features[n]) == NULL) giveup ("Cannot allocate memory", "h_str_features");
-    // detect the structure features
-    detect_h_structure_features (restricted, h_fres);
-    WMB->set_features(h_fres);
-    WMB->initialize();
-
-    str_features *fres;
-    if ((fres = new str_features[n]) == NULL) giveup ("Cannot allocate memory", "str_features");
-    // detect the structure features
-    detect_structure_features (restricted, fres);
 
 	// for (int j=1; j <= n; ++j)
     // {
@@ -158,28 +136,7 @@ double W_final::hfold(sparse_tree &tree){
 		W[j-1] = std::min({m1,m2,m3});
 	}
 
-
-	// I can't do this at the time at the moment as, unlike with candidates, there is no way for me get a partitionable index that is already calculated if I make indices like the above i.e. W[i] is not calculated yet and I can't add it to W[j]
-	// for (cand_pos_t i = n-1; i>=0; --i){
-	// 	energy_t acc = (i-1>0) ? W[i-1]: 0;
-		
-	// 	for (cand_pos_t j=i; j<n; ++j){
-	// 		energy_t m1 = INF;
-	// 		energy_t m2 = INF;
-	// 		energy_t m3 = INF;
-	// 	 	// m2 = compute_W_br2_restricted (j, fres, must_choose_this_branch);
-	// 		if(fres[j].pair < 0) m1 = W[j-1];
-	// 		m2 = std::min(m2,E_ext_Stem(v->get_energy(i,j),v->get_energy(i+1,j),v->get_energy(i,j-1),v->get_energy(i+1,j-1),S_,params_,i,j,n,fres) + acc);
-	// 		m3 = std::min(m3,WMB->get_energy(i,j) + acc + PS_penalty);
-	// 		W[j] = std::min(m1,std::min(m2,m3));
-	// 	}
-	// }
     double energy = W[n-1]/100.0;
-
-
-
-
-
 
     // // backtrack
     // // first add (0,n-1) on the stack
@@ -195,12 +152,11 @@ double W_final::hfold(sparse_tree &tree){
     while ( cur_interval != NULL)
     {
         stack_interval = stack_interval->next;
-        backtrack_restricted (cur_interval, fres,tree);
+        backtrack_restricted (cur_interval,tree);
         delete cur_interval;    // this should make up for the new in the insert_node
         cur_interval = stack_interval;
     }
-    delete [] h_fres;
-    delete [] fres;
+    // delete [] h_fres;
     return energy;
 
 }
@@ -283,7 +239,7 @@ energy_t W_final::E_ext_Stem(const energy_t& vij,const energy_t& vi1j,const ener
 	return e;
 }
 
-void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fres, sparse_tree &tree){
+void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree){
     char type;
 
 
@@ -304,8 +260,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			// if the pairing is part of original structure, put '(' and ')' in the structure
 			// otherwise make it '[' and ']' -- changed to () if pseudoknot-free and [] if pseudoknotted -Mateo
 			structure[i] = '(';
-			structure[j] = ')';
-		
+			structure[j] = ')';		
 
 			type = v->get_type (i,j);
 			
@@ -325,28 +280,29 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					f[i].type = INTER;
 					f[j].type = INTER;
 					// detect the other closing pair
-					int ip, jp, best_ip, best_jp, minq;
-					int tmp, min = INF;
-					int max_ip = std::min(j-TURN-2,i+MAXLOOP+1);
-					for (ip = i+1; ip <= max_ip; ip++)
+					cand_pos_t best_ip=j, best_jp=i;
+					energy_t min = INF;
+					cand_pos_t max_ip = std::min(j-TURN-2,i+MAXLOOP+1);
+					for (cand_pos_t k = i+1; k <= max_ip; ++k)
 					{
-						if (!exists_restricted (i,ip,fres)){
-							int min_l=std::max(ip+TURN+1 + MAXLOOP+2, ip+j-i) - MAXLOOP-2;
-							for (int jp = j-1; jp >= min_l; --jp)
+						if (tree.up[k+1-1]>=(k-i-1)){
+							cand_pos_t min_l=std::max(k+TURN+1 + MAXLOOP+2, k+j-i) - MAXLOOP-2;
+							for (cand_pos_t l = j-1; l >= min_l; --l)
 							{
-								if(!exists_restricted (jp,j,fres)){
+								if(tree.up[j+1-1]>=(j-l-1)){
 							
-									tmp = V->compute_int(i+1,j+1,ip+1,jp+1,params_);
+									energy_t tmp = V->compute_int(i+1,j+1,k+1,l+1,params_);
 									if (tmp < min)
 									{
 										min = tmp;
-										best_ip = ip;
-										best_jp = jp;
+										best_ip = k;
+										best_jp = l;
 									}
 								}
 							}
 						}
 					}
+
 					if (best_ip < best_jp)
 						insert_node (best_ip, best_jp, LOOP);
 					else
@@ -361,9 +317,9 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 				{
 					f[i].type = MULTI;
 					f[j].type = MULTI;
-					int k, best_k = -1, best_row = -1;
+					int best_k = -1, best_row = -1;
 					int tmp= INF, min = INF;
-					for (k = i+1; k <= j-1; k++)
+					for (cand_pos_t k = i+1; k <= j-1; k++)
 					  {
 						tmp = vm->get_energy_WM (i+1,k,tree) + vm->get_energy_WM (k+1, j-1,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],-1,-1,params_);
 						if (tmp < min)
@@ -375,7 +331,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 						  // TODO:
 						  // Hosna, May 1st, 2012
 						  // do I need to check for non-canonical base pairings here as well so the dangle values not be INF??
-						if (fres[i+1].pair <= -1)
+						if (tree.tree[i+1+1].pair <= -1)
 						{
 							tmp = vm->get_energy_WM (i+2,k,tree) + vm->get_energy_WM (k+1, j-1,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],S_[j-1+1],-1,params_);
 							if (tmp < min)
@@ -385,7 +341,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 								best_row = 2;
 							}
 						}
-						if (fres[j-1].pair <= -1)
+						if (tree.tree[j-1+1].pair <= -1)
 						{
 							tmp = vm->get_energy_WM (i+1,k,tree) + vm->get_energy_WM (k+1, j-2,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],-1,S_[i+1+1],params_);
 							if (tmp < min)
@@ -395,7 +351,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 								best_row = 3;
 							}
 						}
-						if (fres[i+1].pair <= -1 && fres[j-1].pair <= -1)
+						if (tree.tree[i+1+1].pair <= -1 && tree.tree[j-1+1].pair <= -1)
 						{
 							tmp = vm->get_energy_WM (i+2,k,tree) + vm->get_energy_WM (k+1, j-2,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],S_[j-1+1],S_[i+1+1],params_);
 							if (tmp < min)
@@ -461,7 +417,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			int min = INF, tmp, best_row, i, best_i, acc, energy_ij;
 
 			// this case is for j unpaired, so I have to check that.
-			if (fres[j].pair <= -1)
+			if (tree.tree[j+1].pair <= -1)
 			{
 				tmp = W[j-1];
 				if (tmp < min)
@@ -490,7 +446,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					
 				}
 
-				if (fres[i].pair <= -1)
+				if (tree.tree[i+1].pair <= -1)
 				{
 					energy_ij = v->get_energy(i+1,j,tree);
 					if (energy_ij < INF)
@@ -506,7 +462,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 						
 					}
 				}
-				if (fres[j].pair <= -1)
+				if (tree.tree[j+1].pair <= -1)
 				{
 					energy_ij = v->get_energy(i,j-1,tree);
 					if (energy_ij < INF)
@@ -520,7 +476,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 						}
 					}
 				}
-				if (fres[i].pair <= -1 && fres[j].pair <= -1)
+				if (tree.tree[i+1].pair <= -1 && tree.tree[j+1].pair <= -1)
 				{
 					energy_ij = v->get_energy(i+1,j-1,tree);
 					if (energy_ij < INF)
@@ -542,7 +498,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 		{
 			// Hosna: July 9, 2007
 			// We only chop W to W + WMB when the bases before WMB are free
-			if (i == 0 || (WMB->is_weakly_closed(0,i-1) && WMB->is_weakly_closed(i,j))){
+			if (i == 0 || (tree.weakly_closed(1,i-1+1) && tree.weakly_closed(i+1,j+1))){
 
 				acc = (i-1>0) ? W[i-1]: 0;
 
@@ -560,8 +516,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					}
 				}
 
-				// I have to condition on  fres[i].pair <= -1 to make sure that i can be unpaired
-				if (fres[i].pair <= -1 && i+1 < j)
+				if (tree.tree[i+1].pair <= -1 && i+1 < j)
 				{
 					energy_ij = WMB->get_WMB(i+1,j,tree);
 					if (energy_ij < INF)
@@ -576,8 +531,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					}
 				}
 
-				// I have to condition on  fres[j].pair <= -1 to make sure that j can be unpaired
-				if (fres[j].pair <= -1 && i < j-1)
+				if (tree.tree[j+1].pair <= -1 && i < j-1)
 				{
 					energy_ij = WMB->get_WMB(i,j-1,tree);
 					if (energy_ij < INF)
@@ -592,7 +546,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					}
 				}
 
-				if (fres[i].pair <= -1 && fres[j].pair <= -1 && i+1 < j-1)
+				if (tree.tree[i+1].pair <= -1 && tree.tree[j+1].pair <= -1 && i+1 < j-1)
 				{
 					energy_ij = WMB->get_WMB(i+1,j-1,tree);
 					if (energy_ij < INF)
@@ -680,7 +634,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 				  min = tmp;
 				  best_row = 1;
 				}
-			  if (fres[i].pair <= -1)
+			  if (tree.tree[i+1].pair <= -1)
 			  {
 				  tmp = v->get_energy(i+1,j,tree) + E_ExtLoop(pair[S_[i+1+1]][S_[j+1]],S_[i+1],-1,params_) + params_->MLbase;
 				  if (tmp < min)
@@ -689,7 +643,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					  best_row = 2;
 				  }
 			  }
-			  if (fres[j].pair <= -1)
+			  if (tree.tree[j+1].pair <= -1)
 			  {
 				  tmp = v->get_energy(i,j-1,tree) + E_ExtLoop(pair[S_[i+1]][S_[j-1+1]],-1,S_[j+1],params_) + params_->MLbase;
 				  if (tmp < min)
@@ -698,7 +652,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					  best_row = 3;
 				  }
 			  }
-			  if (fres[i].pair <= -1 && fres[j].pair <= -1)
+			  if (tree.tree[i+1].pair <= -1 && tree.tree[j+1].pair <= -1)
 			  {
 				  tmp = v->get_energy(i+1,j-1,tree) + E_MLstem(pair[S_[i+1+1]][S_[j-1+1]],S_[i+1],S_[j+1],params_) + 2*params_->MLbase;
 				  if (tmp < min)
@@ -707,7 +661,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					  best_row = 4;
 				  }
 			  }
-			  if (fres[i].pair <= -1)
+			  if (tree.tree[i+1].pair <= -1)
 			  {
 				  tmp = vm->get_energy_WM (i+1,j,tree) + params_->MLbase;
 				  if (tmp < min)
@@ -716,7 +670,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					  best_row = 5;
 				  }
 			  }
-			  if (fres[j].pair <= -1)
+			  if (tree.tree[j+1].pair <= -1)
 			  {
 				  tmp = vm->get_energy_WM (i,j-1,tree) + params_->MLbase;
 				  if (tmp < min)
@@ -890,9 +844,6 @@ int distance(int left, int right){
 void expand_hotspot(s_energy_matrix *V, Hotspot &hotspot, int n){
     //printf("\nexpanding hotspot: i: %d j: %d\n",hotspot->get_left_inner_index(),hotspot->get_right_inner_index());
     double energy = 0;
-    // int non_gc_penalty = 0;
-    // int dangle_top_penalty = 0;
-    // int dangle_bot_penalty = 0;
 	int dangle_penalty = 0;
 
     //calculation for the hairpin that is already in there
@@ -907,38 +858,11 @@ void expand_hotspot(s_energy_matrix *V, Hotspot &hotspot, int n){
             hotspot.move_right_outer_index();
             hotspot.increment_size();
             V->compute_hotspot_energy(hotspot.get_left_outer_index(),hotspot.get_right_outer_index(),1);
-            //printf("AU(i:%d,j:%d) = %d\n",hotspot->get_left_outer_index(),hotspot->get_right_outer_index(), AU_penalty (int_sequence[hotspot->get_left_outer_index()],int_sequence[hotspot->get_right_outer_index()]));
         }else{
             break;
         }
     }
-
-    // non_gc_penalty += AU_penalty (int_sequence[hotspot.get_left_outer_index()],int_sequence[hotspot.get_right_outer_index()]);
-
-    //if current out left-1 >= 0  (aka still have spot on left side of curent left out)
-    //if current out right+1 <= nb_nuc-1 (aka still have spot on right side of curent right out)
-    // if(hotspot.get_left_outer_index() - 1 >= 0 && hotspot.get_right_outer_index() + 1 <= n-1){
-    //     int i = hotspot.get_left_outer_index()-1;
-    //     int j = hotspot.get_right_outer_index()+1;
-	// 	int tt = pair[V->S_[i+1]][V->S_[j+1]];
-	// 	int si1 = i>0 ? V->S_[i-1] : -1;
-	// 	int sj1 = j<n-1 ? V->S_[j+1] : -1;
-	// 	dangle_penalty = vrna_E_ext_stem(tt, si1, sj1, V->params_);
-    //     // dangle_bot_penalty = dangle_bot [int_sequence[j-1]][int_sequence[i+1]][int_sequence[i]];
-    //     // dangle_top_penalty = dangle_top [int_sequence[j-1]][int_sequence[i+1]][int_sequence[j]];
-    //     //printf("i: %d j: %d, dangle_bot: %d dangle_top: %d\n",i,j,dangle_bot_penalty,dangle_top_penalty);
-    // }else if(hotspot.get_left_outer_index() - 1 >= 0){
-    //     int i = hotspot.get_left_outer_index()-1;
-    //     int j = nb_nucleotides-1;
-    //     // dangle_bot_penalty = dangle_bot [int_sequence[j]][int_sequence[i+1]][int_sequence[i]];
-    //     //printf("i: %d j: %d, dangle_bot: %d \n",i,j,dangle_bot_penalty);
-    // }else if(hotspot.get_right_outer_index() + 1 <= nb_nucleotides-1){
-    //     int i = 0;
-    //     int j = hotspot.get_right_outer_index()+1;
-    //     // dangle_top_penalty = dangle_top [int_sequence [j-1]][int_sequence [i]][int_sequence [j]];
-    //     //printf("i: %d j: %d, angle_top: %d\n",i,j,dangle_top_penalty);
-    // }
-	 int i = hotspot.get_left_outer_index()-1;
+	int i = hotspot.get_left_outer_index()-1;
 	int j = hotspot.get_right_outer_index()+1;
 	int tt = pair[V->S_[i+1]][V->S_[j+1]];
 	int si1 = i>0 ? V->S_[i-1] : -1;

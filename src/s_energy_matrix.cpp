@@ -17,17 +17,15 @@
 
  // This is the V matrix
 
+#include "constants.h"
+#include "h_struct.h"
+#include "h_common.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <string>
-// Hosna, March 5, 2012
-// malloc.h is not needed in my mac as stdlib.h does the same
-//#include <malloc.h>
 
-#include "constants.h"
-#include "h_struct.h"
-#include "h_common.h"
 #include "s_energy_matrix.h"
 
 
@@ -251,54 +249,11 @@ energy_t s_energy_matrix::E_MbLoop(const energy_t WM2ij, const energy_t WM2ip1j,
 	return e;
 }
 
-void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t j, std::vector<Node> &tree)
-// compute de MFE of a partial multi-loop closed at (i,j), the restricted case
-{
-    energy_t tmp;
-    // ++j;
-    for (cand_pos_t i=j-1; i>=1; i--)
-    {
-        cand_pos_t ij = index[(i-1)]+(j-1)-(i-1);
-        cand_pos_t iplus1j = index[(i-1)+1]+(j-1)-(i-1)-1;
-        cand_pos_t ijminus1 = index[(i-1)]+(j-1)-1-(i-1);
-
-        WM[ij] = E_MLStem(get_energy(i-1,j-1),get_energy(i+1-1,j-1),get_energy(i-1,j-1-1),get_energy(i+1-1,j-1-1),S_,params_,i,j,n,tree);
-
-        if (tree[i].pair <= -1)
-        {
-            tmp = WM[iplus1j] + params_->MLbase;
-            if (tmp < WM[ij])
-            {
-                WM[ij] = tmp;
-            }
-        }
-
-        if (tree[j].pair <= -1)
-        {
-            tmp = WM[ijminus1] + params_->MLbase;
-            if (tmp < WM[ij])
-            {
-                WM[ij] = tmp;
-            }
-        }
-
-        for (cand_pos_t k=i; k < j; k++)
-        {
-            cand_pos_t ik = index[(i-1)]+(k-1)-(i-1);
-            cand_pos_t kplus1j = index[(k-1)+1]+(j-1)-(k-1)-1;
-            tmp = WM[ik] + WM[kplus1j];
-            if (tmp < WM[ij])
-            {
-                WM[ij] = tmp;
-            }
-        }
-    }
-}
-
 void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, std::vector<Node> &tree)
 // compute de MFE of a partial multi-loop closed at (i,j), the restricted case
 {
-    energy_t tmp;
+    if(j-i+1<4) return;
+	energy_t tmp;
     // ++j;
 	cand_pos_t ij = index[(i-1)]+(j-1)-(i-1);
 	cand_pos_t iplus1j = index[(i-1)+1]+(j-1)-(i-1)-1;

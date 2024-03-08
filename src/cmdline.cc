@@ -1,14 +1,13 @@
+#include "cmdline.hh"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
+#include <getopt.h>
 
 #ifndef FIX_UNUSED
 #define FIX_UNUSED(X) (void) (X) /* avoid warnings for unused params */
 #endif
-
-#include <getopt.h>
-
-#include "cmdline.hh"
 
 std::string input_struct;
 std::string input_file;

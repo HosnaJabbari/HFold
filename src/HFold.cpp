@@ -11,10 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <iterator>
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <sys/stat.h>
 #include <string>
 #include <getopt.h>
@@ -76,8 +73,8 @@ void validateSequence(std::string sequence){
   }
 }
 
-double hfold(std::string seq,std::string res, char *sequence, char *restricted, std::string &structure, sparse_tree &tree, bool pk_free){
-	W_final *min_fold = new W_final (seq,res,sequence, restricted, pk_free);
+double hfold(std::string seq,std::string res, char *restricted, std::string &structure, sparse_tree &tree, bool pk_free){
+	W_final *min_fold = new W_final (seq,res, restricted, pk_free);
 	if (min_fold == NULL) giveup ("Cannot allocate memory", "HFold");
 	double energy = min_fold->hfold(tree);
     structure = min_fold->structure;
@@ -136,8 +133,6 @@ int main (int argc, char *argv[])
 
 	std::vector<Hotspot> hotspot_list;
 
-	char sequence[n+1];
-	strcpy(sequence,seq.c_str());
 	// Hotspots
 
 	vrna_param_s *params;
@@ -166,7 +161,7 @@ int main (int argc, char *argv[])
 		strcpy(structure,struc.c_str());
 
 		sparse_tree tree(restricted,n);
-		energy = hfold(seq,struc,sequence, structure, final_structure,tree,pk_free);
+		energy = hfold(seq,struc, structure, final_structure,tree,pk_free);
 		
 		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy);
 		result_list.push_back(result);
@@ -186,7 +181,7 @@ Result::Result_comp result_comp;
 	//output to file
 	if(fileO != ""){
 		std::ofstream out(fileO);
-		out << sequence << std::endl;
+		out << seq << std::endl;
 		for (int i=0; i < number_of_output; i++) {
 			out << "Restricted_" << i << ": " << result_list[i].get_restricted() << std::endl;;
 			out << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ")" << std::endl;	

@@ -1,3 +1,4 @@
+#include "h_struct.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -6,7 +7,6 @@
 #include <math.h>
 
 #include "V_final.h"
-#include "h_struct.h"
 
 V_final::V_final(cand_pos_t n){
 	index.resize(n);
@@ -63,4 +63,3 @@ char V_final::get_type(cand_pos_t i, cand_pos_t j){
 	}
 	return MULTI;
 }
-

@@ -1,10 +1,10 @@
 #ifndef V_FINAL_H_
 #define V_FINAL_H_
 
+#include "base_types.hh"
 #include "h_struct.h"
 #include "s_energy_matrix.h"
 #include "VM_final.h"
-#include "base_types.hh"
 #include <vector>
 
 class VM_final;

@@ -1,12 +1,12 @@
 #ifndef PSEUDO_LOOP_H_
 #define PSEUDO_LOOP_H_
-#include <stdio.h>
-#include <string.h>
+#include "base_types.hh"
 #include "h_struct.h"
 #include "h_common.h"
+#include <stdio.h>
+#include <string.h>
 #include "V_final.h"
 #include "VM_final.h"
-#include "base_types.hh"
 
 class VM_final;
 class V_final;
@@ -14,16 +14,11 @@ class pseudo_loop{
 
 public:
 	// constructor
-	pseudo_loop(std::string seq,char *sequence, char* restricted, V_final *V, VM_final *VM, vrna_param_t *params);
+	pseudo_loop(std::string seq, char* restricted, V_final *V, VM_final *VM, vrna_param_t *params);
 
 	// destructor
 	~pseudo_loop();
 
-
-	void set_features(h_str_features *f);
-	// changed the code and added the initialized function
-	// such that I can call WMB right after V
-	void initialize();
     void compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
     // energy_t get_energy(cand_pos_t i, cand_pos_t j);
@@ -58,8 +53,6 @@ public:
 private:
 
 	cand_pos_t n;
-	int *int_sequence;
-	char *sequence;
 	char *restricted;
 	std::string seq;
 
@@ -81,11 +74,8 @@ private:
 	energy_t *WIP;				// the loop corresponding to WI'
     energy_t *VPP;				// the loop corresponding to VP'
     energy_t *BE;				// the loop corresponding to BE
-    energy_t *weakly_closed;		// the array which is keeping track of which regions are weakly closed
-    cand_pos_t *not_paired_all;	// the array which keeps track of empty regions
     cand_pos_t *index;				// the array to keep the index of two dimensional arrays like WI and weakly_closed
-    cand_pos_t **border_bs;		// keeps track of border_b and border_B
-    cand_pos_t **border_bps;		// keeps track of border_bp and border_Bp
+
 	short *S_;
 	short *S1_;
 
@@ -113,14 +103,6 @@ private:
 
 	void compute_VPP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the VPP array
-
-	// Hosna Feb 8th, 2007:
-	// To get the band borders easily
-	// I am adding the following functions
-	cand_pos_t get_b(cand_pos_t i,cand_pos_t j);
-	cand_pos_t get_bp(cand_pos_t i,cand_pos_t j);
-	cand_pos_t get_B(cand_pos_t i,cand_pos_t j);
-	cand_pos_t get_Bp(cand_pos_t i,cand_pos_t j);
 
 	// Hosna Feb 8th, 2007:
 	// I have to calculate the e_stP in a separate function
