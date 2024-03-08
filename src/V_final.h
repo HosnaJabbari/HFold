@@ -4,27 +4,26 @@
 #include "h_struct.h"
 #include "s_energy_matrix.h"
 #include "VM_final.h"
+#include "base_types.hh"
+#include <vector>
 
 class VM_final;
 class V_final{
 	public:
 	// constructor
-	V_final(int nb_nucleotides);
+	V_final(cand_pos_t nb_nucleotides);
 	~V_final();
 	void setloops(s_energy_matrix *v, VM_final *vm);
-	int get_energy(int i, int j);
+	energy_t get_energy(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
-	char get_type (int i, int j);
+	char get_type (cand_pos_t i, cand_pos_t j);
     // return the type at v_final(i,j)
-
-    void set_features(str_features *f){fres = f;}
 
 	s_energy_matrix *v;
 	VM_final *vm;
 	protected:
-	int *index;
+	std::vector<cand_pos_t> index;
 	int *type;
-	str_features *fres;
 
 
 };

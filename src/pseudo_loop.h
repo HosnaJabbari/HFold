@@ -6,6 +6,7 @@
 #include "h_common.h"
 #include "V_final.h"
 #include "VM_final.h"
+#include "base_types.hh"
 
 class VM_final;
 class V_final;
@@ -23,33 +24,27 @@ public:
 	// changed the code and added the initialized function
 	// such that I can call WMB right after V
 	void initialize();
-    void compute_energies(int i, int j);
+    void compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
-    int get_energy(int i, int j);
+    // energy_t get_energy(cand_pos_t i, cand_pos_t j);
 	// in order to be able to check the border values consistantly
 	// I am adding these get functions
-	int get_WI(int i, int j);
-	// Hosna, May 1st, 2012
-	// I don't think we need specific getter function for pkonly case
-	//int get_WI_pkonly(int i, int j); // April 3, 2012
+	energy_t get_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
-	int get_VP(int i, int j);
-	int get_WMB(int i, int j);
-	int get_BE(int i, int j, int ip, int jp);
-	int get_WIP(int i, int j);
-	// Hosna, May 1st, 2012
-	// I don't think we need specific getter function for pkonly case
-	//int get_WIP_pkonly(int i, int j); // April 3, 2012
+	energy_t get_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_WMB(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree);
+	energy_t get_WIP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
-	int get_VPP(int i, int j);
+	energy_t get_VPP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
 	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
-	int get_WMBP(int i, int j);
+	energy_t get_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
-    int is_weakly_closed(int i, int j);
-    int is_empty_region(int i, int j);
+    int is_weakly_closed(cand_pos_t i, cand_pos_t j);
+    int is_empty_region(cand_pos_t i, cand_pos_t j);
 
-    void back_track(char *structure, minimum_fold *f, seq_interval *cur_interval);
+    void back_track(char *structure, minimum_fold *f, seq_interval *cur_interval, sparse_tree &tree);
 
 	// Hosna, May 1st, 2012
 	// We need a specific back track function for pkonly case
@@ -62,7 +57,7 @@ public:
 
 private:
 
-	int nb_nucleotides;
+	cand_pos_t n;
 	int *int_sequence;
 	char *sequence;
 	char *restricted;
@@ -77,77 +72,65 @@ private:
 	minimum_fold *f;
 	vrna_param_t *params_;
 
-	int needs_computation; // This global variable is used so that we don't compute energies in backtracking
 
 	//Hosna
-    int *WI;				// the loop inside a pseudoknot (in general it looks like a W but is inside a pseudoknot)
-    int *VP;				// the loop corresponding to the pseudoknotted region of WMB
-    int *WMB;				// the main loop for pseudoloops and bands
-    int *weakly_closed;		// the array which is keeping track of which regions are weakly closed
-    int *not_paired_all;	// the array which keeps track of empty regions
-    int *index;				// the array to keep the index of two dimensional arrays like WI and weakly_closed
-    int **border_bs;		// keeps track of border_b and border_B
-    int **border_bps;		// keeps track of border_bp and border_Bp
-    int *WIP;				// the loop corresponding to WI'
-    int *VPP;				// the loop corresponding to VP'
-    int *BE;				// the loop corresponding to BE
+    energy_t *WI;				// the loop inside a pseudoknot (in general it looks like a W but is inside a pseudoknot)
+    energy_t *VP;				// the loop corresponding to the pseudoknotted region of WMB
+    energy_t *WMB;				// the main loop for pseudoloops and bands
+	energy_t *WMBP; 				// the main loop to calculate WMB
+	energy_t *WIP;				// the loop corresponding to WI'
+    energy_t *VPP;				// the loop corresponding to VP'
+    energy_t *BE;				// the loop corresponding to BE
+    energy_t *weakly_closed;		// the array which is keeping track of which regions are weakly closed
+    cand_pos_t *not_paired_all;	// the array which keeps track of empty regions
+    cand_pos_t *index;				// the array to keep the index of two dimensional arrays like WI and weakly_closed
+    cand_pos_t **border_bs;		// keeps track of border_b and border_B
+    cand_pos_t **border_bps;		// keeps track of border_bp and border_Bp
 	short *S_;
 	short *S1_;
-
-    // Hosna, April 18th, 2007
-	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
-	int *WMBP; 				// the main loop to calculate WMB
 
     // function to allocate space for the arrays
     void allocate_space();
 
-    void compute_WI(int i, int j, h_str_features *fres);
+    void compute_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: This function is supposed to fill in the WI array
 
-	void compute_WI_pkonly(int i, int j, h_str_features *fres);
-	// April 3, 2012
-	// Hosna: This function is supposed to fill in the WI array with pk only base pairs
-
-	void compute_VP(int i, int j, h_str_features *fres);
+	void compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the VP array
 
-	void compute_WMB(int i, int j, h_str_features *fres);
+	void compute_WMB(cand_pos_t i,cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the WMB array
 
 	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
-	void compute_WMBP(int i, int j, h_str_features *fres);
+	void compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// this is the helper recurrence to fill the WMB array
 
-	void compute_BE(int i, int j, int ip, int jp, h_str_features *fres);
-	// Hosna: this function is supposed to fill the BE array
-
-	void compute_WIP(int i, int j, h_str_features *fres);
+	void compute_WIP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the WIP array
 
-	void compute_WIP_pkonly(int i, int j, h_str_features *fres);
-	// April 3, 2012
-	// Hosna: this function is supposed to fill the WIP array with pk only base pairs
+	void compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree);
+	// Hosna: this function is supposed to fill the BE array
 
-	void compute_VPP(int i, int j, h_str_features *fres);
+	void compute_VPP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the VPP array
 
 	// Hosna Feb 8th, 2007:
 	// To get the band borders easily
 	// I am adding the following functions
-	int get_b(int i,int j);
-	int get_bp(int i,int j);
-	int get_B(int i,int j);
-	int get_Bp(int i,int j);
+	cand_pos_t get_b(cand_pos_t i,cand_pos_t j);
+	cand_pos_t get_bp(cand_pos_t i,cand_pos_t j);
+	cand_pos_t get_B(cand_pos_t i,cand_pos_t j);
+	cand_pos_t get_Bp(cand_pos_t i,cand_pos_t j);
 
 	// Hosna Feb 8th, 2007:
 	// I have to calculate the e_stP in a separate function
-	int get_e_stP(int i, int j);
-	int get_e_intP(int i,int ip, int jp, int j);
-	int compute_int(int i, int j, int k, int l, const paramT *params);
+	energy_t get_e_stP(cand_pos_t i, cand_pos_t j);
+	energy_t get_e_intP(cand_pos_t i,cand_pos_t ip, cand_pos_t jp, cand_pos_t j);
+	energy_t compute_int(cand_pos_t i, cand_pos_t j, cand_pos_t k, cand_pos_t l, const paramT *params);
 
   	// Hosna: Feb 19th 2007
   	// used for backtracking
-  	void insert_node (int i, int j, char type);//, seq_interval *stack_interval);
+  	void insert_node (cand_pos_t i, cand_pos_t j, char type);//, seq_interval *stack_interval);
 
 };
 #endif /*PSEUDO_LOOP_H_*/

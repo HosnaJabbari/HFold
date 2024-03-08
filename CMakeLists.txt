@@ -20,9 +20,9 @@ SET(SOURCE
   src/Result.cc
   src/params.cpp
   src/init.cpp 		
-  src/s_energy_matrix.cpp src/s_internal_loop.cpp	
-  src/s_multi_loop.cpp
+  src/s_energy_matrix.cpp	
   src/Hotspot.cc
+  src/sparse_tree.cc
 )
 
 set(constraints_SOURCE

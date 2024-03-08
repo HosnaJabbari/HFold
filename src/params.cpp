@@ -25,7 +25,6 @@
 #include "externs.h"
 #include "constants.h"
 #include "string.h"
-#include "s_internal_loop.h"
 #include "s_energy_matrix.h"
 
 // Ian Wark August 2 2017

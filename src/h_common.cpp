@@ -59,7 +59,7 @@ void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table)
 			  // changing nested ifs to switch for optimality
 			  switch (structure[i])
 				{
-					case '.':
+					case 'x':
 					{
 					  p_table[i] = RESTRICTED_UNPAIR;
 					  if (st.top > STACK_EMPTY){//0){
@@ -71,7 +71,7 @@ void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table)
 					  }
 					}
 						break;
-					case ' ':
+					case '.':
 					case '_':
 					{
 					  p_table[i] = FREE_TO_PAIR;
@@ -1609,9 +1609,9 @@ void detect_original_pairs(char *structure, int *p_table)
         struct_len = strlen (structure);
         for (i=0; i < struct_len; i++)
           {
-            if (structure[i] == '.')
+            if (structure[i] == 'x')
               p_table[i] = -1;
-            else if (structure[i] == ' ' || structure[i] == '_')
+            else if (structure[i] == '.' || structure[i] == '_')
               p_table[i] = -2;
             else if ((structure[i] == 'x') || (structure[i] == 'X'))
               p_table[i] = -3;
