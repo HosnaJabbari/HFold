@@ -3,12 +3,15 @@
 #include "h_externs.h"
 #include <iostream>
 
-VM_final::VM_final(int *seq, cand_pos_t n)
+VM_final::VM_final(std::string seq, cand_pos_t n, vrna_param_t *params)
 {
 	this->n = n;
-	sequence = seq;
 	this->v = NULL;
 	this->wmb = NULL;
+    params_ = params;
+    make_pair_matrix();
+    S_ = encode_sequence(seq.c_str(),0);
+	S1_ = encode_sequence(seq.c_str(),1);
 
     index.resize(n);    // an array with indexes, such that we don't work with a 2D array, but with a 1D array of length (n*(n+1))/2
     cand_pos_t total_length = (this->n *(this->n+1))/2;
@@ -31,6 +34,8 @@ VM_final::~VM_final()
 {
     delete [] WM;
     delete [] VM;
+    free(S_);
+    free(S1_);
 }
 
 void VM_final::compute_energy(cand_pos_t i, cand_pos_t j, str_features *fres, sparse_tree &tree){
@@ -50,48 +55,16 @@ void VM_final::compute_energy(cand_pos_t i, cand_pos_t j, str_features *fres, sp
         iplus2k = index[i+2] + k -i-2;
         kplus1jminus2 = index[k+1] + j-2 -k-1;
 
+        energy_t WM2ij = WM[iplus2k] + WM[kplus1jminus1];
+        energy_t WM2ip1j = WM[iplus1k] + WM[kplus1jminus2];
+        energy_t WM2ijm1 = WM[iplus1k] + WM[kplus1jminus2];
+        energy_t WM2ip1jm1 = WM[iplus2k] + WM[kplus1jminus2];
 
-        tmp = WM[iplus1k] + WM[kplus1jminus1];
-        if (tmp < min)
-            min = tmp;
 
-        if (fres[i+1].pair <= -1)
-        {
-            tmp = WM[iplus2k] + WM[kplus1jminus1] +
-                dangle_top [sequence [i]]
-                [sequence [j]]
-                [sequence [i+1]] +
-                misc.multi_free_base_penalty;
-            if (tmp < min)
-                min = tmp;
-        }
-        if (fres[j-1].pair <= -1)
-        {
-            tmp = WM[iplus1k] + WM[kplus1jminus2] +
-                dangle_bot [sequence[i]]
-                [sequence[j]]
-                [sequence[j-1]] +
-                misc.multi_free_base_penalty;
-            if (tmp < min)
-                min = tmp;
-        }
-        if (fres[i+1].pair <= -1 && fres[j-1].pair <= -1)
-        {
-            tmp = WM[iplus2k] + WM[kplus1jminus2] +
-                dangle_top [sequence [i]]
-                [sequence [j]]
-                [sequence [i+1]] +
-                dangle_bot [sequence[i]]
-                [sequence[j]]
-                [sequence[j-1]] +
-                2 * misc.multi_free_base_penalty;
-            if (tmp < min)
-            min = tmp;
-        }
+        min = std::min(min,v->v->E_MbLoop(WM2ij,WM2ip1j,WM2ijm1,WM2ip1jm1,S_,params_,i+1,j+1,tree.tree));
     }
 
-    min += misc.multi_helix_penalty + misc.multi_offset +
-           AU_penalty (sequence[i], sequence[j]);
+    min += params_->MLclosing;
 
 	energy_t wmb_energy = this->wmb->get_WMB(i,j,tree) + a_penalty + PSM_penalty;
 	cand_pos_t ij = index[i]+j-i;

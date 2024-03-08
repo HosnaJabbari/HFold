@@ -6,14 +6,14 @@
 #include "h_struct.h"
 #include "pseudo_loop.h"
 #include "V_final.h"
-
+#include <string>
 
 class pseudo_loop;
 class V_final; 
 
 class VM_final{
 public:
-	VM_final(int *seq, cand_pos_t n);
+	VM_final(std::string seq, cand_pos_t n,vrna_param_t *params);
 	~VM_final();
 	//void set_WMB_matrix(pseudo_loop *WMB) {this->WMB = WMB; }
 	void set_V_matrix (V_final *Vf) { 
@@ -33,6 +33,10 @@ public:
 	void set_WM_matrix(int *m){this->WM = m;}
 	energy_t get_energy_WM(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	//int get_energy_WM_pkonly(int i, int j);
+
+	vrna_param_t *params_;
+	short *S_;
+	short *S1_;
 	
 protected:
 
@@ -40,6 +44,7 @@ protected:
                                        //     Each base is converted into integer, because it's faster.
     cand_pos_t n;                    // sequence length
 
+	
     //s_energy_matrix *V;            // a pointer to the free energy matrix V
     V_final *v;
         

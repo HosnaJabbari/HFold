@@ -2,17 +2,13 @@
 #include "hotspot.hh"
 #include "Result.hh"
 #include "cmdline.hh"
-#include "hfold_validation.h"
 #include "HFold.hh"
 #include "W_final.h"
 #include "h_common.h"
 //simfold files
 // #include "s_specific_functions.h"
-#include "init.h"
 #include "externs.h"
 #include "h_globals.h"
-#include "constants.h"
-#include "params.h"
 // a simple driver for the HFold
 #include <iostream>
 #include <fstream>
@@ -21,7 +17,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stack>
 #include <sys/stat.h>
 #include <string>
 #include <getopt.h>
@@ -143,23 +138,6 @@ int main (int argc, char *argv[])
 
 	std::string file = "/Users/mateo2/Documents/Code/Spark/src/params/parameters_DP09_Vienna.txt";
     vrna_params_load(file.c_str(), VRNA_PARAMETER_FORMAT_DEFAULT);
-
-    // configuration file, the path should be relative to the location of this executable
-   	char config_file[400];
-	strcpy (config_file, "src/params/multirnafold.conf");
-
-   //what to fold: RNA or DNA
-	int dna_or_rna= RNA;
-	// represents degrees Celsius
-	double temperature = 37.0;
-	// initialize the thermodynamic parameters
-	init_data ("./simfold", config_file, dna_or_rna, temperature);
-
-	fill_data_structures_with_new_parameters ( "src/params/turner_parameters_fm363_constrdangles.txt");
-
-	// in HotKnots and ComputeEnergy package the most up-to-date parameters set is DP09.txt
-	// so we add it here
-	fill_data_structures_with_new_parameters ( "src/params/parameters_DP09.txt");
 
 	std::vector<Hotspot> hotspot_list;
 

@@ -7,7 +7,7 @@
 #include "h_externs.h"
 #include "h_struct.h"
 #include "h_common.h"
-#include "params.h"
+// #include "params.h"
 
 // Hosna feb 12, 2008
 #include "W_final.h"
@@ -583,9 +583,9 @@ void detect_h_structure_features (char *structure, h_str_features *f)
 
 						} */
     }
-    if (debug){
-    	printf("h_str_features was successful! \n");
-    }
+    // if (debug){
+    // 	printf("h_str_features was successful! \n");
+    // }
 }
 
 /*
@@ -665,262 +665,262 @@ double compute_h_ppv (char *ref_structure, char *pred_structure)
  * This function is supposed to reset the pseudoknotted parameters
  */
 
-void h_fill_data_structures_with_new_parameters (char *filename){
-    FILE *file;
-    char buffer[100];
-    double param;
-    int line = 0;
+// void h_fill_data_structures_with_new_parameters (char *filename){
+//     FILE *file;
+//     char buffer[100];
+//     double param;
+//     int line = 0;
 
-    //printf ("FILENAME: %s\n", filename);
-	if ((file = fopen (filename, "r")) == NULL)
-	{
-	    giveup ("Cannot open file", filename);
-	}
+//     //printf ("FILENAME: %s\n", filename);
+// 	if ((file = fopen (filename, "r")) == NULL)
+// 	{
+// 	    giveup ("Cannot open file", filename);
+// 	}
 
-	// PS_penalty: exterior pseudoloop initiation penalty (originally 9.6 Kcal/mol)
-	fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-    param *= 100;
-    PS_penalty = (int) param;
+// 	// PS_penalty: exterior pseudoloop initiation penalty (originally 9.6 Kcal/mol)
+// 	fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+//     param *= 100;
+//     PS_penalty = (int) param;
 
-	//PSM_penalty: penalty for introducing pseudoknot inside a multiloop (originally 15 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    PSM_penalty = (int) param;
+// 	//PSM_penalty: penalty for introducing pseudoknot inside a multiloop (originally 15 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     PSM_penalty = (int) param;
 
-	//PSP_penalty: penalty for introducing pseudoknot inside a pseudoloop (originally 15 Kcal/mol)
-	fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    PSP_penalty = (int) param;
+// 	//PSP_penalty: penalty for introducing pseudoknot inside a pseudoloop (originally 15 Kcal/mol)
+// 	fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     PSP_penalty = (int) param;
 
-	//PB_penalty: band penalty (originally 0.2 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    PB_penalty = (int) param;
+// 	//PB_penalty: band penalty (originally 0.2 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     PB_penalty = (int) param;
 
-	//PUP_penalty: penalty for an un-paired base in a pseudoloop or a band (originally 0.1 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    PUP_penalty = (int) param;
+// 	//PUP_penalty: penalty for an un-paired base in a pseudoloop or a band (originally 0.1 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     PUP_penalty = (int) param;
 
-	//PPS_penalty: penalty for nested closed region inside either a pseudoloop or a multiloop that spans a band(originally 0.1 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    PPS_penalty = (int) param;
-
-
-	//a_penalty: penalty for introducing a multiloop (originally 3.4 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    a_penalty = (int) param;
-
-	//b_penalty: penalty for base pair in a multiloop (originally 0.4 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    b_penalty = (int) param;
+// 	//PPS_penalty: penalty for nested closed region inside either a pseudoloop or a multiloop that spans a band(originally 0.1 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     PPS_penalty = (int) param;
 
 
-	//c_penalty: penalty for un-paired base in a multi-loop (originally 0)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-    param *= 100;
-    c_penalty = (int) param;
+// 	//a_penalty: penalty for introducing a multiloop (originally 3.4 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     a_penalty = (int) param;
+
+// 	//b_penalty: penalty for base pair in a multiloop (originally 0.4 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     b_penalty = (int) param;
 
 
-
-	// e_stP = 0.83 * e_s
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-    e_stP_penalty = param;
-
-
-	// e_intP = 0.83 * e_int
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-    e_intP_penalty = param;
-
-
-	//ap_penalty: penalty for introducing a multiloop that spans a band (originally 3.4 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    ap_penalty = (int) param;
-
-	//bp_penalty: base pair penalty for a multiloop that spans a band (originally 0.4 Kcal/mol)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    bp_penalty = (int) param;
-
-
-	//cp_penalty: penalty for unpaired base in a multiloop that spans a band (originally 0)
-    fgets (buffer, sizeof(buffer), file);
-	line++;
-	sscanf (buffer, "%lf", &param);
-	param *= 100;
-    cp_penalty = (int) param;
-
-
-	fclose (file);
-	//printf ("****** we must have 14 lines by now: LINES = %d\n", line);
-
-
-}
-
-
-void h_fill_data_structures_with_new_parameters (double *param)
-{
-
-	if (param == NULL){
-		giveup ("Incorrect parameter length", "h_fill_data_structure_with_new_parameters");
-	}
-
-	// PS_penalty: exterior pseudoloop initiation penalty (originally 9.6 Kcal/mol)
-    param[0] *= 100;
-    PS_penalty = (int) param[0];
-
-	//PSM_penalty: penalty for introducing pseudoknot inside a multiloop (originally 15 Kcal/mol)
-	param[1] *= 100;
-    PSM_penalty = (int) param[1];
-
-	//PSP_penalty: penalty for introducing pseudoknot inside a pseudoloop (originally 15 Kcal/mol)
-	param[2] *= 100;
-    PSP_penalty = (int) param[2];
-
-	//PB_penalty: band penalty (originally 0.2 Kcal/mol)
-	param[3] *= 100;
-    PB_penalty = (int) param[3];
-
-	//PUP_penalty: penalty for an un-paired base in a pseudoloop or a band (originally 0.1 Kcal/mol)
-	param[4] *= 100;
-    PUP_penalty = (int) param[4];
-
-	//PPS_penalty: penalty for nested closed region inside either a pseudoloop or a multiloop that spans a band(originally 0.1 Kcal/mol)
-    param[5] *= 100;
-    PPS_penalty = (int) param[5];
-
-
-	//a_penalty: penalty for introducing a multiloop (originally 3.4 Kcal/mol)
-	param[6] *= 100;
-    a_penalty = (int) param[6];
-
-	//b_penalty: penalty for base pair in a multiloop (originally 0.4 Kcal/mol)
-    param[7] *= 100;
-    b_penalty = (int) param[7];
-
-
-	//c_penalty: penalty for un-paired base in a multi-loop (originally 0)
-    param[8] *= 100;
-    c_penalty = (int) param[8];
+// 	//c_penalty: penalty for un-paired base in a multi-loop (originally 0)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+//     param *= 100;
+//     c_penalty = (int) param;
 
 
 
-	// e_stP = 0.83 * e_s
-    e_stP_penalty = param[9];
+// 	// e_stP = 0.83 * e_s
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+//     e_stP_penalty = param;
 
 
-	// e_intP = 0.83 * e_int
-    e_intP_penalty = param[10];
+// 	// e_intP = 0.83 * e_int
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+//     e_intP_penalty = param;
 
 
-	//ap_penalty: penalty for introducing a multiloop that spans a band (originally 3.4 Kcal/mol)
-    param[11] *= 100;
-    ap_penalty = (int) param[11];
+// 	//ap_penalty: penalty for introducing a multiloop that spans a band (originally 3.4 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     ap_penalty = (int) param;
 
-	//bp_penalty: base pair penalty for a multiloop that spans a band (originally 0.4 Kcal/mol)
-    param[12] *= 100;
-    bp_penalty = (int) param[12];
-
-
-	//cp_penalty: penalty for unpaired base in a multiloop that spans a band (originally 0)
-    param[13] *= 100;
-    cp_penalty = (int) param[13];
-
-}
-
-int h_create_string_params(){
-	int index = create_string_params();
-
-	sprintf (string_params[index++], "PS_penalty");
-	sprintf (string_params[index++], "PSM_penalty");
-	sprintf (string_params[index++], "PSP_penalty");
-	sprintf (string_params[index++], "PB_penalty");
-	sprintf (string_params[index++], "PUP_penalty");
-	sprintf (string_params[index++], "PPS_penalty");
+// 	//bp_penalty: base pair penalty for a multiloop that spans a band (originally 0.4 Kcal/mol)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     bp_penalty = (int) param;
 
 
-	sprintf (string_params[index++], "a_penalty");
-	sprintf (string_params[index++], "b_penalty");
-	sprintf (string_params[index++], "c_penalty");
+// 	//cp_penalty: penalty for unpaired base in a multiloop that spans a band (originally 0)
+//     fgets (buffer, sizeof(buffer), file);
+// 	line++;
+// 	sscanf (buffer, "%lf", &param);
+// 	param *= 100;
+//     cp_penalty = (int) param;
 
 
-	sprintf (string_params[index++], "e_stP_penalty");
-	sprintf (string_params[index++], "e_intP_penalty");
+// 	fclose (file);
+// 	//printf ("****** we must have 14 lines by now: LINES = %d\n", line);
 
 
-	sprintf (string_params[index++], "ap_penalty");
-	sprintf (string_params[index++], "bp_penalty");
-	sprintf (string_params[index++], "cp_penalty");
-	return index;
-}
+// }
 
-PARAMTYPE asymmetry_penalty (int size1, int size2)
-{
-    PARAMTYPE penalty = 0;
-    if (parsi_asymmetry == T99)
-        penalty = MIN (misc.asymmetry_penalty_max_correction, abs (size1-size2) * misc.asymmetry_penalty_array [MIN (2, MIN (size1, size2))-1]);
-    //printf ("Asym penalty real: %d\n", penalty);
-    else
-    {
-        if (size1 == size2) return 0;
-        if (parsi_asymmetry == PARSI)
-        {
-            penalty = (PARAMTYPE) (internal_asymmetry_initiation + internal_asymmetry_slope * log (abs (size1-size2)));
-        }
-        else if (parsi_asymmetry == LAVISH)
-        {
-            if (abs (size1-size2) < MAXLOOP_ASYM)
-            {
-                // we assume the following model: from asymmetry 1 to 4, we use initiation, slope and int_asym (like an addition)
-                if (abs (size1-size2) <= MAX_EXP_ASYM)
-                {
-                    penalty += internal_asymmetry_initiation;
-                    penalty += (PARAMTYPE) (log (abs (size1-size2)) * internal_asymmetry_slope);
-                    penalty += internal_asymmetry[(int)(abs (size1-size2))];
-                }
-                else
-                {
-                    penalty += internal_asymmetry[(int)(abs (size1-size2))];
-                }
-            }
-            else
-            {
-                penalty += internal_asymmetry_initiation;
-                penalty += (PARAMTYPE) (log (abs (size1-size2)) * internal_asymmetry_slope);
-            }
-        }
-    }
-    return penalty;
+
+// void h_fill_data_structures_with_new_parameters (double *param)
+// {
+
+// 	if (param == NULL){
+// 		giveup ("Incorrect parameter length", "h_fill_data_structure_with_new_parameters");
+// 	}
+
+// 	// PS_penalty: exterior pseudoloop initiation penalty (originally 9.6 Kcal/mol)
+//     param[0] *= 100;
+//     PS_penalty = (int) param[0];
+
+// 	//PSM_penalty: penalty for introducing pseudoknot inside a multiloop (originally 15 Kcal/mol)
+// 	param[1] *= 100;
+//     PSM_penalty = (int) param[1];
+
+// 	//PSP_penalty: penalty for introducing pseudoknot inside a pseudoloop (originally 15 Kcal/mol)
+// 	param[2] *= 100;
+//     PSP_penalty = (int) param[2];
+
+// 	//PB_penalty: band penalty (originally 0.2 Kcal/mol)
+// 	param[3] *= 100;
+//     PB_penalty = (int) param[3];
+
+// 	//PUP_penalty: penalty for an un-paired base in a pseudoloop or a band (originally 0.1 Kcal/mol)
+// 	param[4] *= 100;
+//     PUP_penalty = (int) param[4];
+
+// 	//PPS_penalty: penalty for nested closed region inside either a pseudoloop or a multiloop that spans a band(originally 0.1 Kcal/mol)
+//     param[5] *= 100;
+//     PPS_penalty = (int) param[5];
+
+
+// 	//a_penalty: penalty for introducing a multiloop (originally 3.4 Kcal/mol)
+// 	param[6] *= 100;
+//     a_penalty = (int) param[6];
+
+// 	//b_penalty: penalty for base pair in a multiloop (originally 0.4 Kcal/mol)
+//     param[7] *= 100;
+//     b_penalty = (int) param[7];
+
+
+// 	//c_penalty: penalty for un-paired base in a multi-loop (originally 0)
+//     param[8] *= 100;
+//     c_penalty = (int) param[8];
+
+
+
+// 	// e_stP = 0.83 * e_s
+//     e_stP_penalty = param[9];
+
+
+// 	// e_intP = 0.83 * e_int
+//     e_intP_penalty = param[10];
+
+
+// 	//ap_penalty: penalty for introducing a multiloop that spans a band (originally 3.4 Kcal/mol)
+//     param[11] *= 100;
+//     ap_penalty = (int) param[11];
+
+// 	//bp_penalty: base pair penalty for a multiloop that spans a band (originally 0.4 Kcal/mol)
+//     param[12] *= 100;
+//     bp_penalty = (int) param[12];
+
+
+// 	//cp_penalty: penalty for unpaired base in a multiloop that spans a band (originally 0)
+//     param[13] *= 100;
+//     cp_penalty = (int) param[13];
+
+// }
+
+// int h_create_string_params(){
+// 	int index = create_string_params();
+
+// 	sprintf (string_params[index++], "PS_penalty");
+// 	sprintf (string_params[index++], "PSM_penalty");
+// 	sprintf (string_params[index++], "PSP_penalty");
+// 	sprintf (string_params[index++], "PB_penalty");
+// 	sprintf (string_params[index++], "PUP_penalty");
+// 	sprintf (string_params[index++], "PPS_penalty");
+
+
+// 	sprintf (string_params[index++], "a_penalty");
+// 	sprintf (string_params[index++], "b_penalty");
+// 	sprintf (string_params[index++], "c_penalty");
+
+
+// 	sprintf (string_params[index++], "e_stP_penalty");
+// 	sprintf (string_params[index++], "e_intP_penalty");
+
+
+// 	sprintf (string_params[index++], "ap_penalty");
+// 	sprintf (string_params[index++], "bp_penalty");
+// 	sprintf (string_params[index++], "cp_penalty");
+// 	return index;
+// }
+
+// PARAMTYPE asymmetry_penalty (int size1, int size2)
+// {
+//     PARAMTYPE penalty = 0;
+//     if (parsi_asymmetry == T99)
+//         penalty = MIN (misc.asymmetry_penalty_max_correction, abs (size1-size2) * misc.asymmetry_penalty_array [MIN (2, MIN (size1, size2))-1]);
+//     //printf ("Asym penalty real: %d\n", penalty);
+//     else
+//     {
+//         if (size1 == size2) return 0;
+//         if (parsi_asymmetry == PARSI)
+//         {
+//             penalty = (PARAMTYPE) (internal_asymmetry_initiation + internal_asymmetry_slope * log (abs (size1-size2)));
+//         }
+//         else if (parsi_asymmetry == LAVISH)
+//         {
+//             if (abs (size1-size2) < MAXLOOP_ASYM)
+//             {
+//                 // we assume the following model: from asymmetry 1 to 4, we use initiation, slope and int_asym (like an addition)
+//                 if (abs (size1-size2) <= MAX_EXP_ASYM)
+//                 {
+//                     penalty += internal_asymmetry_initiation;
+//                     penalty += (PARAMTYPE) (log (abs (size1-size2)) * internal_asymmetry_slope);
+//                     penalty += internal_asymmetry[(int)(abs (size1-size2))];
+//                 }
+//                 else
+//                 {
+//                     penalty += internal_asymmetry[(int)(abs (size1-size2))];
+//                 }
+//             }
+//             else
+//             {
+//                 penalty += internal_asymmetry_initiation;
+//                 penalty += (PARAMTYPE) (log (abs (size1-size2)) * internal_asymmetry_slope);
+//             }
+//         }
+//     }
+//     return penalty;
 
     // I tried the following for MODEL == EXTENDED, but I changed my mind
 /*    // assume the size1 + size2 <= MAXLOOP_I. If it's greater, just use the value of the last parameter
@@ -933,36 +933,7 @@ PARAMTYPE asymmetry_penalty (int size1, int size2)
     // next asymmetric
     if (size1 + size2 <= MAXLOOP_I)      return internal_asymmetry [abs (size1-size2)];
     return internal_asymmetry[MAXLOOP_I-2];    */
-}
-
-void get_sorted_positions (int n, double numbers[], int positions[])
-// used by suboptimal sorting
-// does not modify numbers
-{
-    int i,j;
-    double min;
-    int sorted[MAXSUBSTR];
-    for (i=0; i < n; i++) { sorted[i] = 0; }
-    for (i=0; i < n; i++)
-    {
-        min = INF;
-        for (j=0; j<n; j++)
-        {
-            if (!sorted[j])
-            {
-                if (numbers[j] < min)
-                {
-                    min = numbers[j];
-                    positions[i] = j;
-                }
-            }
-        }
-        sorted[positions[i]] = 1;
-    }
-}
-
-
-
+// }
 
 int is_structured (int i, int j, char *structure)
 // return 1 if structure has some parentheses between i and j inclusive
@@ -979,34 +950,34 @@ int is_structured (int i, int j, char *structure)
     return 0;
 }
 
-int loss (int first, int last)
-// known_pairings and pred_pairings are global variables
-// known_pairings contains the pairings from 0 to n-1, of the reference structure
-// pred_pairings contains the pairings of a potential structure on the region first-last inclusive
-//      the other regions don't matter
-// Returns the "Hamming" distance between known_pairings and pred_pairings on the region first-last inclusive
-// This function is used for the loss-augmented prediction
-// Written on August 9, 2008
-// Note: Maybe this measure is better than the Hamming distance:
-//      (# correctly predicted bp - # incorrectly predicted bp) / # true bp.
-//      This will be in (-inf,1], but it only includes the base pairs,
-//      whereas the Hamming distance measure also includes the unpaired bases.
-{
-    if (known_pairings == NULL) return 0;
-    if (first > last)
-    {
-        fprintf(stderr,"first %d should be <= last %d!!", first, last);
-        exit (1);
-    }
-    int i;
-    int distance = 0;
-    for (i = first; i <= last; i++)
-    {
-        if (known_pairings[i] != pred_pairings[i])
-            distance++;
-    }
-    return distance;
-}
+// int loss (int first, int last)
+// // known_pairings and pred_pairings are global variables
+// // known_pairings contains the pairings from 0 to n-1, of the reference structure
+// // pred_pairings contains the pairings of a potential structure on the region first-last inclusive
+// //      the other regions don't matter
+// // Returns the "Hamming" distance between known_pairings and pred_pairings on the region first-last inclusive
+// // This function is used for the loss-augmented prediction
+// // Written on August 9, 2008
+// // Note: Maybe this measure is better than the Hamming distance:
+// //      (# correctly predicted bp - # incorrectly predicted bp) / # true bp.
+// //      This will be in (-inf,1], but it only includes the base pairs,
+// //      whereas the Hamming distance measure also includes the unpaired bases.
+// {
+//     if (known_pairings == NULL) return 0;
+//     if (first > last)
+//     {
+//         fprintf(stderr,"first %d should be <= last %d!!", first, last);
+//         exit (1);
+//     }
+//     int i;
+//     int distance = 0;
+//     for (i = first; i <= last; i++)
+//     {
+//         if (known_pairings[i] != pred_pairings[i])
+//             distance++;
+//     }
+//     return distance;
+// }
 
 
 double compute_accuracy (char *ref_structure, char *pred_structure)
@@ -1378,118 +1349,118 @@ void check_sequence (char *sequence)
     }
 }
 
-PARAMTYPE penalty_by_size (int size, char type)
-// PRE:  size is the size of the loop
-//       type is HAIRP or INTER or BULGE
-// POST: return the penalty by size of the loop
-{
-    PARAMTYPE penalty30, penalty;
-    double logval;
-    //return 500.0;
-    int end;
+// PARAMTYPE penalty_by_size (int size, char type)
+// // PRE:  size is the size of the loop
+// //       type is HAIRP or INTER or BULGE
+// // POST: return the penalty by size of the loop
+// {
+//     PARAMTYPE penalty30, penalty;
+//     double logval;
+//     //return 500.0;
+//     int end;
 
-    if (parsi_length == T99)
-    {
-        if (type == 'H')    end = MAXLOOP_H_T99;
-        if (type == 'B')    end = MAXLOOP_B_T99;
-        if (type == 'I')    end = MAXLOOP_I_T99;
-    }
-    else if (parsi_length == PARSI || parsi_length == ZL)
-    {
-        if (type == 'H')    end = MAXLOOP_H_PARSI;
-        if (type == 'B')    end = MAXLOOP_B_PARSI;
-        if (type == 'I')    end = MAXLOOP_I_PARSI;
-    }
-    else if (parsi_length == LAVISH)
-    {
-        if (type == 'H')    end = MAXLOOP_H_LAVISH;
-        if (type == 'B')    end = MAXLOOP_B_LAVISH;
-        if (type == 'I')    end = MAXLOOP_I_LAVISH;
-    }
+//     if (parsi_length == T99)
+//     {
+//         if (type == 'H')    end = MAXLOOP_H_T99;
+//         if (type == 'B')    end = MAXLOOP_B_T99;
+//         if (type == 'I')    end = MAXLOOP_I_T99;
+//     }
+//     else if (parsi_length == PARSI || parsi_length == ZL)
+//     {
+//         if (type == 'H')    end = MAXLOOP_H_PARSI;
+//         if (type == 'B')    end = MAXLOOP_B_PARSI;
+//         if (type == 'I')    end = MAXLOOP_I_PARSI;
+//     }
+//     else if (parsi_length == LAVISH)
+//     {
+//         if (type == 'H')    end = MAXLOOP_H_LAVISH;
+//         if (type == 'B')    end = MAXLOOP_B_LAVISH;
+//         if (type == 'I')    end = MAXLOOP_I_LAVISH;
+//     }
 
-    // the penalties for size <= MAXLOOP _H, _B, _I should be read from the file "loop"
-    //if (size <= MAXLOOP)
-    if (type == 'H' && size <= end)
-    {
-        //printf ("real:   size=%d, penalty=%g\n", size, hairpin_penalty_by_size[size]);
-        //return 50.0;
-        //return hairpin_penalty_by_size[size]/100;
-        return hairpin_penalty_by_size[size];
-    }
-    if (type == 'I' && size <= end)
-    {
-        //return 50.0;
-        return internal_penalty_by_size[size];
-    }
-    if (type == 'B' && size <= end)
-    {
-        //return 50.0;
-        return bulge_penalty_by_size[size];
-    }
+//     // the penalties for size <= MAXLOOP _H, _B, _I should be read from the file "loop"
+//     //if (size <= MAXLOOP)
+//     if (type == 'H' && size <= end)
+//     {
+//         //printf ("real:   size=%d, penalty=%g\n", size, hairpin_penalty_by_size[size]);
+//         //return 50.0;
+//         //return hairpin_penalty_by_size[size]/100;
+//         return hairpin_penalty_by_size[size];
+//     }
+//     if (type == 'I' && size <= end)
+//     {
+//         //return 50.0;
+//         return internal_penalty_by_size[size];
+//     }
+//     if (type == 'B' && size <= end)
+//     {
+//         //return 50.0;
+//         return bulge_penalty_by_size[size];
+//     }
 
-    //return 50.0;
-    // size > MAXLOOP _H, _B, _I
-    if (type == 'H')
-    {
-        penalty30 = hairpin_penalty_by_size[end];
-        logval = log (1.0*size/end);
-    }
-    else if (type == 'I')
-    {
-        penalty30 = internal_penalty_by_size[end];
-        logval = log (1.0*size/end);
-    }
-    else if (type == 'B')
-    {
-        penalty30 = bulge_penalty_by_size[end];
-        logval = log (1.0*size/end);
-    }
-    else
-    {
-        fprintf(stderr,"ERROR! type is not valid, ABORT!\n");
-        exit(1);
-    }
+//     //return 50.0;
+//     // size > MAXLOOP _H, _B, _I
+//     if (type == 'H')
+//     {
+//         penalty30 = hairpin_penalty_by_size[end];
+//         logval = log (1.0*size/end);
+//     }
+//     else if (type == 'I')
+//     {
+//         penalty30 = internal_penalty_by_size[end];
+//         logval = log (1.0*size/end);
+//     }
+//     else if (type == 'B')
+//     {
+//         penalty30 = bulge_penalty_by_size[end];
+//         logval = log (1.0*size/end);
+//     }
+//     else
+//     {
+//         fprintf(stderr,"ERROR! type is not valid, ABORT!\n");
+//         exit(1);
+//     }
 
-    penalty = (PARAMTYPE) (penalty30 + 100.0*misc.param_greater30 * logval);
-    //if (type == 'H')
-    //    printf ("real:   size=%d, penalty=%g\n", size, penalty);
-    //printf ("penalty big = %d\n", penalty);
-    //printf ("gr30: %.2lf, logval=%.2lf, penalty of %d = %d\n", misc.param_greater30, logval, size, penalty);
+//     penalty = (PARAMTYPE) (penalty30 + 100.0*misc.param_greater30 * logval);
+//     //if (type == 'H')
+//     //    printf ("real:   size=%d, penalty=%g\n", size, penalty);
+//     //printf ("penalty big = %d\n", penalty);
+//     //printf ("gr30: %.2lf, logval=%.2lf, penalty of %d = %d\n", misc.param_greater30, logval, size, penalty);
 
-    return penalty;
-}
+//     return penalty;
+// }
 
-PARAMTYPE penalty_by_size_enthalpy (int size, char type)
-// PRE:  size is the size of the loop
-//       type is HAIRP or INTER or BULGE
-// POST: return the penalty by size of the loop
-{
+// PARAMTYPE penalty_by_size_enthalpy (int size, char type)
+// // PRE:  size is the size of the loop
+// //       type is HAIRP or INTER or BULGE
+// // POST: return the penalty by size of the loop
+// {
 
-    // TODO: if I want to use this for parameter learning, I have to replace MAXLOOP by _B, _I, _H.
-    PARAMTYPE penalty30, penalty;
+//     // TODO: if I want to use this for parameter learning, I have to replace MAXLOOP by _B, _I, _H.
+//     PARAMTYPE penalty30, penalty;
 
-    // the penalties for size <= MAXLOOP should be read from the file "loop"
-    if (size <= MAXLOOP)
-    {
-        if (type == 'H')
-            return enthalpy_hairpin_penalty_by_size[size];
-        if (type == 'I')
-            return enthalpy_internal_penalty_by_size[size];
-        return enthalpy_bulge_penalty_by_size[size];
-    }
+//     // the penalties for size <= MAXLOOP should be read from the file "loop"
+//     if (size <= MAXLOOP)
+//     {
+//         if (type == 'H')
+//             return enthalpy_hairpin_penalty_by_size[size];
+//         if (type == 'I')
+//             return enthalpy_internal_penalty_by_size[size];
+//         return enthalpy_bulge_penalty_by_size[size];
+//     }
 
-    // size > MAXLOOP
-    if (type == 'H')
-        penalty30 = enthalpy_hairpin_penalty_by_size[MAXLOOP];
-    else if (type == 'I')
-        penalty30 = enthalpy_internal_penalty_by_size[MAXLOOP];
-    else
-        penalty30 = enthalpy_bulge_penalty_by_size[MAXLOOP];
+//     // size > MAXLOOP
+//     if (type == 'H')
+//         penalty30 = enthalpy_hairpin_penalty_by_size[MAXLOOP];
+//     else if (type == 'I')
+//         penalty30 = enthalpy_internal_penalty_by_size[MAXLOOP];
+//     else
+//         penalty30 = enthalpy_bulge_penalty_by_size[MAXLOOP];
 
-    penalty = (int) (penalty30 + round(enthalpy_misc.param_greater30 * log(((double)size)/30)));
+//     penalty = (int) (penalty30 + round(enthalpy_misc.param_greater30 * log(((double)size)/30)));
 
-    return penalty;
-}
+//     return penalty;
+// }
 
 void substr (char *source, int begin, int end, char *dest)
 // PRE:  begin and end are smaller than strlen(source)
@@ -1856,54 +1827,54 @@ int exists_restricted_ptable (int i, int j, int *ptable)
 }
 
 
-void read_parsi_options_from_file (char *filename)
-// the file should contain values (0 or 1) for each of the parsi options. For example the following is all-parsimonious options
-//     parsi_tstackh = 1;
-//     parsi_tstacki = 1;
-//     parsi_asymmetry = 1;
-//     parsi_int11 = 1;
-//     parsi_int21 = 1;
-//     parsi_int22 = 1;
-//     parsi_bulge1 = 1;
-//     parsi_dangles = 1;
-//     parsi_others = 1;
-//     parsi_length = 1;
-//     parsi_special = 1;
-{
-    FILE *file;
-    char buffer[100];
-    int value;
-    char option[100];
-    if ((file = fopen (filename, "r")) == NULL)
-    {
-        giveup ("Cannot open file", filename);
-    }
+// void read_parsi_options_from_file (char *filename)
+// // the file should contain values (0 or 1) for each of the parsi options. For example the following is all-parsimonious options
+// //     parsi_tstackh = 1;
+// //     parsi_tstacki = 1;
+// //     parsi_asymmetry = 1;
+// //     parsi_int11 = 1;
+// //     parsi_int21 = 1;
+// //     parsi_int22 = 1;
+// //     parsi_bulge1 = 1;
+// //     parsi_dangles = 1;
+// //     parsi_others = 1;
+// //     parsi_length = 1;
+// //     parsi_special = 1;
+// {
+//     FILE *file;
+//     char buffer[100];
+//     int value;
+//     char option[100];
+//     if ((file = fopen (filename, "r")) == NULL)
+//     {
+//         giveup ("Cannot open file", filename);
+//     }
 
-    fgets (buffer, sizeof(buffer), file);
-    while (!feof (file))
-    {
-        //printf ("buffer = %s\n", buffer);
-        sscanf (buffer, "%s = %d", option, &value);
-        //printf ("option = |%s|, value = |%d|\n", option, value);
-        if (strcmp (option, "parsi_tstackh") == 0)          parsi_tstackh = value;
-        else if (strcmp (option, "parsi_tstacki") == 0)     parsi_tstacki = value;
-        else if (strcmp (option, "parsi_asymmetry") == 0)   parsi_asymmetry = value;
-        else if (strcmp (option, "parsi_int11") == 0)       parsi_int11 = value;
-        else if (strcmp (option, "parsi_int21") == 0)       parsi_int21 = value;
-        else if (strcmp (option, "parsi_int22") == 0)       parsi_int22 = value;
-        else if (strcmp (option, "parsi_bulge1") == 0)      parsi_bulge1 = value;
-        else if (strcmp (option, "parsi_dangles") == 0)     parsi_dangles = value;
-        //else if (strcmp (option, "parsi_others") == 0)      parsi_others = value;
-        else if (strcmp (option, "parsi_length") == 0)      parsi_length = value;
-        else if (strcmp (option, "parsi_special") == 0)     parsi_special = value;
-        else if (strcmp (option, "use_similarity_rules") == 0)     use_similarity_rules = value;
-        fgets (buffer, sizeof(buffer), file);
-    }
-    fclose (file);
+//     fgets (buffer, sizeof(buffer), file);
+//     while (!feof (file))
+//     {
+//         //printf ("buffer = %s\n", buffer);
+//         sscanf (buffer, "%s = %d", option, &value);
+//         //printf ("option = |%s|, value = |%d|\n", option, value);
+//         if (strcmp (option, "parsi_tstackh") == 0)          parsi_tstackh = value;
+//         else if (strcmp (option, "parsi_tstacki") == 0)     parsi_tstacki = value;
+//         else if (strcmp (option, "parsi_asymmetry") == 0)   parsi_asymmetry = value;
+//         else if (strcmp (option, "parsi_int11") == 0)       parsi_int11 = value;
+//         else if (strcmp (option, "parsi_int21") == 0)       parsi_int21 = value;
+//         else if (strcmp (option, "parsi_int22") == 0)       parsi_int22 = value;
+//         else if (strcmp (option, "parsi_bulge1") == 0)      parsi_bulge1 = value;
+//         else if (strcmp (option, "parsi_dangles") == 0)     parsi_dangles = value;
+//         //else if (strcmp (option, "parsi_others") == 0)      parsi_others = value;
+//         else if (strcmp (option, "parsi_length") == 0)      parsi_length = value;
+//         else if (strcmp (option, "parsi_special") == 0)     parsi_special = value;
+//         else if (strcmp (option, "use_similarity_rules") == 0)     use_similarity_rules = value;
+//         fgets (buffer, sizeof(buffer), file);
+//     }
+//     fclose (file);
 
-    if (parsi_dangles == PARSI)     // no dangling ends
-        no_dangling_ends = 1;
-    else
-        no_dangling_ends = 0;
+//     if (parsi_dangles == PARSI)     // no dangling ends
+//         no_dangling_ends = 1;
+//     else
+//         no_dangling_ends = 0;
 
-}
+// }

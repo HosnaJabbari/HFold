@@ -49,9 +49,9 @@ void detect_original_pairs_arcs(char *structure, int *p_table, int *arc_table);
 void detect_original_PKed_pairs(char *structure, int *p_table);
 double compute_h_sensitivity (char *ref_structure, char *pred_structure);
 double compute_h_ppv (char *ref_structure, char *pred_structure);
-void h_fill_data_structures_with_new_parameters (char *filename);
-void h_fill_data_structures_with_new_parameters (double *param);
-int h_create_string_params();
+// void h_fill_data_structures_with_new_parameters (char *filename);
+// void h_fill_data_structures_with_new_parameters (double *param);
+// int h_create_string_params();
 
 // Hosna: helper function to fill in the weakly_closed array
 void detect_weakly_closed(h_str_features *fres, int *weakly_closed, int nb_nucleotides, int *index);
@@ -100,14 +100,13 @@ void detect_h_structure_features (char *structure, h_str_features *f);
 
 //#define asymmetry_penalty(size1, size2) (MIN (misc.asymmetry_penalty_max_correction, abs (size1-size2) * misc.asymmetry_penalty_array [MIN (2, MIN ((size1), (size2)))-1]))
 
-PARAMTYPE asymmetry_penalty (int size1, int size2);
+// PARAMTYPE asymmetry_penalty (int size1, int size2);
 
-#define asymmetry_penalty_enthalpy(size1, size2) (MIN (enthalpy_misc.asymmetry_penalty_max_correction, abs (size1-size2) * enthalpy_misc.asymmetry_penalty_array [MIN (2, MIN ((size1), (size2)))-1]))
+// #define asymmetry_penalty_enthalpy(size1, size2) (MIN (enthalpy_misc.asymmetry_penalty_max_correction, abs (size1-size2) * enthalpy_misc.asymmetry_penalty_array [MIN (2, MIN ((size1), (size2)))-1]))
 
 #define IGINF(x) (((x) == INF)?0:(x))
 // ignore infinite values
 
-void get_sorted_positions (int n, double numbers[], int positions[]);
 // does not modify numbers
 
 
@@ -170,14 +169,14 @@ void check_sequence (char *sequence);
 // check sequence for length and alphabet
 
 
-PARAMTYPE penalty_by_size (int size, char type);
+// PARAMTYPE penalty_by_size (int size, char type);
 // PRE:  size is the size of the loop
 //       type is HAIRP or INTER or BULGE
 // POST: return the penalty by size of the loop
 
 //PARAMTYPE IL_penalty_by_size_2D (int size1, int size2);
 
-PARAMTYPE penalty_by_size_enthalpy (int size, char type);
+// PARAMTYPE penalty_by_size_enthalpy (int size, char type);
 
 void substr (char *source, int begin, int end, char *dest);
 // PRE:  begin and end are smaller than strlen(source)
@@ -228,13 +227,13 @@ int is_structured (int i, int j, char *structure);
 // return 1 if structure has some parentheses between i and j inclusive
 // return 0 otherwise
 
-void print_stacking_energies();
-void print_tstacki_dangling_energies();
-void print_stack_dangling_energies();
-void print_stack_equation_dangling();
-void print_int22_tstacki();
+// void print_stacking_energies();
+// void print_tstacki_dangling_energies();
+// void print_stack_dangling_energies();
+// void print_stack_equation_dangling();
+// void print_int22_tstacki();
 
-void read_parsi_options_from_file (char *filename);
+// void read_parsi_options_from_file (char *filename);
 // the file should contain values (0 or 1) for each of the parsi options. For example the following is all-parsimonious options
 //     parsi_tstackh = 1;
 //     parsi_tstacki = 1;

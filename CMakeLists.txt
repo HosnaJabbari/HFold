@@ -18,8 +18,8 @@ SET(SOURCE
   src/HFold.cpp
   src/cmdline.cc
   src/Result.cc
-  src/params.cpp
-  src/init.cpp 		
+#   src/params.cpp
+#   src/init.cpp 		
   src/s_energy_matrix.cpp	
   src/Hotspot.cc
   src/sparse_tree.cc

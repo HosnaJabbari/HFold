@@ -69,7 +69,7 @@ void W_final::space_allocation(){
 	structure = std::string (n,'.');
 
 		// Hosna June 20th, 2007
-	vm = new VM_final(this->int_sequence,this->n);
+	vm = new VM_final(seq_,this->n, params_);
 	if (vm == NULL) giveup ("Cannot allocate memory", "W_final");
 	// Hosna June 20th, 2007
 	v = new V_final(n);
@@ -309,10 +309,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 		
 
 			type = v->get_type (i,j);
-			if(i==4 && j==32) printf(" i is %d and j is %d and type is %c\n",i,j,type);
 			
-			if (debug)
-				printf ("\t(%d,%d) LOOP - type %c\n", i,j,type);
 			// Hosna, March 8, 2012
 			// changing nested ifs to switch for optimality
 			switch (type){
@@ -369,7 +366,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					int tmp= INF, min = INF;
 					for (k = i+1; k <= j-1; k++)
 					  {
-						tmp = vm->get_energy_WM (i+1,k,tree) + vm->get_energy_WM (k+1, j-1,tree);
+						tmp = vm->get_energy_WM (i+1,k,tree) + vm->get_energy_WM (k+1, j-1,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],-1,-1,params_);
 						if (tmp < min)
 						  {
 							min = tmp;
@@ -381,9 +378,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 						  // do I need to check for non-canonical base pairings here as well so the dangle values not be INF??
 						if (fres[i+1].pair <= -1)
 						{
-							tmp = vm->get_energy_WM (i+2,k,tree) + vm->get_energy_WM (k+1, j-1,tree) +
-							dangle_top [int_sequence[i]][int_sequence[j]][int_sequence[i+1]] +
-							misc.multi_free_base_penalty;
+							tmp = vm->get_energy_WM (i+2,k,tree) + vm->get_energy_WM (k+1, j-1,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],S_[j-1+1],-1,params_);
 							if (tmp < min)
 							{
 								min = tmp;
@@ -393,9 +388,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 						}
 						if (fres[j-1].pair <= -1)
 						{
-							tmp = vm->get_energy_WM (i+1,k,tree) + vm->get_energy_WM (k+1, j-2,tree) +
-							dangle_bot [int_sequence[i]][int_sequence[j]][int_sequence[j-1]] +
-							misc.multi_free_base_penalty;
+							tmp = vm->get_energy_WM (i+1,k,tree) + vm->get_energy_WM (k+1, j-2,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],-1,S_[i+1+1],params_);
 							if (tmp < min)
 							{
 								min = tmp;
@@ -405,10 +398,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 						}
 						if (fres[i+1].pair <= -1 && fres[j-1].pair <= -1)
 						{
-							tmp = vm->get_energy_WM (i+2,k,tree) + vm->get_energy_WM (k+1, j-2,tree) +
-							dangle_top [int_sequence[i]][int_sequence[j]][int_sequence[i+1]] +
-							dangle_bot [int_sequence[i]][int_sequence[j]][int_sequence[j-1]] +
-							2*misc.multi_free_base_penalty;
+							tmp = vm->get_energy_WM (i+2,k,tree) + vm->get_energy_WM (k+1, j-2,tree) + E_MLstem(pair[S_[j+1]][S_[i+1]],S_[j-1+1],S_[i+1+1],params_);
 							if (tmp < min)
 							{
 								min = tmp;
@@ -470,8 +460,6 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			if (j==0) return;
 
 			int min = INF, tmp, best_row, i, best_i, acc, energy_ij;
-			if (debug)
-				printf ("\t(0,%d) FREE\n", j);
 
 			// this case is for j unpaired, so I have to check that.
 			if (fres[j].pair <= -1)
@@ -493,7 +481,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 
 				if (energy_ij < INF)
 				{
-					tmp = energy_ij + AU_penalty (int_sequence[i],int_sequence[j]) + acc;
+					tmp = energy_ij + E_ExtLoop(pair[S_[i+1]][S_[j+1]],-1,-1,params_) + acc;
 					if (tmp < min)
 					{
 					min = tmp;
@@ -508,17 +496,13 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					energy_ij = v->get_energy(i+1,j,tree);
 					if (energy_ij < INF)
 					{
-						tmp = energy_ij + AU_penalty (int_sequence[i+1],int_sequence[j]) + acc;
-						tmp += dangle_bot [int_sequence[j]]
-							[int_sequence[i+1]]
-							[int_sequence[i]];
+						tmp = energy_ij + E_ExtLoop(pair[S_[i+1+1]][S_[j+1]],S_[i+1],-1,params_) + acc;
 						
 						if (tmp < min)
 						{
 							min = tmp;
 							best_i = i;
 							best_row = 2;
-							if(i==4 && j==242) printf("here");
 						}
 						
 					}
@@ -528,10 +512,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					energy_ij = v->get_energy(i,j-1,tree);
 					if (energy_ij < INF)
 					{
-						tmp = energy_ij + AU_penalty (int_sequence[i],int_sequence[j-1]) + acc;
-						tmp += dangle_top [int_sequence[j-1]]
-							[int_sequence[i]]
-							[int_sequence[j]];
+						tmp = energy_ij + E_ExtLoop(pair[S_[i+1]][S_[j-1+1]],-1,S_[j+1],params_) + acc;
 						if (tmp < min)
 						{
 							min = tmp;
@@ -545,13 +526,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					energy_ij = v->get_energy(i+1,j-1,tree);
 					if (energy_ij < INF)
 					{
-						tmp = energy_ij + AU_penalty (int_sequence[i+1],int_sequence[j-1]) + acc;
-						tmp += dangle_bot [int_sequence[j-1]]
-							[int_sequence[i+1]]
-							[int_sequence[i]];
-						tmp += dangle_top [int_sequence[j-1]]
-							[int_sequence[i+1]]
-							[int_sequence[j]];
+						tmp = energy_ij + E_ExtLoop(pair[S_[i+1+1]][S_[j-1+1]],S_[i+1],S_[j+1],params_) + acc;
 						if (tmp < min)
 						{
 							min = tmp;
@@ -561,17 +536,6 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 					}
 				}
 			}
-
-			// Hosna: June 28, 2007
-			// the last branch of W, which is WMB_i,j
-	//        energy_ij = WMB->get_energy(0,j);
-	//        if (energy_ij < INF){
-	//          	tmp = energy_ij + PS_penalty;
-	//           	if (tmp < min){
-	//           		min = tmp;
-	//           		best_row = 5;
-	//           	}
-	//        }
 		// Hosna June 30, 2007
 		// The following would not take care of when
 		// we have some unpaired bases before the start of the WMB
@@ -711,12 +675,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			  int tmp, min = INF;
 			  int best_k, best_row;
 
-			  if (debug)
-				printf ("\t (%d,%d) M_WM\n", i,j);
-
-			  tmp = v->get_energy(i,j,tree) +
-				AU_penalty (int_sequence[i], int_sequence[j]) +
-				misc.multi_helix_penalty;
+			  tmp = v->get_energy(i,j,tree) + E_ExtLoop(pair[S_[i+1]][S_[j+1]],-1,-1,params_);
 			  if (tmp < min)
 				{
 				  min = tmp;
@@ -724,13 +683,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 				}
 			  if (fres[i].pair <= -1)
 			  {
-				  tmp = v->get_energy(i+1,j,tree) +
-						AU_penalty (int_sequence[i+1], int_sequence[j]) +
-						dangle_bot [int_sequence[j]]
-						[int_sequence[i+1]]
-						[int_sequence[i]] +
-						misc.multi_helix_penalty +
-						misc.multi_free_base_penalty;
+				  tmp = v->get_energy(i+1,j,tree) + E_ExtLoop(pair[S_[i+1+1]][S_[j+1]],S_[i+1],-1,params_) + params_->MLbase;
 				  if (tmp < min)
 				  {
 					  min = tmp;
@@ -739,13 +692,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			  }
 			  if (fres[j].pair <= -1)
 			  {
-				  tmp = v->get_energy(i,j-1,tree) +
-						AU_penalty (int_sequence[i], int_sequence[j-1]) +
-						dangle_top [int_sequence[j-1]]
-									[int_sequence[i]]
-									[int_sequence[j]] +
-						misc.multi_helix_penalty +
-						misc.multi_free_base_penalty;
+				  tmp = v->get_energy(i,j-1,tree) + E_ExtLoop(pair[S_[i+1]][S_[j-1+1]],-1,S_[j+1],params_) + params_->MLbase;
 				  if (tmp < min)
 				  {
 					  min = tmp;
@@ -754,16 +701,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			  }
 			  if (fres[i].pair <= -1 && fres[j].pair <= -1)
 			  {
-				  tmp = v->get_energy(i+1,j-1,tree) +
-						AU_penalty (int_sequence[i+1], int_sequence[j-1]) +
-						dangle_bot [int_sequence[j-1]]
-									[int_sequence[i+1]]
-									[int_sequence[i]] +
-						dangle_top [int_sequence[j-1]]
-									[int_sequence[i+1]]
-									[int_sequence[j]] +
-						misc.multi_helix_penalty +
-						2*misc.multi_free_base_penalty;
+				  tmp = v->get_energy(i+1,j-1,tree) + E_MLstem(pair[S_[i+1+1]][S_[j-1+1]],S_[i+1],S_[j+1],params_) + 2*params_->MLbase;
 				  if (tmp < min)
 				  {
 					  min = tmp;
@@ -772,7 +710,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			  }
 			  if (fres[i].pair <= -1)
 			  {
-				  tmp = vm->get_energy_WM (i+1,j,tree) + misc.multi_free_base_penalty;
+				  tmp = vm->get_energy_WM (i+1,j,tree) + params_->MLbase;
 				  if (tmp < min)
 				  {
 					  min = tmp;
@@ -781,7 +719,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, str_features *fre
 			  }
 			  if (fres[j].pair <= -1)
 			  {
-				  tmp = vm->get_energy_WM (i,j-1,tree) + misc.multi_free_base_penalty;
+				  tmp = vm->get_energy_WM (i,j-1,tree) + params_->MLbase;
 				  if (tmp < min)
 				  {
 					  min = tmp;

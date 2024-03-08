@@ -455,10 +455,6 @@ void s_energy_matrix::compute_energy_restricted (cand_pos_t i, cand_pos_t j, spa
         default: type = NONE;
     }
 
-    if (min_rank > -1 && debug) {
-    	printf ("V(%d,%d) type %c energy %d\n", i, j, type, min);
-   	}
-
     // if (min < INF/2) {
     //     int ij = index[i]+j-i;
     //     nodes[ij].energy = min;
