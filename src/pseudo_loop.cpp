@@ -12,6 +12,7 @@
 #include "h_common.h"
 #include "VM_final.h"
 #include "V_final.h"
+#include<algorithm>
 
 // Ian Wark July 19 2017
 // constant that defines what fres[i].pair will be compared against (>=) for impossible cases

@@ -10,6 +10,11 @@
 #include "s_energy_matrix.h"
 #include "h_common.h"
 #include <string>
+extern "C" {
+#include "ViennaRNA/pair_mat.h"
+#include "ViennaRNA/loops/all.h"
+#include "ViennaRNA/params/io.h"
+}
 
 void get_hotspots(std::string seq,std::vector<Hotspot> &hotspot_list, int max_hotspot, vrna_param_s *params);
 int distance(int left, int right);

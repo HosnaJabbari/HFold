@@ -1,5 +1,4 @@
 #include "VM_final.h"
-#include "externs.h"
 #include "h_externs.h"
 #include <iostream>
 

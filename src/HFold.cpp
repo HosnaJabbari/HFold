@@ -2,12 +2,10 @@
 #include "hotspot.hh"
 #include "Result.hh"
 #include "cmdline.hh"
-#include "HFold.hh"
 #include "W_final.h"
 #include "h_common.h"
 //simfold files
 // #include "s_specific_functions.h"
-#include "externs.h"
 #include "h_globals.h"
 // a simple driver for the HFold
 #include <iostream>
@@ -21,10 +19,7 @@
 #include <string>
 #include <getopt.h>
 
-
-// this causes less compilation warnings than the #defines
-char HFOLD[8] =						"./HFold";
-char SIMFOLD[10] =                  "./simfold";
+int is_invalid_restriction(char* restricted_structure, char* current_structure);
 
 bool exists (const std::string path) {
   struct stat buffer;   
@@ -136,7 +131,7 @@ int main (int argc, char *argv[])
 		
 	}
 
-	std::string file = "/Users/mateo2/Documents/Code/Spark/src/params/parameters_DP09_Vienna.txt";
+	std::string file = "src/params/parameters_DP09_Vienna.txt";
     vrna_params_load(file.c_str(), VRNA_PARAMETER_FORMAT_DEFAULT);
 
 	std::vector<Hotspot> hotspot_list;

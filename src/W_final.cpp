@@ -9,7 +9,6 @@
 #include "W_final.h"
 #include "constants.h"
 #include "h_struct.h"
-#include "externs.h"
 #include "h_externs.h"
 #include "h_common.h"
 

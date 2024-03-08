@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string.h>
 #include "constants.h"
-#include "externs.h"
 #include "h_externs.h"
 #include "h_struct.h"
 #include "h_common.h"

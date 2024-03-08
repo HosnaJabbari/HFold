@@ -7,6 +7,11 @@
 #include "pseudo_loop.h"
 #include "V_final.h"
 #include <string>
+extern "C" {
+#include "ViennaRNA/pair_mat.h"
+#include "ViennaRNA/loops/all.h"
+#include "ViennaRNA/params/io.h"
+}
 
 class pseudo_loop;
 class V_final; 

@@ -27,7 +27,6 @@
 
 #include "constants.h"
 #include "h_struct.h"
-#include "externs.h"
 #include "h_common.h"
 #include "s_energy_matrix.h"
 

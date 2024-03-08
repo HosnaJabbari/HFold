@@ -14,7 +14,7 @@ SET(SOURCE
   src/V_final.cpp 
   src/VM_final.cpp
   src/h_common.cpp 
-  src/hfold_validation.cpp 
+#   src/hfold_validation.cpp 
   src/HFold.cpp
   src/cmdline.cc
   src/Result.cc

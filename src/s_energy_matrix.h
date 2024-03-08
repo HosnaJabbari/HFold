@@ -23,6 +23,11 @@
 #include "base_types.hh"
 #include <string>
 #include "sparse_tree.hh"
+extern "C" {
+#include "ViennaRNA/pair_mat.h"
+#include "ViennaRNA/loops/all.h"
+#include "ViennaRNA/params/io.h"
+}
 
 
 class s_energy_matrix
