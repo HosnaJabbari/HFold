@@ -20,24 +20,26 @@
 #include "constants.h"
 #include "h_struct.h"
 #include "h_common.h"
+#include "h_externs.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <string>
+#include <algorithm>
 
 #include "s_energy_matrix.h"
 
 
 
 
-s_energy_matrix::s_energy_matrix (std::string seq, cand_pos_t length, vrna_param_t *params)
+s_energy_matrix::s_energy_matrix (std::string seq, cand_pos_t length, short *S, short *S1, vrna_param_t *params)
 // The constructor
 {
     params_ = params;
     make_pair_matrix();
-    S_ = encode_sequence(seq.c_str(),0);
-	S1_ = encode_sequence(seq.c_str(),1);
+    S_ = S;
+	S1_ = S1;
 
     n = length;
     seq_= seq;
@@ -51,6 +53,8 @@ s_energy_matrix::s_energy_matrix (std::string seq, cand_pos_t length, vrna_param
         index[i] = index[i-1]+n-i+1;
 
 	WM.resize(total_length,INF);
+	WMv.resize(total_length,INF);
+	WMp.resize(total_length,INF);
     // this array holds V(i,j), and what (i,j) encloses: hairpin loop, stack pair, internal loop or multi-loop
 	nodes.resize(total_length);
 }
@@ -59,8 +63,6 @@ s_energy_matrix::s_energy_matrix (std::string seq, cand_pos_t length, vrna_param
 s_energy_matrix::~s_energy_matrix ()
 // The destructor
 {
-	free(S_);
-	free(S1_);
 }
 
 /**
@@ -248,47 +250,45 @@ energy_t s_energy_matrix::E_MbLoop(const energy_t WM2ij, const energy_t WM2ip1j,
 
 	return e;
 }
-
-void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, std::vector<Node> &tree)
-// compute de MFE of a partial multi-loop closed at (i,j), the restricted case
-{
-    if(j-i+1<4) return;
-	energy_t tmp;
-    // ++j;
+void s_energy_matrix::compute_WMv_WMp(cand_pos_t i, cand_pos_t j, energy_t WMB, std::vector<Node> &tree){
+	if(j-i+1<4) return;
 	cand_pos_t ij = index[(i-1)]+(j-1)-(i-1);
 	cand_pos_t iplus1j = index[(i-1)+1]+(j-1)-(i-1)-1;
 	cand_pos_t ijminus1 = index[(i-1)]+(j-1)-1-(i-1);
 
-	WM[ij] = E_MLStem(get_energy(i-1,j-1),get_energy(i+1-1,j-1),get_energy(i-1,j-1-1),get_energy(i+1-1,j-1-1),S_,params_,i,j,n,tree);
-
-	if (tree[i].pair <= -1)
-	{
-		tmp = WM[iplus1j] + params_->MLbase;
-		if (tmp < WM[ij])
-		{
-			WM[ij] = tmp;
-		}
-	}
-
+	WMv[ij] = E_MLStem(get_energy(i-1,j-1),get_energy(i+1-1,j-1),get_energy(i-1,j-1-1),get_energy(i+1-1,j-1-1),S_,params_,i,j,n,tree);
+	WMp[ij] = WMB+PSM_penalty+b_penalty;
 	if (tree[j].pair <= -1)
 	{
-		tmp = WM[ijminus1] + params_->MLbase;
-		if (tmp < WM[ij])
-		{
-			WM[ij] = tmp;
-		}
+		energy_t tmp = WMv[ijminus1] + params_->MLbase;
+		WMv[ij] = std::min(WMv[ij],tmp);
+		tmp = WMp[ijminus1] + params_->MLbase;
+		WMp[ij] = std::min(WMp[ij],tmp);
 	}
+}
 
-	for (cand_pos_t k=i; k < j; k++)
+void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, energy_t WMB, sparse_tree &tree)
+// compute de MFE of a partial multi-loop closed at (i,j), the restricted case
+{
+    if(j-i+1<4) return;
+	energy_t m1 = INF,m2=INF,m3=INF,m4=INF,m5=INF;
+    // ++j;
+	cand_pos_t ij = index[(i-1)]+(j-1)-(i-1);
+	cand_pos_t ijminus1 = index[(i-1)]+(j-1)-1-(i-1);
+
+	for (cand_pos_t k=i; k < j -TURN-1; k++)
 	{
+		bool can_pair = tree.up[k-1] >= (k-i);
 		cand_pos_t ik = index[(i-1)]+(k-1)-(i-1);
 		cand_pos_t kplus1j = index[(k-1)+1]+(j-1)-(k-1)-1;
-		tmp = WM[ik] + WM[kplus1j];
-		if (tmp < WM[ij])
-		{
-			WM[ij] = tmp;
-		}
+		if(can_pair) m1 = std::min(m1,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMv(k,j));
+		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMp(k,j));
+		m3 =  std::min(m3,get_energy_WM(i,k-1) + get_energy_WMv(k,j));
+		m4 =  std::min(m4,get_energy_WM(i,k-1) + get_energy_WMp(k,j));
+
 	}
+	WM[ij] = std::min({m1,m2,m3,m4});
+	if (tree.tree[j].pair <= -1) WM[ij] = std::min(WM[ij],WM[ijminus1] + params_->MLbase);
     
 }
 
@@ -298,7 +298,7 @@ energy_t s_energy_matrix::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t
     energy_t min = INF;
 	// i--;
 	// j--;
-    for (cand_pos_t k = i+2; k <= j-3; ++k)
+    for (cand_pos_t k = i+1; k <= j-3; ++k)
     {
 		// Original versions (i will be subracting 1 from the indices for WM2 so that i can switch 0->n-1 to 1->n)
 		// energy_t WM2ij = get_energy_WM(i+1,k) + get_energy_WM(k+1,j-1);
@@ -306,10 +306,18 @@ energy_t s_energy_matrix::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t
         // energy_t WM2ijm1 = get_energy_WM(i+1,k) + get_energy_WM(k+1,j-2);
         // energy_t WM2ip1jm1 = get_energy_WM(i+2,k) + get_energy_WM(k+1,j-2);
 
-        energy_t WM2ij = get_energy_WM(i+1-1,k-1) + get_energy_WM(k+1-1,j-1-1);
-        energy_t WM2ip1j = get_energy_WM(i+2-1,k-1) + get_energy_WM(k+1-1,j-1-1);
-        energy_t WM2ijm1 = get_energy_WM(i+1-1,k-1) + get_energy_WM(k+1-1,j-2-1);
-        energy_t WM2ip1jm1 = get_energy_WM(i+2-1,k-1) + get_energy_WM(k+1-1,j-2-1);
+        energy_t WM2ij = get_energy_WM(i+1-1,k-1-1) + std::min(get_energy_WMv(k-1,j-1-1),get_energy_WMp(k-1,j-1-1));
+		WM2ij = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k-1,j-1-1));
+
+        energy_t WM2ip1j = get_energy_WM(i+2-1,k-1-1) + std::min(get_energy_WMv(k-1,j-1-1),get_energy_WMp(k-1,j-1-1));
+		if((k-(i+1)-1) >=0) WM2ip1j = std::min(WM2ij,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-1-1));
+
+        energy_t WM2ijm1 = get_energy_WM(i+1-1,k-1-1) + std::min(get_energy_WMv(k-1,j-2-1),get_energy_WMp(k-1,j-2-1));
+		WM2ijm1 = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
+
+        energy_t WM2ip1jm1 = get_energy_WM(i+2-1,k-1-1) + std::min(get_energy_WMv(k-1,j-2-1),get_energy_WMp(k-1,j-2-1));
+		if((k-(i+1)-1) >=0) WM2ip1jm1 = std::min(WM2ij,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
+
         min = std::min(min,E_MbLoop(WM2ij,WM2ip1j,WM2ijm1,WM2ip1jm1,S_,params_,i,j,tree));
     }
     return min;

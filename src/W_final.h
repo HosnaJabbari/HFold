@@ -29,7 +29,7 @@ bool compare_hotspot_ptr(Hotspot &a, Hotspot &b);
 
 class W_final{
 	public:
-		W_final(std::string seq, std::string res, char *restricted, bool pk_free);
+		W_final(std::string seq, std::string res, char *restricted, bool pk_free, bool pk_only);
         // constructor for the restricted mfe case
 
         ~W_final ();
@@ -54,13 +54,11 @@ class W_final{
         // this pointer is the main part of the Hierarchical fold program
         // and corresponds to WMB recurrence
         pseudo_loop *WMB;
-        // pointer to the final V matrix
-        V_final *v;
 
         s_energy_matrix *V;     // the V object
         std::vector<energy_t> W;
         // PARAMTYPE *W;                 // the W exterior loop array
-        int n;     // sequence length (number of nucleotides)
+        cand_pos_t n;     // sequence length (number of nucleotides)
         seq_interval *stack_interval;  // used for backtracking
         minimum_fold *f;        // the minimum folding, see structs.h
         std::string seq_;
@@ -69,6 +67,7 @@ class W_final{
 	    short *S1_;
         char *restricted;    // restricted structure given as input - restricts base pairs eg (________) 
         bool pk_free = false;
+        bool pk_only = false;
         
 
         // pointer to the final VM matrix

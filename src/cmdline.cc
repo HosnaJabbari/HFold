@@ -32,7 +32,8 @@ const char *args_info_help[] = {
   "  -i, --input-file       Give a path to an input file containing the sequence (and input structure if known)",
   "  -o  --output-file      Give a path to an output file which will the sequence, and its structure and energy",
   "  -n, --opt              Specify the number of suboptimal structures to output (default is 1)",
-  "  -p  --pk-free          Specify whether you only want the pseudoknot-free simfold structure to be calculated"
+  "  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated"
+  "  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added"
 
   "\nThe input sequence is read from standard input, unless it is\ngiven on the command line.\n",
   
@@ -57,6 +58,8 @@ static void init_args_info(struct args_info *args_info)
   args_info->output_file_help = args_info_help[5] ;
   args_info->subopt_help = args_info_help[7] ;
   args_info->pk_free_help = args_info_help[8] ;
+  args_info->pk_only_help = args_info_help[9] ;
+
 
 
   
@@ -112,6 +115,7 @@ static void clear_given (struct args_info *args_info)
   args_info->output_file_given = 0 ;
   args_info->subopt_given = 0 ;
   args_info->pk_free_given = 0 ;
+  args_info->pk_only_given = 0 ;
 }
 
 static void clear_args (struct args_info *args_info)
@@ -305,10 +309,11 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
         { "ouput-file",	required_argument, NULL, 'o' },
         { "subopt",	required_argument, NULL, 'n' },
         { "pk-free",	0, NULL, 'p' },
+        { "pk-free",	0, NULL, 'k' },
         { 0,  0, 0, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVvr:i:o:n:p", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVvr:i:o:n:pk", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -385,6 +390,16 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
           if (update_arg( 0 , 
                0 , &(args_info->pk_free_given),
               &(local_args_info.pk_free_given), optarg, 0, 0, ARG_NO,0, 0,"pk-free", 'p',additional_error))
+            goto failure;
+        
+          break;
+
+          case 'k':	/* Specify if pseudoknot-free.  */
+        
+        
+          if (update_arg( 0 , 
+               0 , &(args_info->pk_only_given),
+              &(local_args_info.pk_only_given), optarg, 0, 0, ARG_NO,0, 0,"pk-only", 'k',additional_error))
             goto failure;
         
           break;

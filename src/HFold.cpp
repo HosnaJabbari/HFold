@@ -73,8 +73,8 @@ void validateSequence(std::string sequence){
   }
 }
 
-double hfold(std::string seq,std::string res, char *restricted, std::string &structure, sparse_tree &tree, bool pk_free){
-	W_final *min_fold = new W_final (seq,res, restricted, pk_free);
+double hfold(std::string seq,std::string res, char *restricted, std::string &structure, sparse_tree &tree, bool pk_free, bool pk_only){
+	W_final *min_fold = new W_final (seq,res, restricted, pk_free, pk_only);
 	if (min_fold == NULL) giveup ("Cannot allocate memory", "HFold");
 	double energy = min_fold->hfold(tree);
     structure = min_fold->structure;
@@ -116,6 +116,8 @@ int main (int argc, char *argv[])
 	int number_of_suboptimal_structure = args_info.subopt_given ? subopt : 1;
 
 	bool pk_free = args_info.pk_free_given;
+
+	bool pk_only = args_info.pk_only_given;
 
 	if(fileI != ""){
 		
@@ -161,7 +163,7 @@ int main (int argc, char *argv[])
 		strcpy(structure,struc.c_str());
 
 		sparse_tree tree(restricted,n);
-		energy = hfold(seq,struc, structure, final_structure,tree,pk_free);
+		energy = hfold(seq,struc, structure, final_structure,tree,pk_free,pk_only);
 		
 		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy);
 		result_list.push_back(result);

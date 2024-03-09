@@ -12,22 +12,21 @@
 #include <algorithm>
 
 #include "VM_final.h"
-#include "V_final.h"
 
 // set to -1 because >= 0 means there is already a base pair there,
 // and -1 means restricted struture says there is no base pair there.
 #define FRES_RESTRICTED_MIN -1
 
-pseudo_loop::pseudo_loop(std::string seq, char* restricted, V_final *V, VM_final *VM, vrna_param_t *params)
+pseudo_loop::pseudo_loop(std::string seq, char* restricted, s_energy_matrix *V, VM_final *VM, short *S, short *S1, vrna_param_t *params)
 {
 	this->seq = seq;
 	this->restricted = restricted;
 	this->V = V;
 	this->VM = VM;
+	S_ = S;
+	S1_ = S1;
 	params_ = params;
 	make_pair_matrix();
-	S_ = encode_sequence(seq.c_str(),0);
-	S1_ = encode_sequence(seq.c_str(),1);
     allocate_space();
 }
 
@@ -35,67 +34,36 @@ void pseudo_loop::allocate_space()
 {
     n = seq.length();
 
-    index = new cand_pos_t  [n];
+    index.resize(n);
     cand_pos_t total_length = (n *(n+1))/2;
     index[0] = 0;
     for (cand_pos_t i=1; i < n; i++)
         index[i] = index[i-1]+n-i+1;
 
-    WI = new energy_t [total_length];
-    if (WI == NULL) giveup ("Cannot allocate memory", "energy");
-    for (cand_pos_t i=0; i < total_length; i++) WI[i] = 0; // if i == j -> p_up
+    WI.resize(total_length,0);
 
-    VP = new energy_t[total_length];
-    if (VP == NULL) giveup ("Cannot allocate memory", "VP");
-    for (cand_pos_t i=0; i < total_length; i++) VP[i] = INF;
+    VP.resize(total_length,INF);
 
-    WMB = new energy_t[total_length];
-    if (WMB == NULL) giveup ("Cannot allocate memory", "WMB");
-    for (cand_pos_t i=0; i < total_length; i++) WMB[i] = INF;
+    WMB.resize(total_length,INF);
 
-    WMBP = new energy_t[total_length];
-	if (WMBP == NULL) giveup("Cannot allocate memory","WMBP");
-	for (cand_pos_t i=0; i < total_length; i++) WMBP[i] = INF;
+    WMBP.resize(total_length,INF);
 
-    WIP = new energy_t[total_length];
-    if (WIP == NULL) giveup ("Cannot allocate memory", "WIP");
-    for (cand_pos_t i=0; i < total_length; i++) WIP[i] = INF;
+    WIP.resize(total_length,INF);
 
+    VPP.resize(total_length,INF);
 
-    VPP = new energy_t[total_length];
-    if (VPP == NULL) giveup ("Cannot allocate memory", "VPP");
-    for (cand_pos_t i=0; i < total_length; i++) VPP[i] = INF;
-
-    BE = new energy_t[total_length];
-    if (BE == NULL) giveup ("Cannot allocate memory", "BE");
-    for (cand_pos_t i=0; i < total_length; i++) BE[i] = 0; //check
+    BE.resize(total_length,0);
 
 }
 
 pseudo_loop::~pseudo_loop()
 {
-    delete [] WI;
-    delete [] WIP;
-    delete [] VP;
-    delete [] VPP;
-    delete [] WMB;
-    delete [] WMBP;
-
-    delete [] BE;
-
-    delete [] index;
-	free(S_);
-	free(S1_);
 }
 
 void pseudo_loop::compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree)
 {
 
-	// Hosna, April 18th, 2007
-	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
-
 	compute_VP(i,j,tree); // Hosna, March 14, 2012, changed the positionof computing VP from after BE to befor WMBP
-
 
 	compute_WMBP(i,j,tree);
 
@@ -158,7 +126,7 @@ void pseudo_loop::compute_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 		// Hosna: April 19th, 2007
 		// I think we should call the restricted version
 
-		energy_t v_ener = (i>j)? INF: V->get_energy(i,j,tree);
+		energy_t v_ener = (i>j)? INF: V->get_energy(i,j);
 		m2 = v_ener + PPS_penalty;
 	}
 
@@ -516,7 +484,7 @@ void pseudo_loop::compute_WIP(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 	// branch 4:
 	if (tree.tree[i+1].pair == j+1 || (tree.tree[i+1].pair < FRES_RESTRICTED_MIN && tree.tree[j+1].pair < FRES_RESTRICTED_MIN && ptype_closing >0)){
 
-		m4 = V->get_energy(i,j,tree) + bp_penalty;
+		m4 = V->get_energy(i,j) + bp_penalty;
 
 	}
 
@@ -803,7 +771,7 @@ energy_t pseudo_loop::get_e_intP(cand_pos_t i, cand_pos_t ip, cand_pos_t jp, can
 	return energy;
 }
 
-void pseudo_loop::back_track(char *structure, minimum_fold *f, seq_interval *cur_interval, sparse_tree &tree)
+void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interval *cur_interval, sparse_tree &tree)
 {
 	this->structure = structure;
 	this->f = f;
@@ -1003,15 +971,15 @@ void pseudo_loop::back_track(char *structure, minimum_fold *f, seq_interval *cur
 				break;
 			case P_VP:
 			{
-				int i = cur_interval->i;
-				int j = cur_interval->j;
+				cand_pos_t i = cur_interval->i;
+				cand_pos_t j = cur_interval->j;
 				if (i>=j){
 					return;
 				}
 				f[i].pair = j;
 				f[j].pair = i;
-				structure[i] = '[';
-				structure[j] = ']';
+				this->structure[i] = '[';
+				this->structure[j] = ']';
 				//printf("----> original VP: adding (%d,%d) <-------\n",i,j);
 				f[i].type = P_VP;
 				f[j].type = P_VP;
@@ -1316,10 +1284,10 @@ void pseudo_loop::back_track(char *structure, minimum_fold *f, seq_interval *cur
 			}
 			int min = INF, tmp = INF, best_row = -1, best_t= -1;
 
-	// Hosna: July 2nd, 2007
-	// in branch 1 of WI, we can have a case like
-	// ((..))((...))
-	// such that both i and j are paired but we can chop them
+				// Hosna: July 2nd, 2007
+				// in branch 1 of WI, we can have a case like
+				// ((..))((...))
+				// such that both i and j are paired but we can chop them
 				for (cand_pos_t t = i; t< j; t++){
 					int wi_1 = get_WI(i,t,tree);
 					int wi_2 = get_WI(t+1,j,tree);
@@ -1338,7 +1306,7 @@ void pseudo_loop::back_track(char *structure, minimum_fold *f, seq_interval *cur
 				// Hosna: April 19th, 2007
 				// I think we should call the restricted version
 
-				tmp = V->get_energy(i,j,tree) + PPS_penalty;
+				tmp = V->get_energy(i,j) + PPS_penalty;
 				if(tmp < min){
 					min = tmp;
 					best_row = 2;
@@ -1393,14 +1361,14 @@ void pseudo_loop::back_track(char *structure, minimum_fold *f, seq_interval *cur
 
 			f[i].pair = j;
 			f[j].pair = i;
-			structure[i] = '(';
-			structure[j] = ')';
+			this->structure[i] = '(';
+			this->structure[j] = ')';
 			f[i].type = P_BE;
 			f[j].type = P_BE;
 			f[ip].pair = jp;
 			f[jp].pair = ip;
-			structure[ip] = '(';
-			structure[jp] = ')';
+			this->structure[ip] = '(';
+			this->structure[jp] = ')';
 			f[ip].type = P_BE;
 			f[jp].type = P_BE;
 
@@ -1556,7 +1524,7 @@ void pseudo_loop::back_track(char *structure, minimum_fold *f, seq_interval *cur
 			//case 4
 			pair_type ptype_closing = pair[S_[i+1]][S_[j+1]];
 			if (tree.tree[i+1].pair == j+1 || (tree.tree[i+1].pair < 0 && tree.tree[j+1].pair < 0 && ptype_closing)){
-				tmp = V->get_energy(i,j,tree)+ bp_penalty;
+				tmp = V->get_energy(i,j)+ bp_penalty;
 				if (tmp < min){
 					min = tmp;
 					best_row = 4;

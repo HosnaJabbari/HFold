@@ -227,7 +227,9 @@ const int sparse_tree::b(int i, int l) const{
  * Returns whether there the area between i and j is weakly closed, specifically if all pairs in the [i,j] stay within [i,j]
 */
 const bool sparse_tree::weakly_closed(int i, int j) const{
+    if(j<i) return 0;
     if((i > tree[i].pair && tree[i].pair > 0) || tree[j].pair> j) return 0;
+    if(i==j) return !(tree[j].pair > 0);
     // if((tree[i].pair > i && tree[j].pair > j) ||(tree[i].pair < i && tree[j].pair < j && tree[i].pair != -1 && tree[j].pair != -1)) return 0;
     // if(depthArr[FAI[i]] == depthArr[FAI[j]] && tree[i].parent->index == tree[j].parent->index) return 1;
 

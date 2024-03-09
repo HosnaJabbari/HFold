@@ -60,7 +60,7 @@ void VM_final::compute_energy(cand_pos_t i, cand_pos_t j, str_features *fres, sp
         energy_t WM2ip1jm1 = WM[iplus2k] + WM[kplus1jminus2];
 
 
-        min = std::min(min,v->v->E_MbLoop(WM2ij,WM2ip1j,WM2ijm1,WM2ip1jm1,S_,params_,i+1,j+1,tree.tree));
+        min = std::min(min,v->E_MbLoop(WM2ij,WM2ip1j,WM2ijm1,WM2ip1jm1,S_,params_,i+1,j+1,tree.tree));
     }
 
     min += params_->MLclosing;
@@ -92,7 +92,7 @@ energy_t VM_final::get_energy(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 void VM_final::WM_compute_energy(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 
 	// int s_wm = s_vm->get_energy_WM(i,j);
-    energy_t s_wm = v->v->get_energy_WM(i,j);
+    energy_t s_wm = v->get_energy_WM(i,j);
 
 	// Hosna: July 5th, 2007
 	// add a b_penalty to this case to match the previous cases

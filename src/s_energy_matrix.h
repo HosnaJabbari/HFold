@@ -38,7 +38,7 @@ class s_energy_matrix
 
         friend class s_multi_loop;
 
-        s_energy_matrix (std::string seq, cand_pos_t length, vrna_param_t *params);
+        s_energy_matrix (std::string seq, cand_pos_t length, short *S, short *S1, vrna_param_t *params);
         // The constructor
 
         ~s_energy_matrix ();
@@ -63,6 +63,8 @@ class s_energy_matrix
         energy_t get_energy (cand_pos_t i, cand_pos_t j) { if (i>=j) return INF; cand_pos_t ij = index[i]+j-i; return nodes[ij].energy; }
 
         energy_t get_energy_WM (cand_pos_t i, cand_pos_t j) { if (i>=j) return INF; cand_pos_t ij = index[i]+j-i; return WM[ij]; }
+        energy_t get_energy_WMv (cand_pos_t i, cand_pos_t j) { if (i>=j) return INF; cand_pos_t ij = index[i]+j-i; return WMv[ij]; }
+        energy_t get_energy_WMp (cand_pos_t i, cand_pos_t j) { if (i>=j) return INF; cand_pos_t ij = index[i]+j-i; return WMp[ij]; }
         // return the value at V(i,j)
 
         char get_type (cand_pos_t i, cand_pos_t j) { cand_pos_t ij = index[i]+j-i; return nodes[ij].type; }
@@ -75,18 +77,19 @@ class s_energy_matrix
         energy_t compute_internal_restricted(cand_pos_t i, cand_pos_t j, const paramT *params, std::vector<int> &up);
         energy_t compute_int(cand_pos_t i, cand_pos_t j, cand_pos_t k, cand_pos_t l, const paramT *params);
 
-        void compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, std::vector<Node> &tree);
-        void compute_energy_WM_restricted (cand_pos_t j, std::vector<Node> &tree);
+        void compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, energy_t WMB, sparse_tree &tree);
         energy_t compute_energy_VM_restricted (cand_pos_t i, cand_pos_t j, std::vector<Node> &tree);
         energy_t E_MLStem(const energy_t& vij,const energy_t& vi1j,const energy_t& vij1,const energy_t& vi1j1,const short* S, paramT* params,cand_pos_t i, cand_pos_t j, const  cand_pos_t& n, std::vector<Node> &tree);
         energy_t E_MbLoop(const energy_t WM2ij, const energy_t WM2ip1j, const energy_t WM2ijm1, const energy_t WM2ip1jm1, const short* S, paramT* params, cand_pos_t i, cand_pos_t j, std::vector<Node> &tree);
-
+        void compute_WMv_WMp(cand_pos_t i, cand_pos_t j, energy_t WMB, std::vector<Node> &tree);
 
     // better to have protected variable rather than private, it's necessary for Hfold
     protected:
     //private:
 
         std::vector<energy_t> WM;
+        std::vector<energy_t> WMv;
+        std::vector<energy_t> WMp;
 
        
         std::string seq_;

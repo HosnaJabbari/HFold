@@ -5,7 +5,7 @@
 #include "h_common.h"
 #include "h_struct.h"
 #include "pseudo_loop.h"
-#include "V_final.h"
+#include "s_energy_matrix.h"
 #include <string>
 extern "C" {
 #include "ViennaRNA/pair_mat.h"
@@ -21,7 +21,7 @@ public:
 	VM_final(std::string seq, cand_pos_t n,vrna_param_t *params);
 	~VM_final();
 	//void set_WMB_matrix(pseudo_loop *WMB) {this->WMB = WMB; }
-	void set_V_matrix (V_final *Vf) { 
+	void set_V_matrix (s_energy_matrix *Vf) { 
 		this->v = Vf;
 
 //		printf("VM: set_V_matrix successful!\n"); 
@@ -51,7 +51,7 @@ protected:
 
 	
     //s_energy_matrix *V;            // a pointer to the free energy matrix V
-    V_final *v;
+    s_energy_matrix *v;
         
     pseudo_loop *wmb;				// a pointer to the pseudo_loop matrix
     

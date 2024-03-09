@@ -5,21 +5,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \ -O3 \ -w")
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \ -w \ -g")
 
 SET(SOURCE
 #   src/simfold.cpp
   src/W_final.cpp 
   src/pseudo_loop.cpp 
-  src/V_final.cpp 
   src/VM_final.cpp
   src/h_common.cpp 
-#   src/hfold_validation.cpp 
   src/HFold.cpp
   src/cmdline.cc
-  src/Result.cc
-#   src/params.cpp
-#   src/init.cpp 		
+  src/Result.cc	
   src/s_energy_matrix.cpp	
   src/Hotspot.cc
   src/sparse_tree.cc

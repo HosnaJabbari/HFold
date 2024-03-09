@@ -5,7 +5,7 @@
 #include "h_common.h"
 #include <stdio.h>
 #include <string.h>
-#include "V_final.h"
+#include "s_energy_matrix.h"
 #include "VM_final.h"
 
 class VM_final;
@@ -14,7 +14,7 @@ class pseudo_loop{
 
 public:
 	// constructor
-	pseudo_loop(std::string seq, char* restricted, V_final *V, VM_final *VM, vrna_param_t *params);
+	pseudo_loop(std::string seq, char* restricted, s_energy_matrix *V, VM_final *VM, short *S, short *S1, vrna_param_t *params);
 
 	// destructor
 	~pseudo_loop();
@@ -36,18 +36,11 @@ public:
 	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
 	energy_t get_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
-    int is_weakly_closed(cand_pos_t i, cand_pos_t j);
-    int is_empty_region(cand_pos_t i, cand_pos_t j);
-
-    void back_track(char *structure, minimum_fold *f, seq_interval *cur_interval, sparse_tree &tree);
-
-	// Hosna, May 1st, 2012
-	// We need a specific back track function for pkonly case
-	void back_track_pkonly(char *structure, minimum_fold *f, seq_interval *cur_interval);
+    void back_track(std::string structure, minimum_fold *f, seq_interval *cur_interval, sparse_tree &tree);
 
     void set_stack_interval(seq_interval *stack_interval);
     seq_interval *get_stack_interval(){return stack_interval;}
-    char *get_structure(){return structure;}
+    std::string get_structure(){return structure;}
     minimum_fold *get_minimum_fold(){return f;}
 
 private:
@@ -57,24 +50,24 @@ private:
 	std::string seq;
 
     VM_final *VM;	        // multi loop object
-    V_final *V;		        // the V object
+    s_energy_matrix *V;		        // the V object
 
 	h_str_features *fres;
 	seq_interval *stack_interval;
-	char *structure;
+	std::string structure;
 	minimum_fold *f;
 	vrna_param_t *params_;
 
 
 	//Hosna
-    energy_t *WI;				// the loop inside a pseudoknot (in general it looks like a W but is inside a pseudoknot)
-    energy_t *VP;				// the loop corresponding to the pseudoknotted region of WMB
-    energy_t *WMB;				// the main loop for pseudoloops and bands
-	energy_t *WMBP; 				// the main loop to calculate WMB
-	energy_t *WIP;				// the loop corresponding to WI'
-    energy_t *VPP;				// the loop corresponding to VP'
-    energy_t *BE;				// the loop corresponding to BE
-    cand_pos_t *index;				// the array to keep the index of two dimensional arrays like WI and weakly_closed
+    std::vector<energy_t> WI;				// the loop inside a pseudoknot (in general it looks like a W but is inside a pseudoknot)
+    std::vector<energy_t> VP;				// the loop corresponding to the pseudoknotted region of WMB
+    std::vector<energy_t> WMB;				// the main loop for pseudoloops and bands
+	std::vector<energy_t> WMBP; 				// the main loop to calculate WMB
+	std::vector<energy_t> WIP;				// the loop corresponding to WI'
+    std::vector<energy_t> VPP;				// the loop corresponding to VP'
+    std::vector<energy_t> BE;				// the loop corresponding to BE
+    std::vector<cand_pos_t> index;				// the array to keep the index of two dimensional arrays like WI and weakly_closed
 
 	short *S_;
 	short *S1_;

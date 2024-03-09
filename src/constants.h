@@ -140,6 +140,8 @@ enum bases {A=0,C=1,G=2,T=3,U=3,X=4};
 #define MULTI_LINK      'O'         // closes a special multi-loop
 
 #define M_WM            'B'         // closes a regular partial multi-loop
+#define M_WMv            'v'         // closes a regular partial multi-loop
+#define M_WMp            'p'         // closes a regular partial multi-loop
 #define M_WM_LINK       'C'         // closes a special partial multi-loop
 
 #define FREE            'W'         // this base is free to be paired or unpaired to other base
