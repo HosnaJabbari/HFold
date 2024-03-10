@@ -35,7 +35,6 @@ W_final::W_final(std::string seq,std::string res, char *restricted,bool pk_only,
 
 W_final::~W_final()
 {
-	delete vm;
 	delete WMB;
 	delete V;
 	delete [] f;
@@ -56,22 +55,9 @@ void W_final::space_allocation(){
     if (V == NULL) giveup ("Cannot allocate memory", "energy");
 	structure = std::string (n,'.');
 
-		// Hosna June 20th, 2007
-	vm = new VM_final(seq_,this->n, params_);
-	if (vm == NULL) giveup ("Cannot allocate memory", "W_final");
-	// Hosna June 20th, 2007
-	// v = new V_final(n);
-	// if (v == NULL) giveup ("Cannot allocate memory", "W_final");
-	// v->setloops(this->V,vm);
-
 	// Hosna: June 20th 2007
-    WMB = new pseudo_loop (seq_,restricted,V,vm,S_,S1_,params_);
+    WMB = new pseudo_loop (seq_,restricted,V,S_,S1_,params_);
     if (WMB == NULL) giveup ("Cannot allocate memory", "W_final");
-
-    // Hosna: June 20th 2007
-    vm->set_V_matrix(V);
-    vm->set_WMB_matrix(WMB);
-
 
 }
 
@@ -99,8 +85,6 @@ double W_final::hfold(sparse_tree &tree){
 
 				V->compute_WMv_WMp(i,j,WMB->get_WMB(i-1,j-1,tree),tree.tree);
 				V->compute_energy_WM_restricted(i,j,WMB->get_WMB(i-1,j-1,tree),tree);
-
-				vm->WM_compute_energy(i-1,j-1,tree);		
 			}
 
 		}

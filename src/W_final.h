@@ -2,14 +2,12 @@
 #define W_FINAL_H_
 
 #include "hotspot.hh"
-#include "VM_final.h"
-#include "V_final.h"
 #include "pseudo_loop.h"
 #include "base_types.hh"
 #include "sparse_tree.hh";
 #include "s_energy_matrix.h"
 #include "h_common.h"
-
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -69,9 +67,6 @@ class W_final{
         bool pk_free = false;
         bool pk_only = false;
         
-
-        // pointer to the final VM matrix
-        VM_final *vm;
 
         void insert_node (cand_pos_t i, cand_pos_t j, char type);
 

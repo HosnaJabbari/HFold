@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "s_energy_matrix.h"
-#include "VM_final.h"
 
 class VM_final;
 class V_final;
@@ -14,7 +13,7 @@ class pseudo_loop{
 
 public:
 	// constructor
-	pseudo_loop(std::string seq, char* restricted, s_energy_matrix *V, VM_final *VM, short *S, short *S1, vrna_param_t *params);
+	pseudo_loop(std::string seq, char* restricted, s_energy_matrix *V, short *S, short *S1, vrna_param_t *params);
 
 	// destructor
 	~pseudo_loop();
@@ -49,10 +48,8 @@ private:
 	char *restricted;
 	std::string seq;
 
-    VM_final *VM;	        // multi loop object
     s_energy_matrix *V;		        // the V object
 
-	h_str_features *fres;
 	seq_interval *stack_interval;
 	std::string structure;
 	minimum_fold *f;

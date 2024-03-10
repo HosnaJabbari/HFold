@@ -281,10 +281,10 @@ void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, 
 		bool can_pair = tree.up[k-1] >= (k-i);
 		cand_pos_t ik = index[(i-1)]+(k-1)-(i-1);
 		cand_pos_t kplus1j = index[(k-1)+1]+(j-1)-(k-1)-1;
-		if(can_pair) m1 = std::min(m1,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMv(k,j));
-		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMp(k,j));
-		m3 =  std::min(m3,get_energy_WM(i,k-1) + get_energy_WMv(k,j));
-		m4 =  std::min(m4,get_energy_WM(i,k-1) + get_energy_WMp(k,j));
+		if(can_pair) m1 = std::min(m1,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMv(k-1,j-1));
+		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMp(k-1,j-1));
+		m3 =  std::min(m3,get_energy_WM(i-1,k-1-1) + get_energy_WMv(k-1,j-1));
+		m4 =  std::min(m4,get_energy_WM(i-1,k-1-1) + get_energy_WMp(k-1,j-1));
 
 	}
 	WM[ij] = std::min({m1,m2,m3,m4});
@@ -310,15 +310,16 @@ energy_t s_energy_matrix::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t
 		WM2ij = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k-1,j-1-1));
 
         energy_t WM2ip1j = get_energy_WM(i+2-1,k-1-1) + std::min(get_energy_WMv(k-1,j-1-1),get_energy_WMp(k-1,j-1-1));
-		if((k-(i+1)-1) >=0) WM2ip1j = std::min(WM2ij,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-1-1));
+		if((k-(i+1)-1) >=0) WM2ip1j = std::min(WM2ip1j,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-1-1));
 
         energy_t WM2ijm1 = get_energy_WM(i+1-1,k-1-1) + std::min(get_energy_WMv(k-1,j-2-1),get_energy_WMp(k-1,j-2-1));
-		WM2ijm1 = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
+		WM2ijm1 = std::min(WM2ijm1,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
 
         energy_t WM2ip1jm1 = get_energy_WM(i+2-1,k-1-1) + std::min(get_energy_WMv(k-1,j-2-1),get_energy_WMp(k-1,j-2-1));
-		if((k-(i+1)-1) >=0) WM2ip1jm1 = std::min(WM2ij,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
+		if((k-(i+1)-1) >=0) WM2ip1jm1 = std::min(WM2ip1jm1,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
 
         min = std::min(min,E_MbLoop(WM2ij,WM2ip1j,WM2ijm1,WM2ip1jm1,S_,params_,i,j,tree));
+		
     }
     return min;
 }

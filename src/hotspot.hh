@@ -21,7 +21,7 @@ class Hotspot{
             this->length = length;
             this->energy = 0.0; 
             this->size = 1;
-            std::string temp(length,'_');
+            std::string temp(length,'.');
             structure = temp;
 
         }

@@ -39,7 +39,7 @@ void Hotspot::set_structure(){
         }else if(i <= right_outer_index && i >= right_inner_index){
             structure[i] = ')';
         }else{
-            structure[i] = '_';
+            structure[i] = '.';
         }
     }
 }
