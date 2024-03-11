@@ -53,7 +53,7 @@ void W_final::space_allocation(){
 
     V = new s_energy_matrix (seq_, n,S_,S1_,params_);
     if (V == NULL) giveup ("Cannot allocate memory", "energy");
-	structure = std::string (n,'.');
+	structure = std::string (n+1,'.');
 
 	// Hosna: June 20th 2007
     WMB = new pseudo_loop (seq_,restricted,V,S_,S1_,params_);
@@ -103,7 +103,6 @@ double W_final::hfold(sparse_tree &tree){
 			}
 		W[j] = std::min({m1,m2,m3});
 	}
-	printf("Vij is %d\n",V->get_energy(1,n));
 
     double energy = W[n]/100.0;
 
@@ -125,6 +124,7 @@ double W_final::hfold(sparse_tree &tree){
         delete cur_interval;    // this should make up for the new in the insert_node
         cur_interval = stack_interval;
     }
+	this->structure = structure.substr(1,n);
     return energy;
 
 }
@@ -211,7 +211,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
     char type;
 
 
-	// printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
+	printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
 	//Hosna, March 8, 2012
 	// changing nested if to switch for optimality
 	switch (cur_interval->type){
@@ -227,8 +227,8 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 			// Hosna Jun. 28 2007
 			// if the pairing is part of original structure, put '(' and ')' in the structure
 			// otherwise make it '[' and ']' -- changed to () if pseudoknot-free and [] if pseudoknotted -Mateo
-			structure[i-1] = '(';
-			structure[j-1] = ')';		
+			structure[i] = '(';
+			structure[j] = ')';		
 
 			type = V->get_type (i,j);
 			
@@ -418,12 +418,12 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 		{
 			int j = cur_interval->j;
 
-			if (j==0) return;
+			if (j==1) return;
 
 			int min = INF, tmp, best_row, i, best_i, acc, energy_ij;
 
 			// this case is for j unpaired, so I have to check that.
-			if (tree.tree[j+1].pair <= -1)
+			if (tree.tree[j].pair <= -1)
 			{
 				tmp = W[j-1];
 				if (tmp < min)
@@ -437,7 +437,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 
 				// Don't need to make sure i and j don't have to pair with something else
 				//  it's INF, done in fold_sequence_restricted
-				acc = (i-1>0) ? W[i-1] : 0;
+				acc = (i>1) ? W[i-1] : 0;
 				energy_ij = V->get_energy(i,j);
 
 				if (energy_ij < INF)

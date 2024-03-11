@@ -31,7 +31,7 @@ void pseudo_loop::allocate_space()
     cand_pos_t total_length = ((n+1) *(n+2))/2;
     index[1] = 0;
     for (cand_pos_t i=2; i <= n; i++)
-        index[i] = index[i-1]+n-i+1;
+        index[i] = index[i-1]+(n+1)-i+1;
 
     WI.resize(total_length,0);
 
@@ -95,7 +95,6 @@ void pseudo_loop::compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree
 void pseudo_loop::compute_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	energy_t min = INF, m1 = INF, m2= INF, m3= INF;
 	cand_pos_t ij = index[i]+j-i;
-
 	// branch 4, one base
 	if (i == j){
 		WI[ij] = PUP_penalty;
@@ -666,6 +665,8 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 	this->structure = structure;
 	this->f = f;
 	// Hosna March 8, 2012
+		printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
+
 	// changing the nested if structure to switch for optimality
 	switch (cur_interval->type)
 	{
@@ -1241,14 +1242,14 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 			f[i].pair = j;
 			f[j].pair = i;
-			this->structure[i-1] = '(';
-			this->structure[j-1] = ')';
+			this->structure[i] = '(';
+			this->structure[j] = ')';
 			f[i].type = P_BE;
 			f[j].type = P_BE;
 			f[ip].pair = jp;
 			f[jp].pair = ip;
-			this->structure[ip-1] = '(';
-			this->structure[jp-1] = ')';
+			this->structure[ip] = '(';
+			this->structure[jp] = ')';
 			f[ip].type = P_BE;
 			f[jp].type = P_BE;
 
