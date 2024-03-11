@@ -10,9 +10,6 @@
 #include <iostream>
 #include <math.h>
 #include <algorithm>
-// set to -1 because >= 0 means there is already a base pair there,
-// and -1 means restricted struture says there is no base pair there.
-#define FRES_RESTRICTED_MIN -1
 
 pseudo_loop::pseudo_loop(std::string seq, char* restricted, s_energy_matrix *V, short *S, short *S1, vrna_param_t *params)
 {
@@ -204,7 +201,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	// 4) NOT_paired(i+1) and NOT_paired(j-1) and they can pair together
 	// e_stP(i,i+1,j-1,j) + VP(i+1)(j-1)
 	pair_type ptype_closingip1jm1 = pair[S_[i+1+1]][S_[j-1+1]];
-	if((tree.tree[i+1+1].pair) < FRES_RESTRICTED_MIN && (tree.tree[j-1+1].pair) < FRES_RESTRICTED_MIN && ptype_closingip1jm1>0){
+	if((tree.tree[i+1+1].pair) < -1 && (tree.tree[j-1+1].pair) < -1 && ptype_closingip1jm1>0){
 		m4 = get_e_stP(i,j)+ get_VP(i+1,j-1,tree);
 	}
 
@@ -251,7 +248,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	for (cand_pos_t r = i+1; r < min_Bp_j ; ++r){
 
 
-		if (tree.tree[r+1].pair < FRES_RESTRICTED_MIN){
+		if (tree.tree[r+1].pair < -1){
 			// Hosna: July 5th, 2007
 			// After meeting with Anne and Cristina --> ap should have 2* bp to consider the biggest and the one that crosses
 			// in a multiloop that spans a band
@@ -270,7 +267,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	}
 	for (cand_pos_t r = max_i_bp+1; r < j ; ++r){
 
-		if (tree.tree[r+1].pair < FRES_RESTRICTED_MIN){
+		if (tree.tree[r+1].pair < -1){
 			// Hosna: July 5th, 2007
 			// After meeting with Anne and Cristina --> ap should have 2* bp to consider the biggest and the one that crosses
 			// in a multiloop that spans a band
@@ -489,7 +486,7 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 	for (cand_pos_t l = i+1; l<= ip ; l++){
 
 		// Hosna: March 14th, 2007
-		if (tree.tree[l+1].pair >= FRES_RESTRICTED_MIN && jp <= tree.tree[l+1].pair-1 && tree.tree[l+1].pair-1 < j){
+		if (tree.tree[l+1].pair >= -1 && jp <= tree.tree[l+1].pair-1 && tree.tree[l+1].pair-1 < j){
 			// Hosna, March 15, 2007
 			// since not_paired_all[i,l] includes i and l themselves
 			// and in BE energy calculation we are looking for the oepn region (i,l)
@@ -939,7 +936,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 					// Hosna: April 20, 2007
 					// i and ip and j and jp should be in the same arc
 					// it should also be the case that [i+1,ip-1] && [jp+1,j-1] are empty regions
-					if (tree.tree[k+1].pair < FRES_RESTRICTED_MIN && (tree.tree[i+1].parent->index == tree.tree[k+1].parent->index) && (tree.up[(k+1)-1] > ((k+1)-(i+1)-1))){
+					if (tree.tree[k+1].pair < -1 && (tree.tree[i+1].parent->index == tree.tree[k+1].parent->index) && (tree.up[(k+1)-1] > ((k+1)-(i+1)-1))){
 						// Hosna, April 9th, 2007
 						// whenever we use get_borders we have to check for the correct values
 						cand_pos_t max_borders = std::max(bp_ij,B_ij)+1;
@@ -947,10 +944,9 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 						max_borders = std::max({max_borders,edge_j});
 						for (cand_pos_t l = j-1; l > max_borders ; --l){
 							pair_type ptype_closingkj = pair[S_[k+1]][S_[l+1]];
-							if (tree.tree[l+1].pair < FRES_RESTRICTED_MIN && ptype_closingkj>0 && (tree.up[(j+1)-1] > ((j+1)-(l+1)-1))){
+							if (tree.tree[l+1].pair < -1 && ptype_closingkj>0 && (tree.up[(j+1)-1] > ((j+1)-(l+1)-1))){
 								// Hosna: April 20, 2007
 								// i and ip and j and jp should be in the same arc
-								if (tree.tree[j+1].parent->index == tree.tree[l+1].parent->index){
 									tmp = get_e_intP(i,k,l,j) + get_VP(k,l,tree);
 									if (tmp < min){
 										min = tmp;
@@ -958,7 +954,6 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 										best_ip = k;
 										best_jp = l;
 									}
-								}
 							}
 						}
 					}
