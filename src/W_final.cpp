@@ -16,7 +16,7 @@
 // to create all the matrixes required for simfold
 // and then calls allocate_space in here to allocate
 // space for WMB and V_final
-W_final::W_final(std::string seq,std::string res, char *restricted,bool pk_only, bool pk_free) : params_(scale_parameters())
+W_final::W_final(std::string seq,std::string res, char *restricted,bool pk_free, bool pk_only) : params_(scale_parameters())
 {
 	seq_ = seq;
 	this->restricted = restricted;
@@ -80,8 +80,7 @@ double W_final::hfold(sparse_tree &tree){
 				if(ptype_closing> 0 && evaluate && !restricted && pkonly)
 				V->compute_energy_restricted (i,j,tree);
 
-				if(!pk_free)
-				WMB->compute_energies(i,j,tree);
+				if(!pk_free) WMB->compute_energies(i,j,tree);
 
 				V->compute_WMv_WMp(i,j,WMB->get_WMB(i,j,tree),tree.tree);
 				V->compute_energy_WM_restricted(i,j,WMB->get_WMB(i,j,tree),tree);

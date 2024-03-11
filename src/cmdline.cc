@@ -32,7 +32,7 @@ const char *args_info_help[] = {
   "  -i, --input-file       Give a path to an input file containing the sequence (and input structure if known)",
   "  -o  --output-file      Give a path to an output file which will the sequence, and its structure and energy",
   "  -n, --opt              Specify the number of suboptimal structures to output (default is 1)",
-  "  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated"
+  "  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated",
   "  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added"
 
   "\nThe input sequence is read from standard input, unless it is\ngiven on the command line.\n",
@@ -67,10 +67,10 @@ static void init_args_info(struct args_info *args_info)
 void
 cmdline_parser_print_version (void)
 {
-  printf (" %s\n",(strlen(package_name) ? package_name : "Iterative-HFold"));
+  printf (" %s\n",(strlen(package_name) ? package_name : "HFold"));
 
   printf ("%s %s\n",
-     (strlen(Iterative_HFold_CMDLINE_PACKAGE_NAME) ? Iterative_HFold_CMDLINE_PACKAGE_NAME : "Iterative-HFold"),
+     (strlen(Iterative_HFold_CMDLINE_PACKAGE_NAME) ? Iterative_HFold_CMDLINE_PACKAGE_NAME : "HFold"),
      Iterative_HFold_CMDLINE_VERSION);
 
   if (strlen(args_info_versiontext) > 0)
@@ -309,7 +309,7 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
         { "ouput-file",	required_argument, NULL, 'o' },
         { "subopt",	required_argument, NULL, 'n' },
         { "pk-free",	0, NULL, 'p' },
-        { "pk-free",	0, NULL, 'k' },
+        { "pk-only",	0, NULL, 'k' },
         { 0,  0, 0, 0 }
       };
 
