@@ -46,11 +46,11 @@ s_energy_matrix::s_energy_matrix (std::string seq, cand_pos_t length, short *S, 
     
 
     // an vector with indexes, such that we don't work with a 2D array, but with a 1D array of length (n*(n+1))/2
-	index.resize(n);
-    cand_pos_t total_length = (n *(n+1))/2;
-    index[0] = 0;
-    for (cand_pos_t i=1; i < n; i++)
-        index[i] = index[i-1]+n-i+1;
+	index.resize(n+1);
+    cand_pos_t total_length = ((n+1) *(n+2))/2;
+    index[1] = 0;
+    for (cand_pos_t i=2; i <= n; i++)
+        index[i] = index[i-1]+(n+1)-i+1;
 
 	WM.resize(total_length,INF);
 	WMv.resize(total_length,INF);
@@ -252,11 +252,11 @@ energy_t s_energy_matrix::E_MbLoop(const energy_t WM2ij, const energy_t WM2ip1j,
 }
 void s_energy_matrix::compute_WMv_WMp(cand_pos_t i, cand_pos_t j, energy_t WMB, std::vector<Node> &tree){
 	if(j-i+1<4) return;
-	cand_pos_t ij = index[(i-1)]+(j-1)-(i-1);
-	cand_pos_t iplus1j = index[(i-1)+1]+(j-1)-(i-1)-1;
-	cand_pos_t ijminus1 = index[(i-1)]+(j-1)-1-(i-1);
+	cand_pos_t ij = index[(i)]+(j)-(i);
+	cand_pos_t iplus1j = index[(i)+1]+(j)-(i)-1;
+	cand_pos_t ijminus1 = index[(i)]+(j)-1-(i);
 
-	WMv[ij] = E_MLStem(get_energy(i-1,j-1),get_energy(i+1-1,j-1),get_energy(i-1,j-1-1),get_energy(i+1-1,j-1-1),S_,params_,i,j,n,tree);
+	WMv[ij] = E_MLStem(get_energy(i,j),get_energy(i+1,j),get_energy(i,j-1),get_energy(i+1,j-1),S_,params_,i,j,n,tree);
 	WMp[ij] = WMB+PSM_penalty+b_penalty;
 	if (tree[j].pair <= -1)
 	{
@@ -273,18 +273,18 @@ void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, 
     if(j-i+1<4) return;
 	energy_t m1 = INF,m2=INF,m3=INF,m4=INF,m5=INF;
     // ++j;
-	cand_pos_t ij = index[(i-1)]+(j-1)-(i-1);
-	cand_pos_t ijminus1 = index[(i-1)]+(j-1)-1-(i-1);
+	cand_pos_t ij = index[(i)]+(j)-(i);
+	cand_pos_t ijminus1 = index[(i)]+(j)-1-(i);
 
 	for (cand_pos_t k=i; k < j -TURN-1; k++)
 	{
 		bool can_pair = tree.up[k-1] >= (k-i);
-		cand_pos_t ik = index[(i-1)]+(k-1)-(i-1);
-		cand_pos_t kplus1j = index[(k-1)+1]+(j-1)-(k-1)-1;
-		if(can_pair) m1 = std::min(m1,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMv(k-1,j-1));
-		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMp(k-1,j-1));
-		m3 =  std::min(m3,get_energy_WM(i-1,k-1-1) + get_energy_WMv(k-1,j-1));
-		m4 =  std::min(m4,get_energy_WM(i-1,k-1-1) + get_energy_WMp(k-1,j-1));
+		cand_pos_t ik = index[(i)]+(k)-(i);
+		cand_pos_t kplus1j = index[(k)+1]+(j)-(k)-1;
+		if(can_pair) m1 = std::min(m1,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMv(k,j));
+		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMp(k,j));
+		m3 =  std::min(m3,get_energy_WM(i,k-1) + get_energy_WMv(k,j));
+		m4 =  std::min(m4,get_energy_WM(i,k-1) + get_energy_WMp(k,j));
 
 	}
 	WM[ij] = std::min({m1,m2,m3,m4});
@@ -306,17 +306,17 @@ energy_t s_energy_matrix::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t
         // energy_t WM2ijm1 = get_energy_WM(i+1,k) + get_energy_WM(k+1,j-2);
         // energy_t WM2ip1jm1 = get_energy_WM(i+2,k) + get_energy_WM(k+1,j-2);
 
-        energy_t WM2ij = get_energy_WM(i+1-1,k-1-1) + std::min(get_energy_WMv(k-1,j-1-1),get_energy_WMp(k-1,j-1-1));
-		WM2ij = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k-1,j-1-1));
+        energy_t WM2ij = get_energy_WM(i+1,k-1) + std::min(get_energy_WMv(k,j-1),get_energy_WMp(k,j-1));
+		WM2ij = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k,j-1));
 
-        energy_t WM2ip1j = get_energy_WM(i+2-1,k-1-1) + std::min(get_energy_WMv(k-1,j-1-1),get_energy_WMp(k-1,j-1-1));
-		if((k-(i+1)-1) >=0) WM2ip1j = std::min(WM2ip1j,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-1-1));
+        energy_t WM2ip1j = get_energy_WM(i+2-1,k-1) + std::min(get_energy_WMv(k-1,j-1-1),get_energy_WMp(k-1,j-1-1));
+		if((k-(i+1)-1) >=0) WM2ip1j = std::min(WM2ip1j,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k,j-1));
 
-        energy_t WM2ijm1 = get_energy_WM(i+1-1,k-1-1) + std::min(get_energy_WMv(k-1,j-2-1),get_energy_WMp(k-1,j-2-1));
-		WM2ijm1 = std::min(WM2ijm1,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
+        energy_t WM2ijm1 = get_energy_WM(i+1,k-1) + std::min(get_energy_WMv(k,j-2),get_energy_WMp(k,j-2));
+		WM2ijm1 = std::min(WM2ijm1,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k,j-2));
 
-        energy_t WM2ip1jm1 = get_energy_WM(i+2-1,k-1-1) + std::min(get_energy_WMv(k-1,j-2-1),get_energy_WMp(k-1,j-2-1));
-		if((k-(i+1)-1) >=0) WM2ip1jm1 = std::min(WM2ip1jm1,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k-1,j-2-1));
+        energy_t WM2ip1jm1 = get_energy_WM(i+2,k-1) + std::min(get_energy_WMv(k,j-2),get_energy_WMp(k,j-2));
+		if((k-(i+1)-1) >=0) WM2ip1jm1 = std::min(WM2ip1jm1,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k,j-2));
 
         min = std::min(min,E_MbLoop(WM2ij,WM2ip1j,WM2ijm1,WM2ip1jm1,S_,params_,i,j,tree));
 		
@@ -352,7 +352,7 @@ energy_t s_energy_matrix::compute_internal_restricted(cand_pos_t i, cand_pos_t j
         if((up[k-1]>=(k-i-1))){
             for (int l=j-1; l>=min_l; --l) {
                 if(up[j-1]>=(j-l-1)){
-                    energy_t v_iloop_kl = E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k-1,l-1);
+                    energy_t v_iloop_kl = E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k,l);
                     v_iloop = std::min(v_iloop,v_iloop_kl);
                 }
             }
@@ -366,13 +366,13 @@ energy_t s_energy_matrix::compute_stack(cand_pos_t i, cand_pos_t j, const paramT
 	const int ptype_closing = pair[S_[i]][S_[j]];
 	cand_pos_t k = i+1;
     cand_pos_t l = j-1;
-    return E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k-1,l-1);
+    return E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k,l);
 }
 
 PARAMTYPE s_energy_matrix::compute_int(cand_pos_t i, cand_pos_t j, cand_pos_t k, cand_pos_t l, const paramT *params){
 
 	const int ptype_closing = pair[S_[i]][S_[j]];
-    return E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k-1,l-1);
+    return E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k,l);
 }
 
 void s_energy_matrix::compute_energy_restricted (cand_pos_t i, cand_pos_t j, sparse_tree &tree)
@@ -418,17 +418,17 @@ void s_energy_matrix::compute_energy_restricted (cand_pos_t i, cand_pos_t j, spa
         default: type = NONE;
     }
 
-    // if (min < INF/2) {
-    //     int ij = index[i]+j-i;
-    //     nodes[ij].energy = min;
-    //     nodes[ij].type = type;
-    // }
-
-	 if (min < INF/2) {
-        int ij = index[(i-1)]+(j-1)-(i-1);
+    if (min < INF/2) {
+        int ij = index[i]+j-i;
         nodes[ij].energy = min;
         nodes[ij].type = type;
     }
+
+	//  if (min < INF/2) {
+    //     int ij = index[(i-1)]+(j-1)-(i-1);
+    //     nodes[ij].energy = min;
+    //     nodes[ij].type = type;
+    // }
 }
 
 //Mateo 13 Sept 2023
