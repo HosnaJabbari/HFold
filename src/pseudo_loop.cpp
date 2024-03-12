@@ -380,9 +380,12 @@ void pseudo_loop::compute_WMB(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 			// Hosna: April 24, 2007
 			// correct case 2 such that a multi-pseudoknotted
 			// loop would not be treated as case 2
-
 			cand_pos_t Bp_lj = tree.Bp(l,j);
+
 			if (Bp_lj >= 0 && Bp_lj<n){
+				// if(i==1 && j==51) printf("i is %d and j is %d and wmbp is %d and wi is %d and be is %d\n",i,j,get_WMBP(i,l,tree), get_WI(l+1,Bp_lj-1,tree),get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree));
+				// if(i==1 && j==51) printf("i is %d and j is %d and bpj is %d and Bplj is %d and Bpljpair is %d\n",i,j,bp_j,Bp_lj,tree.tree[Bp_lj].pair);
+
 				energy_t sum = get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree) + get_WMBP(i,l,tree) + get_WI(l+1,Bp_lj-1,tree);
 				temp = std::min(temp,sum);
 			}
@@ -456,7 +459,8 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 
     // Ian Wark July 19 2017
     // otherwise it will create pairs in spots where the restricted structure says there should be no pairs
-	if (!( i >= 0 && i <= ip && ip < jp && jp <= j && j < n && tree.tree[i].pair >= -1 && tree.tree[j].pair >= -1 && tree.tree[ip].pair >= -1 && tree.tree[jp].pair >= -1 && tree.tree[i].pair == j && tree.tree[j].pair == i && tree.tree[ip].pair == jp && tree.tree[jp].pair == ip)){ //impossible cases
+
+	if (!( i >= 1 && i <= ip && ip < jp && jp <= j && j <= n && tree.tree[i].pair > 0 && tree.tree[j].pair > 0 && tree.tree[ip].pair > 0 && tree.tree[jp].pair > 0 && tree.tree[i].pair == j && tree.tree[j].pair == i && tree.tree[ip].pair == jp && tree.tree[jp].pair == ip)){ //impossible cases
 		return;
 	}
 	cand_pos_t iip = index[i]+ip-i;
@@ -595,7 +599,7 @@ energy_t pseudo_loop::get_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 energy_t pseudo_loop::get_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree){
 	// Hosna, March 16, 2012,
 	// i and j should be at least 3 bases apart
-	if (j-i>= TURN && i >= 0 && i <= ip && ip < jp && jp <= j && j < n && tree.tree[i].pair >=0 && tree.tree[j].pair >= 0 && tree.tree[ip].pair >= 0 && tree.tree[jp].pair >= 0 && tree.tree[i].pair == j && tree.tree[j].pair == i && tree.tree[ip].pair == jp && tree.tree[jp].pair == ip){
+	if (j-i>= TURN && i >= 1 && i <= ip && ip < jp && jp <= j && j <=n && tree.tree[i].pair >=0 && tree.tree[j].pair >= 0 && tree.tree[ip].pair >= 0 && tree.tree[jp].pair >= 0 && tree.tree[i].pair == j && tree.tree[j].pair == i && tree.tree[ip].pair == jp && tree.tree[jp].pair == ip){
 		if(i == ip && j == jp && i<j){
 			return 0;
 		}

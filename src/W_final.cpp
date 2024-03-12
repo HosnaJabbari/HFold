@@ -82,6 +82,7 @@ double W_final::hfold(sparse_tree &tree){
 
 				if(!pk_free) WMB->compute_energies(i,j,tree);
 
+
 				V->compute_WMv_WMp(i,j,WMB->get_WMB(i,j,tree),tree.tree);
 				V->compute_energy_WM_restricted(i,j,WMB->get_WMB(i,j,tree),tree);
 			}
@@ -105,7 +106,6 @@ double W_final::hfold(sparse_tree &tree){
 	}
 
     double energy = W[n]/100.0;
-	printf("energy is %d\n",energy);
 
     // backtrack
     // first add (1,n) on the stack
