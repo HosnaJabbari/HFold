@@ -11,10 +11,10 @@
 #include <math.h>
 #include <algorithm>
 
-pseudo_loop::pseudo_loop(std::string seq, char* restricted, s_energy_matrix *V, short *S, short *S1, vrna_param_t *params)
+pseudo_loop::pseudo_loop(std::string seq, std::string res, s_energy_matrix *V, short *S, short *S1, vrna_param_t *params)
 {
 	this->seq = seq;
-	this->restricted = restricted;
+	this->res = res;
 	this->V = V;
 	S_ = S;
 	S1_ = S1;

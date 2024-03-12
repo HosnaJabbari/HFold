@@ -8,10 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \ -w \ -O3")
 
 SET(SOURCE
-#   src/simfold.cpp
   src/W_final.cpp 
   src/pseudo_loop.cpp 
-#   src/VM_final.cpp
   src/h_common.cpp 
   src/HFold.cpp
   src/cmdline.cc

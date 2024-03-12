@@ -16,10 +16,9 @@
 // to create all the matrixes required for simfold
 // and then calls allocate_space in here to allocate
 // space for WMB and V_final
-W_final::W_final(std::string seq,std::string res, char *restricted,bool pk_free, bool pk_only) : params_(scale_parameters())
+W_final::W_final(std::string seq,std::string res,bool pk_free, bool pk_only) : params_(scale_parameters())
 {
 	seq_ = seq;
-	this->restricted = restricted;
 	this->res = res;
 	this->n = seq.length();
 	make_pair_matrix();
@@ -56,7 +55,7 @@ void W_final::space_allocation(){
 	structure = std::string (n+1,'.');
 
 	// Hosna: June 20th 2007
-    WMB = new pseudo_loop (seq_,restricted,V,S_,S1_,params_);
+    WMB = new pseudo_loop (seq_,res,V,S_,S1_,params_);
     if (WMB == NULL) giveup ("Cannot allocate memory", "W_final");
 
 }

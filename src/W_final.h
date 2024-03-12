@@ -27,7 +27,7 @@ bool compare_hotspot_ptr(Hotspot &a, Hotspot &b);
 
 class W_final{
 	public:
-		W_final(std::string seq, std::string res, char *restricted, bool pk_free, bool pk_only);
+		W_final(std::string seq, std::string res, bool pk_free, bool pk_only);
         // constructor for the restricted mfe case
 
         ~W_final ();
@@ -63,7 +63,6 @@ class W_final{
         std::string res;
         short *S_;
 	    short *S1_;
-        char *restricted;    // restricted structure given as input - restricts base pairs eg (________) 
         bool pk_free = false;
         bool pk_only = false;
         

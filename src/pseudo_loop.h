@@ -13,7 +13,7 @@ class pseudo_loop{
 
 public:
 	// constructor
-	pseudo_loop(std::string seq, char* restricted, s_energy_matrix *V, short *S, short *S1, vrna_param_t *params);
+	pseudo_loop(std::string seq, std::string restricted, s_energy_matrix *V, short *S, short *S1, vrna_param_t *params);
 
 	// destructor
 	~pseudo_loop();
@@ -45,7 +45,7 @@ public:
 private:
 
 	cand_pos_t n;
-	char *restricted;
+	std::string res;
 	std::string seq;
 
     s_energy_matrix *V;		        // the V object

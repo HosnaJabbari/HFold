@@ -73,8 +73,8 @@ void validateSequence(std::string sequence){
   }
 }
 
-double hfold(std::string seq,std::string res, char *restricted, std::string &structure, sparse_tree &tree, bool pk_free, bool pk_only){
-	W_final *min_fold = new W_final (seq,res, restricted, pk_free, pk_only);
+double hfold(std::string seq,std::string res, std::string &structure, sparse_tree &tree, bool pk_free, bool pk_only){
+	W_final *min_fold = new W_final (seq,res, pk_free, pk_only);
 	if (min_fold == NULL) giveup ("Cannot allocate memory", "HFold");
 	double energy = min_fold->hfold(tree);
     structure = min_fold->structure;
@@ -156,14 +156,12 @@ int main (int argc, char *argv[])
 	char final_structure[MAXSLEN];
 	// Iterate through all hotspots or the single given input structure
 	for(int i = 0;i<hotspot_list.size();++i){
-		char structure[n+1];
 		double energy;
 		std::string final_structure;
-		std::string struc = hotspot_list[i].get_structure();
-		strcpy(structure,struc.c_str());
+		std::string structure = hotspot_list[i].get_structure();
 
 		sparse_tree tree(restricted,n);
-		energy = hfold(seq,struc, structure, final_structure,tree,pk_free,pk_only);
+		energy = hfold(seq,structure, final_structure,tree,pk_free,pk_only);
 		
 		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy);
 		result_list.push_back(result);
