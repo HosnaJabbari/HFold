@@ -106,6 +106,19 @@ After installing you can move the executables wherever you wish, but you should 
     ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "outputfile.txt"
     ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "/home/username/Desktop/some_folder/outputfile.txt"
 
+
+#### Changes
+    (Mateo 03/11/24) HFold has been given a full rework and has been changed from the simfold style of code to the ViennaRNA style.
+    Many of the original files have been condensed or removed due to this. 
+    Along with this, is the use of a partial library from ViennaRNA. This change comes with ~60-70x faster prediction time. Users can also
+    use pk-only prediction -- see Iterative HFold, and pseudoknot-free if desired. 
+
+#### Bug fixes
+    (Mateo 03/11/24) VP case 1-3 did not allow for pseudoknots within multiloops, this has been fixed.
+                     VM did not previously update with the pseudoknots predicted. This was fixed in the rework as the prediction was combined
+                     WMBP case 1 did not allow for kissing hairpins where the middle band was in G. The bounds for l have been changed to bp(i,l) to
+                     Bp(l,j) to fix this
+
     
 #### Exit code:
     0       success
