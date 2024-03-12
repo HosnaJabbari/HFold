@@ -48,7 +48,7 @@ W_final::~W_final()
 void W_final::space_allocation(){
 
 	// From simfold
-	f = new minimum_fold [n];
+	f = new minimum_fold [n+1];
     if (f == NULL) giveup ("Cannot allocate memory", "energy");
 
     V = new s_energy_matrix (seq_, n,S_,S1_,params_);
