@@ -9,6 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <iostream>
 
 
 // Hosna June 20th, 2007
@@ -792,16 +793,15 @@ int distance(int left, int right){
 //given a initial hotspot which is a hairpin loop, keep trying to add a arc to form a larger stack
 void expand_hotspot(s_energy_matrix *V, Hotspot &hotspot, int n){
     //printf("\nexpanding hotspot: i: %d j: %d\n",hotspot->get_left_inner_index(),hotspot->get_right_inner_index());
-    double energy = 0;
-	int dangle_penalty = 0;
-
     //calculation for the hairpin that is already in there
     V->compute_hotspot_energy(hotspot.get_left_outer_index(),hotspot.get_right_outer_index(),0);
 
 
     //try to expand by adding a arc right beside the current out most arc
-    while(hotspot.get_left_outer_index()-1 >= 0 && hotspot.get_right_outer_index()+1 <= n-1){
-		int ptype_closing = pair[V->S_[hotspot.get_left_outer_index()-1+1]][V->S_[hotspot.get_right_outer_index()+1+1]];
+    while(hotspot.get_left_outer_index()-1 >= 1 && hotspot.get_right_outer_index()+1 <= n){
+		base_type sim1 = V->S_[hotspot.get_left_outer_index()-1];
+		base_type sjp1 = V->S_[hotspot.get_right_outer_index()+1];
+		pair_type ptype_closing = pair[sim1][sjp1];
         if(ptype_closing>0){
             hotspot.move_left_outer_index();
             hotspot.move_right_outer_index();
@@ -811,15 +811,15 @@ void expand_hotspot(s_energy_matrix *V, Hotspot &hotspot, int n){
             break;
         }
     }
-	int i = hotspot.get_left_outer_index()-1;
-	int j = hotspot.get_right_outer_index()+1;
-	int tt = pair[V->S_[i+1]][V->S_[j+1]];
-	int si1 = i>0 ? V->S_[i-1] : -1;
-	int sj1 = j<n-1 ? V->S_[j+1] : -1;
-	dangle_penalty = vrna_E_ext_stem(tt, si1, sj1, V->params_);
+	base_type i = hotspot.get_left_outer_index();
+	base_type j = hotspot.get_right_outer_index();
+	pair_type tt = pair[V->S_[i]][V->S_[j]];
+	base_type si1 = i>1 ? V->S_[i-1] : -1;
+	base_type sj1 = j<=n ? V->S_[j+1] : -1;
+	energy_t dangle_penalty = vrna_E_ext_stem(tt, si1, sj1, V->params_);
 
 
-    energy = V->get_energy(hotspot.get_left_outer_index(),hotspot.get_right_outer_index());
+    double energy = V->get_energy(hotspot.get_left_outer_index(),hotspot.get_right_outer_index());
 
     // printf("here and %d\n",energy);
     //printf("energy: %lf, AU_total: %d, dangle_top_total: %d, dangle_bot_total: %d\n",energy,non_gc_penalty,dangle_top_penalty,dangle_bot_penalty);
@@ -837,19 +837,20 @@ void get_hotspots(std::string seq,std::vector<Hotspot> &hotspot_list,int max_hot
     
 	int n = seq.length();
 	s_energy_matrix *V;
+	make_pair_matrix();
 	short *S_ = encode_sequence(seq.c_str(),0);
 	short *S1_ = encode_sequence(seq.c_str(),1);
 	V = new s_energy_matrix (seq,n,S_,S1_,params);
-	make_pair_matrix();
     int min_bp_distance = 3;
     int min_stack_size = 3; //the hotspot must be a stack of size >= 3
     // Hotspot current_hotspot;
     //start at min_stack_size-1 and go outward to try to add more arcs to form bigger stack because we cannot expand more than min_stack_size from there anyway
-    for(int i = min_stack_size-1; i < n; i++){
-        for(int j = i; j < n; j++){
-			int ptype_closing = pair[V->S_[i+1]][V->S_[j+1]];
+    for(int i = min_stack_size; i <= n; i++){
+        for(int j = i; j <= n; j++){
+			int ptype_closing = pair[V->S_[i]][V->S_[j]];
             if(ptype_closing>0 && distance(i,j) >= min_bp_distance){
                 // current_hotspot = new Hotspot(i,j,nb_nucleotides);
+				
                 Hotspot current_hotspot(i,j,n);
 
                 expand_hotspot(V,current_hotspot,n);
@@ -870,14 +871,12 @@ void get_hotspots(std::string seq,std::vector<Hotspot> &hotspot_list,int max_hot
     //make sure we only keep top 20 hotspot with lowest energy
     std::sort(hotspot_list.begin(), hotspot_list.end(),compare_hotspot_ptr);
     while(hotspot_list.size() > max_hotspot){
-        // delete hotspot_list.back();
         hotspot_list.pop_back();
     }
 
     //if no hotspot found, add all _ as restricted
     if(hotspot_list.size() == 0){
-        // Hotspot* hotspot = new Hotspot(0,nb_nucleotides-1,nb_nucleotides);
-        Hotspot hotspot(0,n-1,n);
+        Hotspot hotspot(1,n,n+1);
         hotspot.set_default_structure();
         hotspot_list.push_back(hotspot);
     }

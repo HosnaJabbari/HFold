@@ -11,18 +11,17 @@ class Hotspot{
     public:
        
         //constructor
-        Hotspot(int left_inner_index, int right_inner_index, int length){
-            assert(left_inner_index >= 0);
+        Hotspot(int left_inner_index, int right_inner_index, int n){
+            assert(left_inner_index >= 1);
             assert(right_inner_index >= left_inner_index);
             this->left_inner_index = left_inner_index;
             this->right_inner_index = right_inner_index;
             this->left_outer_index = left_inner_index;
             this->right_outer_index = right_inner_index;
-            this->length = length;
+            this->n = n;
             this->energy = 0.0; 
             this->size = 1;
-            std::string temp(length,'.');
-            structure = temp;
+            this->structure = std::string(n+1,'.');
 
         }
         //Copy Constuctor
@@ -31,10 +30,10 @@ class Hotspot{
             this->right_inner_index = hotspot.get_right_inner_index();
             this->left_outer_index = hotspot.get_left_outer_index();
             this->right_outer_index = hotspot.get_right_outer_index();
-            this->length = hotspot.get_length();
+            this->n = hotspot.get_length();
             this->energy = hotspot.get_energy(); 
             this->size = hotspot.get_size();
-            structure = hotspot.get_structure();
+            this->structure = hotspot.get_structure();
         }
         //destructor
         ~Hotspot(){
@@ -69,7 +68,7 @@ class Hotspot{
         double energy;
         int size;
         std::string structure;
-        int length;
+        int n;
 };
 
 #endif

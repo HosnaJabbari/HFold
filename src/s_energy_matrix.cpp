@@ -423,12 +423,6 @@ void s_energy_matrix::compute_energy_restricted (cand_pos_t i, cand_pos_t j, spa
         nodes[ij].energy = min;
         nodes[ij].type = type;
     }
-
-	//  if (min < INF/2) {
-    //     int ij = index[(i-1)]+(j-1)-(i-1);
-    //     nodes[ij].energy = min;
-    //     nodes[ij].type = type;
-    // }
 }
 
 //Mateo 13 Sept 2023
@@ -437,10 +431,10 @@ void s_energy_matrix::compute_hotspot_energy (cand_pos_t i, cand_pos_t j, bool i
     //printf("in compute_hotspot_energy i:%d j:%d\n",i,j);
     energy_t energy = 0;
     if(is_stack){
-        energy = compute_stack(i+1,j+1,params_);
+        energy = compute_stack(i,j,params_);
         // printf("stack: %d\n",energy);
     }else{
-        energy = HairpinE(seq_,S_,S1_,params_,i+1,j+1);
+        energy = HairpinE(seq_,S_,S1_,params_,i,j);
         // printf("hairpin: %d\n",energy);
     }
         
