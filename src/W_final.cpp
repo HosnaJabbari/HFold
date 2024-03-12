@@ -105,9 +105,10 @@ double W_final::hfold(sparse_tree &tree){
 	}
 
     double energy = W[n]/100.0;
+	printf("energy is %d\n",energy);
 
     // backtrack
-    // first add (0,n-1) on the stack
+    // first add (1,n) on the stack
     stack_interval = new seq_interval;
     stack_interval->i = 1;
     stack_interval->j = n;
@@ -211,7 +212,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
     char type;
 
 
-	printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
+	// printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
 	//Hosna, March 8, 2012
 	// changing nested if to switch for optimality
 	switch (cur_interval->type){
@@ -432,7 +433,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 					best_row = 0;
 				}
 			}
-			for (i=0; i<=j-1; i++)    // no TURN
+			for (i=1; i<=j-1; i++)    // no TURN
 			{
 
 				// Don't need to make sure i and j don't have to pair with something else
@@ -500,11 +501,11 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 		// Hosna June 30, 2007
 		// The following would not take care of when
 		// we have some unpaired bases before the start of the WMB
-		for (i=0; i<=j-1; i++)
+		for (i=1; i<=j-1; i++)
 		{
 			// Hosna: July 9, 2007
 			// We only chop W to W + WMB when the bases before WMB are free
-			if (i == 0 || (tree.weakly_closed(1,i-1) && tree.weakly_closed(i,j))){
+			if (i == 1 || (tree.weakly_closed(1,i-1) && tree.weakly_closed(i,j))){
 
 				acc = (i-1>0) ? W[i-1]: 0;
 
@@ -572,30 +573,30 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 			{
 				case 0:
 					//printf("W(%d) case 0: inserting Free (0,%d)\n",j,j-1);
-					insert_node (0, j-1, FREE); break;
+					insert_node (1, j-1, FREE); break;
 				case 1:
 					//printf("W(%d) case 1: inserting Loop(%d,%d) and Free (0,%d)\n",j,best_i,j,best_i-1);
 					insert_node (best_i, j, LOOP);
-					if (best_i-1 > 0)     // it was TURN instead of 0  - not sure if TURN shouldn't be here
-						insert_node (0, best_i-1, FREE);
+					if (best_i-1 > 1)     // it was TURN instead of 0  - not sure if TURN shouldn't be here
+						insert_node (1, best_i-1, FREE);
 					break;
 				case 2:
 					//printf("W(%d) case 2: inserting Loop(%d,%d) and Free (0,%d)\n",j,best_i+1,j,best_i);
 					insert_node (best_i+1, j, LOOP);
-					if (best_i >= 0)// Hosna, March 26, 2012, was best_i-1 instead of best_i
+					if (best_i >= 1)// Hosna, March 26, 2012, was best_i-1 instead of best_i
 						insert_node (0, best_i, FREE);
 					break;
 				case 3:
 					//printf("W(%d) case 3: inserting Loop(%d,%d) and Free (0,%d)\n",j,best_i,j-1,best_i-1);
 					insert_node (best_i, j-1, LOOP);
-					if (best_i-1 > 0)
-						insert_node (0, best_i-1, FREE);
+					if (best_i-1 > 1)
+						insert_node (1, best_i-1, FREE);
 					break;
 				case 4:
 					//printf("W(%d) case 4: inserting Loop(%d,%d) and Free (0,%d)\n",j,best_i+1,j-1,best_i);
 					insert_node (best_i+1, j-1, LOOP);
-					if (best_i >= 0) // Hosna, March 26, 2012, was best_i-1 instead of best_i
-						insert_node (0, best_i, FREE);
+					if (best_i >= 1) // Hosna, March 26, 2012, was best_i-1 instead of best_i
+						insert_node (1, best_i, FREE);
 					break;
 				// Hosna: June 28, 2007
 				// the last branch of W, which is WMB_i,j

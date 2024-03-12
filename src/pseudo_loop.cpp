@@ -665,7 +665,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 	this->structure = structure;
 	this->f = f;
 	// Hosna March 8, 2012
-		printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
+		// printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
 
 	// changing the nested if structure to switch for optimality
 	switch (cur_interval->type)
