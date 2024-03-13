@@ -10,7 +10,6 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \ -w \ -O3")
 SET(SOURCE
   src/W_final.cpp 
   src/pseudo_loop.cpp 
-  src/h_common.cpp 
   src/HFold.cpp
   src/cmdline.cc
   src/Result.cc	

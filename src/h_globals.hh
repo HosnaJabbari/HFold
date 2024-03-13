@@ -1,7 +1,7 @@
 #ifndef H_GLOBALS_H_
 #define H_GLOBALS_H_
 
-#include "h_externs.h"
+#include "h_externs.hh"
 
 // Hosna, Nov. 1st, 2011 changed the parameter values based on HOtKNots v2
 int PS_penalty = -138; //960; 		//exterior pseudoloop initiation penalty (9.6 Kcal/mol)

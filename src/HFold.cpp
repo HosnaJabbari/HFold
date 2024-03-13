@@ -2,11 +2,8 @@
 #include "hotspot.hh"
 #include "Result.hh"
 #include "cmdline.hh"
-#include "W_final.h"
-#include "h_common.h"
-//simfold files
-// #include "s_specific_functions.h"
-#include "h_globals.h"
+#include "W_final.hh"
+#include "h_globals.hh"
 // a simple driver for the HFold
 #include <iostream>
 #include <fstream>
@@ -74,11 +71,9 @@ void validateSequence(std::string sequence){
 }
 
 std::string hfold(std::string seq,std::string res, double &energy, sparse_tree &tree, bool pk_free, bool pk_only){
-	W_final *min_fold = new W_final (seq,res, pk_free, pk_only);
-	if (min_fold == NULL) giveup ("Cannot allocate memory", "HFold");
-	energy = min_fold->hfold(tree);
-    std::string structure = min_fold->structure;
-    delete min_fold;
+	W_final min_fold(seq,res, pk_free, pk_only);
+	energy = min_fold.hfold(tree);
+    std::string structure = min_fold.structure;
     return structure;
 }
 
@@ -152,7 +147,6 @@ int main (int argc, char *argv[])
 	std::vector<Result> result_list;
 
     //double min_energy;
-	char final_structure[MAXSLEN];
 	// Iterate through all hotspots or the single given input structure
 	for(int i = 0;i<hotspot_list.size();++i){
 		double energy;

@@ -2,11 +2,11 @@
 #define W_FINAL_H_
 
 #include "hotspot.hh"
-#include "pseudo_loop.h"
+#include "pseudo_loop.hh"
 #include "base_types.hh"
 #include "sparse_tree.hh";
-#include "s_energy_matrix.h"
-#include "h_common.h"
+#include "s_energy_matrix.hh"
+#include "constants.hh"
 #include <cstring>
 #include <string>
 #include <vector>

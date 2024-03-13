@@ -1,9 +1,5 @@
-#include "pseudo_loop.h"
-#include "constants.h"
-#include "h_struct.h"
-#include "h_externs.h"
-#include "h_common.h"
-
+#include "pseudo_loop.hh"
+#include "h_externs.hh"
 #include <stdio.h>
 #include <string>
 #include <stdlib.h>
@@ -397,7 +393,7 @@ void pseudo_loop::compute_WMB(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 	mWMBP =  get_WMBP(i,j,tree);
 
 	// get the min for WMB
-	WMB[ij] = MIN(m2,mWMBP);
+	WMB[ij] = std::min(m2,mWMBP);
 	
 }
 

@@ -17,10 +17,9 @@
 
  // This is the V matrix
 
-#include "constants.h"
-#include "h_struct.h"
-#include "h_common.h"
-#include "h_externs.h"
+#include "constants.hh"
+#include "h_struct.hh"
+#include "h_externs.hh"
 
 #include <stdio.h>
 #include <string.h>
@@ -28,7 +27,7 @@
 #include <string>
 #include <algorithm>
 
-#include "s_energy_matrix.h"
+#include "s_energy_matrix.hh"
 
 
 
@@ -330,7 +329,7 @@ energy_t s_energy_matrix::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t
  * @param i The left index in the base pair
  * @param j The right index in the base pair
 */
-PARAMTYPE s_energy_matrix::HairpinE(const std::string& seq, const short* S, const short* S1,  const paramT* params, cand_pos_t i, cand_pos_t j) {
+energy_t s_energy_matrix::HairpinE(const std::string& seq, const short* S, const short* S1,  const paramT* params, cand_pos_t i, cand_pos_t j) {
 	
 	const int ptype_closing = pair[S[i]][S[j]];
 
@@ -369,7 +368,7 @@ energy_t s_energy_matrix::compute_stack(cand_pos_t i, cand_pos_t j, const paramT
     return E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k,l);
 }
 
-PARAMTYPE s_energy_matrix::compute_int(cand_pos_t i, cand_pos_t j, cand_pos_t k, cand_pos_t l, const paramT *params){
+energy_t s_energy_matrix::compute_int(cand_pos_t i, cand_pos_t j, cand_pos_t k, cand_pos_t l, const paramT *params){
 
 	const int ptype_closing = pair[S_[i]][S_[j]];
     return E_IntLoop(k-i-1,j-l-1,ptype_closing,rtype[pair[S_[k]][S_[l]]],S1_[i+1],S1_[j-1],S1_[k-1],S1_[l+1],const_cast<paramT *>(params)) + get_energy(k,l);

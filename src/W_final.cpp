@@ -1,9 +1,6 @@
-#include "W_final.h"
-#include "pseudo_loop.h"
-#include "constants.h"
-#include "h_struct.h"
-#include "h_externs.h"
-#include "h_common.h"
+#include "W_final.hh"
+#include "h_struct.hh"
+#include "h_externs.hh"
 
 #include <stdio.h>
 #include <math.h>
@@ -49,15 +46,12 @@ void W_final::space_allocation(){
 
 	// From simfold
 	f = new minimum_fold [n+1];
-    if (f == NULL) giveup ("Cannot allocate memory", "energy");
 
     V = new s_energy_matrix (seq_, n,S_,S1_,params_);
-    if (V == NULL) giveup ("Cannot allocate memory", "energy");
 	structure = std::string (n+1,'.');
 
 	// Hosna: June 20th 2007
     WMB = new pseudo_loop (seq_,res,V,S_,S1_,params_);
-    if (WMB == NULL) giveup ("Cannot allocate memory", "W_final");
 
 }
 
