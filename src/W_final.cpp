@@ -90,11 +90,11 @@ double W_final::hfold(sparse_tree &tree){
 		if(tree.tree[j].pair < 0) m1 = W[j-1];
 		
 		
-		for (cand_pos_t i=1; i<=j-TURN-1; i++){
+		for (cand_pos_t k=1; k<=j-TURN-1; ++k){
 		 	// m2 = compute_W_br2_restricted (j, fres, must_choose_this_branch);
-			energy_t acc = (i>1) ? W[i-1]: 0;
-			m2 = std::min(m2,acc + E_ext_Stem(V->get_energy(i,j),V->get_energy(i+1,j),V->get_energy(i,j-1),V->get_energy(i+1,j-1),S_,params_,i,j,n,tree.tree));
-			if(tree.weakly_closed(i,j)) m3 = std::min(m3,acc + WMB->get_WMB(i,j,tree) + PS_penalty);
+			energy_t acc = (k>1) ? W[k-1]: 0;
+			m2 = std::min(m2,acc + E_ext_Stem(V->get_energy(k,j),V->get_energy(k+1,j),V->get_energy(k,j-1),V->get_energy(k+1,j-1),S_,params_,k,j,n,tree.tree));
+			if(tree.weakly_closed(k,j)) m3 = std::min(m3,acc + WMB->get_WMB(k,j,tree) + PS_penalty);
 			}
 		W[j] = std::min({m1,m2,m3});
 	}
@@ -744,7 +744,10 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 		break;
 		case P_WMB:
 		case P_WMBP:
+		case P_WMBW:
 		case P_VP:
+		case P_VPR:
+		case P_VPL:
 		case P_VPP:
 		case P_WI:
 		case P_BE:

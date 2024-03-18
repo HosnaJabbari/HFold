@@ -26,6 +26,8 @@ public:
 	energy_t get_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
 	energy_t get_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	energy_t get_WMB(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	energy_t get_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree);
 	energy_t get_WIP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
@@ -34,6 +36,7 @@ public:
 
 	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
 	energy_t get_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_WMBW(cand_pos_t i, cand_pos_t j);
 
     void back_track(std::string structure, minimum_fold *f, seq_interval *cur_interval, sparse_tree &tree);
 
@@ -59,8 +62,11 @@ private:
 	//Hosna
     std::vector<energy_t> WI;				// the loop inside a pseudoknot (in general it looks like a W but is inside a pseudoknot)
     std::vector<energy_t> VP;				// the loop corresponding to the pseudoknotted region of WMB
+	std::vector<energy_t> VPL;				// the loop corresponding to the pseudoknotted region of WMB
+    std::vector<energy_t> VPR;				// the loop corresponding to the pseudoknotted region of WMB
     std::vector<energy_t> WMB;				// the main loop for pseudoloops and bands
 	std::vector<energy_t> WMBP; 				// the main loop to calculate WMB
+	std::vector<energy_t> WMBW;
 	std::vector<energy_t> WIP;				// the loop corresponding to WI'
     std::vector<energy_t> VPP;				// the loop corresponding to VP'
     std::vector<energy_t> BE;				// the loop corresponding to BE
@@ -78,12 +84,19 @@ private:
 	void compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the VP array
 
+	void compute_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+
+	void compute_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+
+
 	void compute_WMB(cand_pos_t i,cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the WMB array
 
 	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
 	void compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// this is the helper recurrence to fill the WMB array
+
+	void compute_WMBW(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
 	void compute_WIP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the WIP array

@@ -38,6 +38,9 @@
 #define P_WIP			'L'
 #define P_WMBP			'T'
 #define P_V				'A' // This case is only for the cases that we have some pairings in input structure that are not valid in terms of simfold restrictions
+#define P_WMBW       'X'
+#define P_VPL        'Y'
+#define P_VPR        'Z'
 
 #endif
 
