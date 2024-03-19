@@ -23,19 +23,16 @@ public:
     // energy_t get_energy(cand_pos_t i, cand_pos_t j);
 	// in order to be able to check the border values consistantly
 	// I am adding these get functions
-	energy_t get_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_WI(cand_pos_t i, cand_pos_t j);
+	energy_t get_WIP(cand_pos_t i, cand_pos_t j);
 
-	energy_t get_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
-	energy_t get_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
-	energy_t get_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
-	energy_t get_WMB(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_VP(cand_pos_t i, cand_pos_t j);
+	energy_t get_VPL(cand_pos_t i, cand_pos_t j);
+	energy_t get_VPR(cand_pos_t i, cand_pos_t j);
+	energy_t get_WMB(cand_pos_t i, cand_pos_t j);
 	energy_t get_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree);
-	energy_t get_WIP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
-	energy_t get_VPP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
-
-	// based on discussion with Anne, we changed WMB to case 2 and WMBP(containing the rest of the recurrences)
-	energy_t get_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
+	energy_t get_WMBP(cand_pos_t i, cand_pos_t j);
 	energy_t get_WMBW(cand_pos_t i, cand_pos_t j);
 
     void back_track(std::string structure, minimum_fold *f, seq_interval *cur_interval, sparse_tree &tree);
@@ -68,7 +65,6 @@ private:
 	std::vector<energy_t> WMBP; 				// the main loop to calculate WMB
 	std::vector<energy_t> WMBW;
 	std::vector<energy_t> WIP;				// the loop corresponding to WI'
-    std::vector<energy_t> VPP;				// the loop corresponding to VP'
     std::vector<energy_t> BE;				// the loop corresponding to BE
     std::vector<cand_pos_t> index;				// the array to keep the index of two dimensional arrays like WI and weakly_closed
 
@@ -84,10 +80,9 @@ private:
 	void compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the VP array
 
+	// Computes the non-redundant recurrence from CParty (replaces VPP from original)
 	void compute_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
-
 	void compute_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
-
 
 	void compute_WMB(cand_pos_t i,cand_pos_t j, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the WMB array
@@ -96,6 +91,7 @@ private:
 	void compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 	// this is the helper recurrence to fill the WMB array
 
+	// Computes the non-redundant recurrence from CParty (replaces WMBP case 2 from original)
 	void compute_WMBW(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
 
 	void compute_WIP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
@@ -103,9 +99,6 @@ private:
 
 	void compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree);
 	// Hosna: this function is supposed to fill the BE array
-
-	void compute_VPP(cand_pos_t i, cand_pos_t j, sparse_tree &tree);
-	// Hosna: this function is supposed to fill the VPP array
 
 	// Hosna Feb 8th, 2007:
 	// I have to calculate the e_stP in a separate function

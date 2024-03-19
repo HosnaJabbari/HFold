@@ -32,7 +32,6 @@
 
 #define P_WMB			'R'
 #define P_VP			'D'
-#define P_VPP			'E'
 #define P_WI			'G'
 #define P_BE			'J'
 #define P_WIP			'L'

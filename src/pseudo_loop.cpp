@@ -45,8 +45,6 @@ void pseudo_loop::allocate_space()
 
     WIP.resize(total_length,INF);
 
-    VPP.resize(total_length,INF);
-
     BE.resize(total_length,0);
 
 }
@@ -96,8 +94,6 @@ void pseudo_loop::compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree
 		compute_WIP(i,j,tree);
 	}
 
-	if(!(i==j || weakly_closed_ij)) compute_VPP(i,j,tree);
-
 	cand_pos_t ip = tree.tree[i].pair; // i's pair ip should be right side so ip = )
 	cand_pos_t jp = tree.tree[j].pair; // j's pair jp should be left side so jp = (
 
@@ -115,17 +111,17 @@ void pseudo_loop::compute_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	}
 	
 	for (cand_pos_t k = i+1; k < j-TURN-1; ++k){
-		energy_t wi_1 = get_WI(i,k-1,tree);
+		energy_t wi_1 = get_WI(i,k-1);
 		energy_t v_energy = wi_1 + V->get_energy(k,j);
-		energy_t wmb_energy = wi_1 + get_WMB(k,j,tree);
+		energy_t wmb_energy = wi_1 + get_WMB(k,j);
 		m1 = std::min(m1,v_energy);
 		m2 = std::min(m2,wmb_energy);
 	}
 	m1 += PPS_penalty;
 	m2 += PSP_penalty + PPS_penalty;
-	m3 = get_WI(i,j-1,tree) + PUP_penalty; 
+	m3 = get_WI(i,j-1) + PUP_penalty; 
 	m4 = V->get_energy(i,j) + PPS_penalty;
-	m5 = get_WMB(i,j,tree) + PSP_penalty + PPS_penalty;
+	m5 = get_WMB(i,j) + PSP_penalty + PPS_penalty;
 
 	WI[ij] = std::min({m1,m2,m3,m4,m5});
 }
@@ -138,9 +134,9 @@ void pseudo_loop::compute_WIP(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 	// branch 1:
 	for (cand_pos_t k = i+1; k < j-TURN-1; ++k){
 		bool can_pair = tree.up[k-1] >= (k-i);
-		energy_t wi_1 = get_WIP(i,k-1,tree);
+		energy_t wi_1 = get_WIP(i,k-1);
 		energy_t v_energy = V->get_energy(k,j);
-		energy_t wmb_energy = get_WMB(k,j,tree);
+		energy_t wmb_energy = get_WMB(k,j);
 		m1 = std::min(m1,wi_1 + v_energy);
 		m2 = std::min(m2,wi_1 + wmb_energy);
 		if(can_pair) m3 = std::min(m3, static_cast<energy_t>((k-i)*cp_penalty) + v_energy);
@@ -152,10 +148,10 @@ void pseudo_loop::compute_WIP(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 	m4 += PSM_penalty + bp_penalty;
 	// branch 2:
 	if (tree.tree[j].pair < -1){
-		m5 = get_WIP(i,j-1,tree) + cp_penalty;
+		m5 = get_WIP(i,j-1) + cp_penalty;
 	}
 	m6 = V->get_energy(i,j) + bp_penalty;
-	m7 = get_WMB(i,j,tree) + PSM_penalty + bp_penalty;
+	m7 = get_WMB(i,j) + PSM_penalty + bp_penalty;
 
 	WIP[ij] = std::min({m1,m2,m3,m4,m5,m6,m7});
 
@@ -168,7 +164,7 @@ void pseudo_loop::compute_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 
 	cand_pos_t min_Bp_j = std::min((cand_pos_tu) j-TURN-1, (cand_pos_tu) tree.Bp(i,j));
 	for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-		m1 = std::min(m1, static_cast<energy_t>((k-i)*cp_penalty) + get_VP(k,j,tree));
+		m1 = std::min(m1, static_cast<energy_t>((k-i)*cp_penalty) + get_VP(k,j));
 	}
 
 
@@ -184,8 +180,8 @@ void pseudo_loop::compute_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
 
 	for(cand_pos_t k = max_i_bp+1; k<j; ++k){
-		energy_t VP_energy = get_VP(i,k,tree);
-		m1 = std::min(m1, VP_energy + get_WIP(k+1,j,tree));
+		energy_t VP_energy = get_VP(i,k);
+		m1 = std::min(m1, VP_energy + get_WIP(k+1,j));
 		m2 = std::min(m2,VP_energy + static_cast<energy_t>((j-k)*cp_penalty));
 	}
 
@@ -213,8 +209,8 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	// Hosna April 9th, 2007
 	// need to check the borders as they may be negative
 	if((tree.tree[i].parent->index) > 0 && (tree.tree[j].parent->index) < (tree.tree[i].parent->index) && Bp_ij >= 0 && B_ij >= 0 && bp_ij < 0){
-		energy_t WI_ipus1_BPminus = get_WI(i+1,Bp_ij - 1,tree) ;
-		energy_t WI_Bplus_jminus = get_WI(B_ij + 1,j-1,tree);
+		energy_t WI_ipus1_BPminus = get_WI(i+1,Bp_ij - 1) ;
+		energy_t WI_Bplus_jminus = get_WI(B_ij + 1,j-1);
 		m1 =   WI_ipus1_BPminus + WI_Bplus_jminus;
 	}
 
@@ -224,8 +220,8 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	// Hosna April 9th, 2007
 	// checking the borders as they may be negative
 	if ((tree.tree[i].parent->index) < (tree.tree[j].parent->index) && (tree.tree[j].parent->index) > 0 && b_ij>= 0 && bp_ij >= 0 && Bp_ij < 0){
-		energy_t WI_i_plus_b_minus = get_WI(i+1,b_ij - 1,tree);
-		energy_t WI_bp_plus_j_minus = get_WI(bp_ij + 1,j-1,tree);
+		energy_t WI_i_plus_b_minus = get_WI(i+1,b_ij - 1);
+		energy_t WI_bp_plus_j_minus = get_WI(bp_ij + 1,j-1);
 		m2 = WI_i_plus_b_minus + WI_bp_plus_j_minus;
 	}
 
@@ -235,9 +231,9 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	// Hosna April 9th, 2007
 	// checking the borders as they may be negative
 	if((tree.tree[i].parent->index) > 0 && (tree.tree[j].parent->index) > 0 && Bp_ij >= 0 && B_ij >= 0  && b_ij >= 0 && bp_ij>= 0){
-		energy_t WI_i_plus_Bp_minus = get_WI(i+1,Bp_ij - 1,tree);
-		energy_t WI_B_plus_b_minus = get_WI(B_ij + 1,b_ij - 1,tree);
-		energy_t WI_bp_plus_j_minus = get_WI(bp_ij +1,j - 1,tree);
+		energy_t WI_i_plus_Bp_minus = get_WI(i+1,Bp_ij - 1);
+		energy_t WI_B_plus_b_minus = get_WI(B_ij + 1,b_ij - 1);
+		energy_t WI_bp_plus_j_minus = get_WI(bp_ij +1,j - 1);
 		m3 = WI_i_plus_Bp_minus + WI_B_plus_b_minus + WI_bp_plus_j_minus;
 	}
 
@@ -245,7 +241,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	// e_stP(i,i+1,j-1,j) + VP(i+1)(j-1)
 	pair_type ptype_closingip1jm1 = pair[S_[i+1]][S_[j-1]];
 	if((tree.tree[i+1].pair) < -1 && (tree.tree[j-1].pair) < -1 && ptype_closingip1jm1>0){
-		m4 = get_e_stP(i,j)+ get_VP(i+1,j-1,tree);
+		m4 = get_e_stP(i,j)+ get_VP(i+1,j-1);
 	}
 
 	// 5) NOT_paired(r) and NOT_paired(rp)
@@ -273,7 +269,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 				if (tree.tree[l].pair < -1 && ptype_closingkj>0 && (tree.up[(j)-1] >= ((j)-(l)-1))){
 					// Hosna: April 20, 2007
 					// i and ip and j and jp should be in the same arc -- If it's unpaired between them, they have to be
-					energy_t tmp = get_e_intP(i,k,l,j) + get_VP(k,l,tree);
+					energy_t tmp = get_e_intP(i,k,l,j) + get_VP(k,l);
 					m5 = std::min(m5,tmp);
 					
 				}
@@ -285,25 +281,25 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 		cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
 
 		for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-			m6 = get_WIP(i+1,k-1,tree) + get_VP(k,j-1,tree);
+			m6 = get_WIP(i+1,k-1) + get_VP(k,j-1);
 		}
 		
 		m6 += ap_penalty + 2*bp_penalty;
 
 		for(cand_pos_t k = max_i_bp+TURN+1; k<j; ++k){
-			m7 = std::min(m7,get_VP(i+1,k,tree) + get_WIP(k+1,j-1,tree));
+			m7 = std::min(m7,get_VP(i+1,k) + get_WIP(k+1,j-1));
 		}
 
 		m7 += ap_penalty + 2*bp_penalty;
 
 		for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-			m8 = get_WIP(i+1,k-1,tree) + get_VPR(k,j-1,tree);
+			m8 = get_WIP(i+1,k-1) + get_VPR(k,j-1);
 		}
 
 		m8 += ap_penalty + 2*bp_penalty;
 
 		for(cand_pos_t k = max_i_bp+TURN+1; k<j; ++k){
-			m9 = std::min(m7,get_VPL(i+1,k,tree) + get_WIP(k+1,j-1,tree));
+			m9 = std::min(m7,get_VPL(i+1,k) + get_WIP(k+1,j-1));
 		}
 
 		m9 += ap_penalty + 2*bp_penalty;
@@ -332,15 +328,12 @@ void pseudo_loop::compute_WMBW(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	if(tree.tree[j].pair < j){
 		for(cand_pos_t l = i+1; l<j; l++){
 			if (tree.tree[l].pair < 0 && tree.tree[l].parent->index > -1 && tree.tree[j].parent->index > -1 && tree.tree[j].parent->index == tree.tree[l].parent->index){
-				energy_t tmp = get_WMBP(i,l,tree) + get_WI(l+1,j,tree);
+				energy_t tmp = get_WMBP(i,l) + get_WI(l+1,j);
 				m1 = std::min(m1,tmp);
-
 			}
 		}
 	}
 	WMBW[ij] = m1;
-
-
 }
 
 void pseudo_loop::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
@@ -364,7 +357,7 @@ void pseudo_loop::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 				// Hosna: July 5th, 2007:
 				// as long as we have i <= arc(l)< j we are fine
 				if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-					energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1,tree)+ get_VP(l,j,tree);
+					energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
 					tmp = std::min(tmp,sum);
 				}
 			}
@@ -374,17 +367,31 @@ void pseudo_loop::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	}
 	// 2) WMB(i,j) = min_{i<l<j}{WMB(i,l)+WI(l+1,j)} if bp(j)<j
 	// Hosna: Feb 5, 2007
-	if(tree.tree[j].pair < j){
-		for(cand_pos_t l = i+1; l<j; l++){
-			if (tree.tree[l].pair < 0 && tree.tree[l].parent->index > -1 && tree.tree[j].parent->index > -1 && tree.tree[j].parent->index == tree.tree[l].parent->index){
-				energy_t tmp = get_WMBP(i,l,tree) + get_WI(l+1,j,tree);
-				m2 = std::min(m2,tmp);
+	if (tree.tree[j].pair < 0){
+		energy_t tmp = INF;
+		for (cand_pos_t l = i+1; l<j ; l++)	{
+			// Hosna, April 6th, 2007
+			// whenever we use get_borders we have to check for the correct values
+			cand_pos_t bp_il = tree.bp(i,l);
+			cand_pos_t Bp_lj = tree.Bp(l,j);
+			// Hosna: April 19th, 2007
+			// the chosen l should be less than border_b(i,j) -- should be greater than border_b(i,l)
+			if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ // bp(i,l) < l < Bp(l,j)
+				cand_pos_t B_lj = tree.B(l,j);
 
+				// Hosna: July 5th, 2007:
+				// as long as we have i <= arc(l)< j we are fine
+				if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
+					energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBW(i,l-1)+ get_VP(l,j);
+					tmp = std::min(tmp,sum);
+				}
 			}
+			
+			m2 = 2*PB_penalty + tmp;
 		}
 	}
 	// 3) WMB(i,j) = VP(i,j) + P_b
-	energy_t m3 = get_VP(i,j,tree) + PB_penalty;
+	energy_t m3 = get_VP(i,j) + PB_penalty;
 
 	// if not paired(j) and paired(i) then
 	// WMBP(i,j) = 2*Pb + min_{i<l<bp(i)}(BE(i,bp(i),b'(i,l),bp(b'(i,l)))+WI(b'+1,l-1)+VP(l,j))
@@ -402,8 +409,8 @@ void pseudo_loop::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 			cand_pos_t bp_il = tree.bp(i,l);
 			if(bp_il >= 0 && bp_il < n && l+TURN <= j){
 				energy_t BE_energy = get_BE(i,tree.tree[i].pair,bp_il,tree.tree[bp_il].pair,tree);
-				energy_t WI_energy = get_WI(bp_il +1,l-1,tree);
-				energy_t VP_energy = get_VP(l,j,tree);
+				energy_t WI_energy = get_WI(bp_il +1,l-1);
+				energy_t VP_energy = get_VP(l,j);
 				energy_t sum = BE_energy + WI_energy + VP_energy;
 				tmp = std::min(tmp,sum);
 			}
@@ -442,7 +449,7 @@ void pseudo_loop::compute_WMB(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 				// if(i==1 && j==51) printf("i is %d and j is %d and wmbp is %d and wi is %d and be is %d\n",i,j,get_WMBP(i,l,tree), get_WI(l+1,Bp_lj-1,tree),get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree));
 				// if(i==1 && j==51) printf("i is %d and j is %d and bpj is %d and Bplj is %d and Bpljpair is %d\n",i,j,bp_j,Bp_lj,tree.tree[Bp_lj].pair);
 
-				energy_t sum = get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree) + get_WMBP(i,l,tree) + get_WI(l+1,Bp_lj-1,tree);
+				energy_t sum = get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree) + get_WMBP(i,l) + get_WI(l+1,Bp_lj-1);
 				temp = std::min(temp,sum);
 			}
 
@@ -450,64 +457,11 @@ void pseudo_loop::compute_WMB(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 		m2 = PB_penalty + temp;
 	}
 	// check the WMBP value
-	mWMBP =  get_WMBP(i,j,tree);
+	mWMBP =  get_WMBP(i,j);
 
 	// get the min for WMB
 	WMB[ij] = std::min(m2,mWMBP);
 	
-}
-
-void pseudo_loop::compute_VPP(cand_pos_t i, cand_pos_t  j, sparse_tree &tree){
-	cand_pos_t ij = index[i]+j-i;
-
-	energy_t m1 = INF, m2 = INF,m3 = INF, m4 = INF;
-
-	//branch 1:
-	// Hosna April 9th, 2007
-	// checking the borders as they may be negative numbers
-	cand_pos_t max_i_bp = i;
-	cand_pos_t bp_ij = tree.bp(i,j);
-	if (bp_ij > 0 && bp_ij < n && bp_ij > max_i_bp){
-		max_i_bp = bp_ij;
-	}
-	for (cand_pos_t r = max_i_bp+1; r < j; r++ ){
-        // Ian Wark July 19 2017
-        // otherwise it will create pairs in spots where the restricted structure says there should be no pairs
-		//branch 1:
-		if (tree.tree[r].pair < -1){
-			energy_t tmp = get_VP(i,r,tree) + get_WIP(r+1,j,tree);
-			m1 = std::min(m1,tmp);
-		}
-		//branch 3:
-		if (tree.tree[r].pair < -1 && tree.up[j-1] >= (j-(r)-1)){
-			energy_t tmp = get_VP(i,r,tree) + (cp_penalty *(j-r)); // check the (j-r) part
-			m3 = std::min(m3,tmp);
-		}
-	}
-
-	// Hosna April 9th, 2007
-	// checking the borders as they may be negative numbers
-	cand_pos_t min_Bp_j = j;
-	cand_pos_t Bp_ij = tree.Bp(i,j);
-	if (Bp_ij > 0 && Bp_ij < n && bp_ij < min_Bp_j){
-		min_Bp_j = Bp_ij;
-	}
-	for (cand_pos_t r = i+1; r < min_Bp_j; r++){
-        // Ian Wark July 19 2017
-        // otherwise it will create pairs in spots where the restricted structure says there should be no pairs
-		//branch 2:
-		if (tree.tree[r].pair < -1){
-			energy_t tmp = get_WIP(i,r-1,tree) + get_VP(r,j,tree);
-			m2 = std::min(m2,tmp);
-		}
-		//branch 4:
-		if (tree.tree[r].pair < -1 && tree.up[r-1] >= ((r)-(i))){
-			energy_t tmp = (cp_penalty * (r-i)) + get_VP(r,j,tree);
-			m4 = std::min(m4,tmp);
-		}
-	}
-
-	VPP[ij] = std::min({m1,m2,m3,m4}); //MIN(MIN(m1,m2),MIN(m3,m4));
 }
 
 void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree){
@@ -571,7 +525,7 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 				// Hosna: July 5th, 2007
 				// After meeting with Anne and Cristina --> ap should have 2* bp to consider the biggest and the one that crosses
 				// in a multiloop that spans a band
-				energy_t tmp = get_WIP(i+1,l-1,tree) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1,tree)+ ap_penalty + 2* bp_penalty;
+				energy_t tmp = get_WIP(i+1,l-1) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1)+ ap_penalty + 2* bp_penalty;
 				m3 = std::min(m3,tmp);
 			}
 
@@ -580,7 +534,7 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 				// Hosna: July 5th, 2007
 				// After meeting with Anne and Cristina --> ap should have 2* bp to consider the biggest and the one that crosses
 				// in a multiloop that spans a band
-				energy_t tmp = get_WIP(i+1,l-1,tree) + get_BE(l,lp,ip,jp,tree) + cp_penalty * (j-lp+1) + ap_penalty + 2*bp_penalty;
+				energy_t tmp = get_WIP(i+1,l-1) + get_BE(l,lp,ip,jp,tree) + cp_penalty * (j-lp+1) + ap_penalty + 2*bp_penalty;
 				m4 = std::min(m4,tmp);
 			}
 
@@ -589,7 +543,7 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 				// Hosna: July 5th, 2007
 				// After meeting with Anne and Cristina --> ap should have 2* bp to consider the biggest and the one that crosses
 				// in a multiloop that spans a band
-				energy_t tmp = ap_penalty + 2*bp_penalty + (cp_penalty * (l-i+1)) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1,tree);
+				energy_t tmp = ap_penalty + 2*bp_penalty + (cp_penalty * (l-i+1)) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1);
 				m5 = std::min(m5,tmp);
 			}
 		}
@@ -599,87 +553,46 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 	BE[iip] = std::min({m1,m2,m3,m4,m5});
 }
 
-energy_t pseudo_loop::get_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
-	if (i>j){
-		return 0;
-	}
+energy_t pseudo_loop::get_WI(cand_pos_t i, cand_pos_t j){
+	if (i>j) return 0;
 	cand_pos_t ij = index[i]+j-i;
-	//printf("get_WI(%d,%d), after computation its value = %d!\n",i,j, WI[ij]);
 	return WI[ij];
-
-
 }
 
-energy_t pseudo_loop::get_WIP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
-	// Hosna, March 16, 2012,
-	// i and j should be at least 3 bases apart
-	// if (j-i < TURN || i >= j || !tree.weakly_closed(i,j)){
-	// 	return INF;
-	// }
+energy_t pseudo_loop::get_WIP(cand_pos_t i, cand_pos_t j){
 	if(i>=j) return INF;
 	cand_pos_t ij = index[i]+j-i;
-
 	return WIP[ij];
 }
 
-energy_t pseudo_loop::get_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
-	// Hosna, March 16, 2012
-	// two bases should be at least 3 bases apart -- if it's any of these conditions, it's INF anyways
-
-	// if (j-i < TURN || i >= j || tree.tree[i+1].pair >= 0 || tree.tree[j+1].pair >= 0 || tree.weakly_closed(i+1,j+1)){
-	// 	return INF;
-	// }
+energy_t pseudo_loop::get_VP(cand_pos_t i, cand_pos_t j){
 	if(i>=j) return INF;
 	cand_pos_t ij = index[i]+j-i;
-
 	return VP[ij];
-
 }
-energy_t pseudo_loop::get_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
+energy_t pseudo_loop::get_VPL(cand_pos_t i, cand_pos_t j){
 	if(i>=j) return INF;
 	cand_pos_t ij = index[i]+j-i;
-
 	return VPL[ij];
-
 }
-energy_t pseudo_loop::get_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
+energy_t pseudo_loop::get_VPR(cand_pos_t i, cand_pos_t j){
 	if(i>=j) return INF;
 	cand_pos_t ij = index[i]+j-i;
-
 	return VPR[ij];
-
 }
-energy_t pseudo_loop::get_WMB(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
-	// Hosna: July 6th, 2007
-	// added impossible cases
-	// Hosna, March 16, 2012,
-	// i and j should be at least 3 bases apart -- if it's any of these conditions, it's INF anyways
-	// if (j-i < TURN ||(tree.tree[i+1].pair >= 0 && tree.tree[i+1].pair > j+1) || (tree.tree[j+1].pair >= 0 && tree.tree[j+1].pair < i+1) || (tree.tree[i+1].pair >= 0 && tree.tree[i+1].pair < i+1 ) || (tree.tree[j+1].pair >= 0 && j+1 < tree.tree[j+1].pair)){
-	// 	return INF;
-	// }
+energy_t pseudo_loop::get_WMB(cand_pos_t i, cand_pos_t j){
 	if(i>=j) return INF;
 	cand_pos_t ij = index[i]+j-i;
-
 	return WMB[ij];
 }
 
 energy_t pseudo_loop::get_WMBW(cand_pos_t i, cand_pos_t j){
 	if(i>=j) return INF;
 	cand_pos_t ij = index[i]+j-i;
-
 	return WMBW[ij];
 }
 
-// Hosna: April 18th, 2007
-// changed WMB to case 2 and WMBP
-energy_t pseudo_loop::get_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
-	// Hosna: July 6th, 2007
-	// added impossible cases
-	// Hosna, March 16, 2012,
-	// i and j should be at least 3 bases apart
-	// if (j-i< TURN || (tree.tree[i+1].pair >= 0 && tree.tree[i+1].pair > j+1) || (tree.tree[j+1].pair >= 0 && tree.tree[j+1].pair < i+1) || (tree.tree[i+1].pair >= 0 && tree.tree[i+1].pair < i+1 ) || (tree.tree[j+1].pair >= 0 && j+1 < tree.tree[j+1].pair)){
-	// 	return INF;
-	// }
+energy_t pseudo_loop::get_WMBP(cand_pos_t i, cand_pos_t j){
 	if(i>=j) return INF;
 	cand_pos_t ij = index[i]+j-i;
 	return WMBP[ij];
@@ -698,19 +611,6 @@ energy_t pseudo_loop::get_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 	}else{
 		return INF;
 	}
-}
-
-energy_t pseudo_loop::get_VPP(cand_pos_t i, cand_pos_t j,sparse_tree &tree){
-	// Hosna, March 16, 2012,
-	// i and j should be at least 3 bases apart
-	// if (j-i < TURN || i >= j || tree.weakly_closed(i+1,j+1)){
-	// 	return INF;
-	// }
-	if(i>=j) return INF;
-	cand_pos_t ij = index[i]+j-i;
-
-	return VPP[ij];
-
 }
 
 energy_t pseudo_loop::compute_int(cand_pos_t i, cand_pos_t j, cand_pos_t k, cand_pos_t l, const paramT *params){
@@ -741,8 +641,6 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 {
 	this->structure = structure;
 	this->f = f;
-	// Hosna March 8, 2012
-		// printf("type is %c and i is %d and j is %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
 
 	// changing the nested if structure to switch for optimality
 	switch (cur_interval->type)
@@ -767,7 +665,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 						cand_pos_t Bp_lj = tree.Bp(l,j);
 
 						if (Bp_lj >= 0 && Bp_lj<n){
-							energy_t sum = get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree) + get_WMBP(i,l,tree) + get_WI(l+1,Bp_lj-1,tree);
+							energy_t sum = get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree) + get_WMBP(i,l) + get_WI(l+1,Bp_lj-1);
 							if (acc > sum){
 								acc = sum;
 								best_l = l;
@@ -782,7 +680,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 				}
 				// case WMBP
-				tmp = get_WMBP(i,j,tree);
+				tmp = get_WMBP(i,j);
 				if (tmp < min){
 					min = tmp;
 					best_row = 2;
@@ -816,7 +714,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				if(tree.tree[j].pair < j){
 					for(cand_pos_t l = i+1; l<j; l++){
 						if (tree.tree[l].pair < 0 && tree.tree[l].parent->index > -1 && tree.tree[j].parent->index > -1 && tree.tree[j].parent->index == tree.tree[l].parent->index){
-							energy_t tmp = get_WMBP(i,l,tree) + get_WI(l+1,j,tree);
+							energy_t tmp = get_WMBP(i,l) + get_WI(l+1,j);
 							if(tmp<min){
 								min = tmp;
 								best_l = l;
@@ -854,7 +752,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 	
 							cand_pos_t B_lj = tree.B(l,j);
 							if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-								energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1,tree)+ get_VP(l,j,tree);
+								energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
 								if (acc > sum){
 									acc = sum;
 									l3 = l;
@@ -882,7 +780,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 	
 							cand_pos_t B_lj = tree.B(l,j);
 							if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-								energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBW(i,l-1)+ get_VP(l,j,tree);
+								energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBW(i,l-1)+ get_VP(l,j);
 								if (acc > sum){
 									acc = sum;
 									l3 = l;
@@ -899,7 +797,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				}
 
 				// case 3
-				energy_t temp = get_VP(i,j,tree) + PB_penalty;
+				energy_t temp = get_VP(i,j) + PB_penalty;
 				if (temp < min){
 					min = temp;
 					best_row = 3;
@@ -919,8 +817,8 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 							// Hosna: April 19th, 2007
 							// the chosen l should be less than border_b(i,j)
 							energy_t BE_energy = get_BE(i,tree.tree[i].pair,bp_il,tree.tree[bp_il].pair,tree);
-							energy_t WI_energy = get_WI(bp_il +1,l-1,tree);
-							energy_t VP_energy = get_VP(l,j,tree);
+							energy_t WI_energy = get_WI(bp_il +1,l-1);
+							energy_t VP_energy = get_VP(l,j);
 							energy_t sum = BE_energy + WI_energy + VP_energy;
 							if (acc > sum){
 								acc = sum;
@@ -990,8 +888,8 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				// Hosna April 9th, 2007
 				// need to check the borders as they may be negative
 				if((tree.tree[i].parent->index) > 0 && (tree.tree[j].parent->index) < (tree.tree[i].parent->index) && Bp_ij >= 0 && B_ij >= 0 && bp_ij < 0){
-					energy_t WI_ipus1_BPminus = get_WI(i+1,Bp_ij - 1,tree) ;
-					energy_t WI_Bplus_jminus = get_WI(B_ij + 1,j-1,tree);
+					energy_t WI_ipus1_BPminus = get_WI(i+1,Bp_ij - 1) ;
+					energy_t WI_Bplus_jminus = get_WI(B_ij + 1,j-1);
 					tmp =   WI_ipus1_BPminus + WI_Bplus_jminus;
 					if (tmp < min){
 						min = tmp;
@@ -1002,8 +900,8 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				// Hosna April 9th, 2007
 				// checking the borders as they may be negative
 				if ((tree.tree[i].parent->index) < (tree.tree[j].parent->index) && (tree.tree[j].parent->index) > 0 && b_ij>= 0 && bp_ij >= 0 && Bp_ij < 0){
-					energy_t WI_i_plus_b_minus = get_WI(i+1,b_ij - 1,tree);
-					energy_t WI_bp_plus_j_minus = get_WI(bp_ij + 1,j-1,tree);
+					energy_t WI_i_plus_b_minus = get_WI(i+1,b_ij - 1);
+					energy_t WI_bp_plus_j_minus = get_WI(bp_ij + 1,j-1);
 					tmp = WI_i_plus_b_minus + WI_bp_plus_j_minus;
 					if (tmp < min){
 						min = tmp;
@@ -1014,9 +912,9 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				// Hosna April 9th, 2007
 				// checking the borders as they may be negative
 				if((tree.tree[i].parent->index) > 0 && (tree.tree[j].parent->index) > 0 && Bp_ij >= 0 && B_ij >= 0  && b_ij >= 0 && bp_ij>= 0){
-					energy_t WI_i_plus_Bp_minus = get_WI(i+1,Bp_ij - 1,tree);
-					energy_t WI_B_plus_b_minus = get_WI(B_ij + 1,b_ij - 1,tree);
-					energy_t WI_bp_plus_j_minus = get_WI(bp_ij +1,j - 1,tree);
+					energy_t WI_i_plus_Bp_minus = get_WI(i+1,Bp_ij - 1);
+					energy_t WI_B_plus_b_minus = get_WI(B_ij + 1,b_ij - 1);
+					energy_t WI_bp_plus_j_minus = get_WI(bp_ij +1,j - 1);
 					tmp = WI_i_plus_Bp_minus + WI_B_plus_b_minus + WI_bp_plus_j_minus;
 					if (tmp < min){
 						min = tmp;
@@ -1026,7 +924,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				//case 4
 				pair_type ptype_closingip1jm1 = pair[S_[i+1]][S_[j-1]];
 				if(tree.tree[i+1].pair < 0 && tree.tree[j-1].pair < 0 && ptype_closingip1jm1 > 0){
-					tmp = get_e_stP(i,j)+ get_VP(i+1,j-1,tree);
+					tmp = get_e_stP(i,j)+ get_VP(i+1,j-1);
 					if (tmp < min){
 						min = tmp;
 						best_row = 4;
@@ -1051,7 +949,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 							if (tree.tree[l].pair < -1 && ptype_closingkj>0 && (tree.up[(j)-1] >= ((j)-(l)-1))){
 								// Hosna: April 20, 2007
 								// i and ip and j and jp should be in the same arc
-								tmp = get_e_intP(i,k,l,j) + get_VP(k,l,tree);
+								tmp = get_e_intP(i,k,l,j) + get_VP(k,l);
 								if (tmp < min){
 									min = tmp;
 									best_row = 5;
@@ -1067,7 +965,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
 				
 				for (cand_pos_t k = i+1; k < min_Bp_j; ++k){
-					tmp = get_WIP(i+1,k-1,tree) + get_VP(k,j-1,tree) + ap_penalty + 2* bp_penalty;
+					tmp = get_WIP(i+1,k-1) + get_VP(k,j-1) + ap_penalty + 2* bp_penalty;
 					if (tmp < min){
 						min = tmp;
 						best_row = 6;
@@ -1077,7 +975,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				}
 
 				for (cand_pos_t k = max_i_bp+1; k < j; ++k){
-					tmp = get_VP(i+1,k,tree) + get_WIP(k+1,j-1,tree) + ap_penalty + 2* bp_penalty;
+					tmp = get_VP(i+1,k) + get_WIP(k+1,j-1) + ap_penalty + 2* bp_penalty;
 					if (tmp < min){
 						min = tmp;
 						best_row = 7;
@@ -1088,7 +986,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 
 				for (cand_pos_t k = i+1; k < min_Bp_j; ++k){
-					tmp = get_WIP(i+1,k-1,tree) + get_VPR(k,j-1,tree) + ap_penalty + 2* bp_penalty;
+					tmp = get_WIP(i+1,k-1) + get_VPR(k,j-1) + ap_penalty + 2* bp_penalty;
 					if (tmp < min){
 						min = tmp;
 						best_row = 8;
@@ -1099,7 +997,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 				
 				for (cand_pos_t k = max_i_bp+1; k < j; ++k){
-					tmp = get_VPL(i+1,k,tree) + get_WIP(k+1,j-1,tree) + ap_penalty + 2* bp_penalty;
+					tmp = get_VPL(i+1,k) + get_WIP(k+1,j-1) + ap_penalty + 2* bp_penalty;
 					if (tmp < min){
 						min = tmp;
 						best_row = 9;
@@ -1193,7 +1091,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 				cand_pos_t min_Bp_j = std::min((cand_pos_tu) j-TURN-1, (cand_pos_tu) tree.Bp(i,j));
 				for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-					tmp = static_cast<energy_t>((k-i)*cp_penalty) + get_VP(k,j,tree);
+					tmp = static_cast<energy_t>((k-i)*cp_penalty) + get_VP(k,j);
 					if(tmp < min){
 						best_k = k;
 						min = tmp;
@@ -1219,7 +1117,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
 
 				for(cand_pos_t k = max_i_bp+1; k<j; ++k){
-					tmp = get_VP(i,k,tree) + get_WIP(k+1,j,tree);
+					tmp = get_VP(i,k) + get_WIP(k+1,j);
 					if(tmp < min){
 						best_k = k;
 						best_row = 1;
@@ -1228,7 +1126,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				}
 
 				for(cand_pos_t k = max_i_bp+1; k<j; ++k){
-					energy_t VP_energy = get_VP(i,k,tree);
+					energy_t VP_energy = get_VP(i,k);
 					tmp = VP_energy + static_cast<energy_t>((j-k)*cp_penalty);
 					if(tmp < min){
 						best_k = k;
@@ -1257,116 +1155,6 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 			}
 				break;
-			case P_VPP:
-			{
-			cand_pos_t i = cur_interval->i;
-			cand_pos_t j = cur_interval->j;
-			if (i >= j){
-				return;
-			}
-			energy_t min = INF, tmp = INF;
-			cand_pos_t best_r = INF, best_row = -1;
-			cand_pos_t Bp_ij = tree.Bp(i,j);
-			cand_pos_t bp_ij = tree.bp(i,j);
-
-			//case 1
-			// Hosna April 9th, 2007
-			// checking the borders as they may be negative numbers
-			cand_pos_t max_i_bp = i;
-			if (bp_ij > 0 && bp_ij < n && bp_ij > max_i_bp){
-				max_i_bp = bp_ij;
-			}
-			for (cand_pos_t r = max_i_bp+1; r < j; r++ ){
-				if (tree.tree[r].pair < 0){
-					tmp = get_VP(i,r,tree) + get_WIP(r+1,j,tree);
-					if (tmp < min){
-						min = tmp;
-						best_row = 1;
-						best_r = r;
-					}
-				}
-			}
-			//case 2:
-			// Hosna April 9th, 2007
-			// checking the borders as they may be negative numbers
-			cand_pos_t min_Bp_j = j;
-			if (Bp_ij > 0 && Bp_ij < n && Bp_ij < min_Bp_j){
-				min_Bp_j = Bp_ij;
-			}
-			for (cand_pos_t r = i+1; r < min_Bp_j; r++){
-				if (tree.tree[r].pair < 0){
-					tmp = get_WIP(i,r-1,tree) + get_VP(r,j,tree);
-					if (tmp < min){
-						min = tmp;
-						best_row = 2;
-						best_r = r;
-					}
-				}
-			}
-
-			// Branch 3:
-			// will have to recheck this empty code 
-			for (cand_pos_t r = max_i_bp+1; r < j; r++ ){
-				if (tree.tree[r].pair < 0 && tree.up[j-1] > ((j)-(r+1)+1)){
-					tmp = get_VP(i,r,tree) + cp_penalty *(j-r); // check the (j-r) part
-					if (tmp < min){
-						min = tmp;
-						best_row = 3;
-						best_r = r;
-					}
-				}
-			}
-
-			// Branch 4:
-			for (cand_pos_t r = i+1; r < min_Bp_j; r++){
-				if (tree.tree[r].pair < 0 && tree.up[r-1] >= ((r-1)-(i)+1)){
-					tmp = cp_penalty * (r-i) + get_VP(r,j,tree);
-					if (tmp < min){
-						min = tmp;
-						best_row = 4;
-						best_r = r;
-					}
-				}
-			}
-			switch(best_row)
-			{
-				case 1:
-					if (best_r != INF){
-						if (i <= best_r){
-							insert_node(i,best_r,P_VP);
-						}
-						if (best_r+1 <= j){
-							insert_node(best_r +1,j,P_WIP);
-						}
-					}
-					break;
-				case 2:
-					if (best_r != INF){
-						if (i <= best_r-1){
-							insert_node(i,best_r-1,P_WIP);
-						}
-						if (best_r <= j){
-							insert_node(best_r,j,P_VP);
-						}
-					}
-					break;
-				case 3:
-					if (best_r != INF){
-						if (i <= best_r){
-							insert_node(i,best_r,P_VP);
-						}
-					}
-					break;
-				case 4:
-					if (best_r != INF){
-						if (best_r <= j){
-							insert_node(best_r,j,P_VP);
-						}
-					}
-					break;
-			}
-		}
-			break;
 		case P_WI:
 		{
 			cand_pos_t i = cur_interval->i;
@@ -1383,14 +1171,14 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 					best_row = 1;
 				} 
 
-				tmp = get_WMB(i,j,tree) + PSP_penalty + PPS_penalty;
+				tmp = get_WMB(i,j) + PSP_penalty + PPS_penalty;
 				if(tmp<min){
 					min = tmp;
 					best_row = 2;
 				}
 
 				for (cand_pos_t t = i+1; t< j; t++){
-					energy_t wi_1 = get_WI(i,t-1,tree);
+					energy_t wi_1 = get_WI(i,t-1);
 					energy_t v_energy = wi_1 + V->get_energy(t,j) + PPS_penalty;
 					if(v_energy < min){
 						min = v_energy;
@@ -1400,8 +1188,8 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				}
 
 				for (cand_pos_t t = i+1; t< j; t++){
-					energy_t wi_1 = get_WI(i,t-1,tree);
-					energy_t wmb_energy = wi_1 + get_WMB(t,j,tree) + PSP_penalty + PPS_penalty;
+					energy_t wi_1 = get_WI(i,t-1);
+					energy_t wmb_energy = wi_1 + get_WMB(t,j) + PSP_penalty + PPS_penalty;
 					if(wmb_energy < min){
 						min = wmb_energy;
 						best_row = 4;
@@ -1409,7 +1197,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 					}
 				}
 
-				tmp = get_WI(i,j-1,tree) + PUP_penalty;
+				tmp = get_WI(i,j-1) + PUP_penalty;
 				if(tmp<min){
 					min = tmp;
 					best_row = 5;
@@ -1509,7 +1297,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 				// case 3
 				if (weakly_closed_il && weakly_closed_lpj){
-					tmp = get_WIP(i+1,l-1,tree) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1,tree);
+					tmp = get_WIP(i+1,l-1) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1);
 					if (min > tmp){
 						min = tmp;
 						best_row = 3;
@@ -1522,7 +1310,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 					// Hosna: July 5th, 2007
 					// After meeting with Anne and Cristina --> ap should have 2* bp to consider the biggest and the one that crosses
 					// in a multiloop that spans a band
-					tmp = get_WIP(i+1,l-1,tree) + get_BE(l,lp,ip,jp,tree) + c_penalty * (j-lp+1) + ap_penalty + 2* bp_penalty;
+					tmp = get_WIP(i+1,l-1) + get_BE(l,lp,ip,jp,tree) + c_penalty * (j-lp+1) + ap_penalty + 2* bp_penalty;
 					if (min > tmp){
 						min = tmp;
 						best_row = 4;
@@ -1535,7 +1323,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 					// Hosna: July 5th, 2007
 					// After meeting with Anne and Cristina --> ap should have 2* bp to consider the biggest and the one that crosses
 					// in a multiloop that spans a band
-					tmp = ap_penalty + 2* bp_penalty+ c_penalty * (l-i+1) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1,tree);
+					tmp = ap_penalty + 2* bp_penalty+ c_penalty * (l-i+1) + get_BE(l,lp,ip,jp,tree) + get_WIP(lp+1,j-1);
 					if (min > tmp){
 						min = tmp;
 						best_row = 5;
@@ -1609,7 +1397,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				best_row = 1;
 			}
 
-			tmp = get_WMB(i,j,tree) + PSM_penalty + bp_penalty;
+			tmp = get_WMB(i,j) + PSM_penalty + bp_penalty;
 			if (tmp < min){
 				min = tmp;
 				best_row = 2;
@@ -1617,7 +1405,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 			for (cand_pos_t k = i+1; k < j-TURN-1; ++k){
 				bool can_pair = tree.up[k-1] >= (k-i);
-				energy_t wi_1 = get_WIP(i,k-1,tree);
+				energy_t wi_1 = get_WIP(i,k-1);
 				tmp = wi_1 + V->get_energy(k,j);
 				if (tmp < min){
 					min = tmp;
@@ -1626,8 +1414,8 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				}
 			}
 			for (cand_pos_t k = i+1; k < j-TURN-1; ++k){
-				energy_t wi_1 = get_WIP(i,k-1,tree);
-				tmp = wi_1 + get_WMB(k,j,tree);
+				energy_t wi_1 = get_WIP(i,k-1);
+				tmp = wi_1 + get_WMB(k,j);
 				if (tmp < min){
 					min = tmp;
 					best_row = 4;
@@ -1645,7 +1433,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 			}
 			for (cand_pos_t k = i+1; k < j-TURN-1; ++k){
 				bool can_pair = tree.up[k-1] >= (k-i);
-				if(can_pair) tmp = static_cast<energy_t>((k-i)*cp_penalty) + get_WMB(k,j,tree);
+				if(can_pair) tmp = static_cast<energy_t>((k-i)*cp_penalty) + get_WMB(k,j);
 				if (tmp < min){
 					min = tmp;
 					best_row = 6;
@@ -1654,7 +1442,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 			}
 			//case 2
 			if (tree.tree[j].pair < 0){
-				tmp = get_WIP(i,j-1,tree) + cp_penalty;
+				tmp = get_WIP(i,j-1) + cp_penalty;
 				if (tmp < min){
 					min = tmp;
 					best_row = 7;
