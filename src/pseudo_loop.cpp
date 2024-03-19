@@ -162,7 +162,7 @@ void pseudo_loop::compute_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	cand_pos_t ij = index[i]+j-i;
 	energy_t m1 = INF;
 
-	cand_pos_t min_Bp_j = std::min((cand_pos_tu) j-TURN-1, (cand_pos_tu) tree.Bp(i,j));
+	cand_pos_t min_Bp_j = std::min((cand_pos_tu) tree.b(i,j), (cand_pos_tu) tree.Bp(i,j));
 	for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
 		m1 = std::min(m1, static_cast<energy_t>((k-i)*cp_penalty) + get_VP(k,j));
 	}
@@ -177,7 +177,7 @@ void pseudo_loop::compute_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	cand_pos_t ij = index[i]+j-i;
 	energy_t m1 = INF, m2 = INF;
 
-	cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
+	cand_pos_t max_i_bp = std::max(tree.B(i,j),tree.bp(i,j));
 
 	for(cand_pos_t k = max_i_bp+1; k<j; ++k){
 		energy_t VP_energy = get_VP(i,k);
@@ -277,8 +277,8 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 		}
 	}
 
-		cand_pos_t min_Bp_j = std::min((cand_pos_tu) j-TURN-1, (cand_pos_tu) tree.Bp(i,j));
-		cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
+		cand_pos_t min_Bp_j = std::min((cand_pos_tu) tree.b(i,j), (cand_pos_tu) tree.Bp(i,j));
+		cand_pos_t max_i_bp = std::max(tree.B(i,j),tree.bp(i,j));
 
 		for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
 			m6 = get_WIP(i+1,k-1) + get_VP(k,j-1);
@@ -961,8 +961,8 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 					}
 				}
 
-				cand_pos_t min_Bp_j = std::min((cand_pos_tu) j-TURN-1, (cand_pos_tu) tree.Bp(i,j));
-				cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
+				cand_pos_t min_Bp_j = std::min((cand_pos_tu) tree.b(i,j), (cand_pos_tu) tree.Bp(i,j));
+				cand_pos_t max_i_bp = std::max(tree.B(i,j),tree.bp(i,j));
 				
 				for (cand_pos_t k = i+1; k < min_Bp_j; ++k){
 					tmp = get_WIP(i+1,k-1) + get_VP(k,j-1) + ap_penalty + 2* bp_penalty;
@@ -1089,7 +1089,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				energy_t min = INF, tmp = INF;
 				cand_pos_t best_k = -1;
 
-				cand_pos_t min_Bp_j = std::min((cand_pos_tu) j-TURN-1, (cand_pos_tu) tree.Bp(i,j));
+				cand_pos_t min_Bp_j = std::min((cand_pos_tu) tree.b(i,j), (cand_pos_tu) tree.Bp(i,j));
 				for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
 					tmp = static_cast<energy_t>((k-i)*cp_penalty) + get_VP(k,j);
 					if(tmp < min){
@@ -1114,7 +1114,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				energy_t min = INF, tmp = INF;
 				cand_pos_t best_k = INF, best_row = -1;
 
-				cand_pos_t max_i_bp = std::max(i,tree.bp(i,j));
+				cand_pos_t max_i_bp = std::max(tree.B(i,j),tree.bp(i,j));
 
 				for(cand_pos_t k = max_i_bp+1; k<j; ++k){
 					tmp = get_VP(i,k) + get_WIP(k+1,j);
