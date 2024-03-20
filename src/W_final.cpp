@@ -14,13 +14,13 @@
 // to create all the matrixes required for simfold
 // and then calls allocate_space in here to allocate
 // space for WMB and V_final
-W_final::W_final(std::string seq,std::string res,bool pk_free, bool pk_only) : params_(scale_parameters())
+W_final::W_final(std::string seq,std::string res,bool pk_free, bool pk_only, int dangle) : params_(scale_parameters())
 {
 	seq_ = seq;
 	this->res = res;
 	this->n = seq.length();
 	make_pair_matrix();
-	params_->model_details.dangles = 1;
+	params_->model_details.dangles = dangle;
     S_ = encode_sequence(seq.c_str(),0);
 	S1_ = encode_sequence(seq.c_str(),1);
 	this->pk_free = pk_free;
@@ -94,7 +94,7 @@ double W_final::hfold(sparse_tree &tree){
 		 	// m2 = compute_W_br2_restricted (j, fres, must_choose_this_branch);
 			energy_t acc = (k>1) ? W[k-1]: 0;
 			m2 = std::min(m2,acc + E_ext_Stem(V->get_energy(k,j),V->get_energy(k+1,j),V->get_energy(k,j-1),V->get_energy(k+1,j-1),S_,params_,k,j,n,tree.tree));
-			if(tree.weakly_closed(k,j)) m3 = std::min(m3,acc + WMB->get_WMB(k,j) + PS_penalty);
+			if (k == 1 || (tree.weakly_closed(1,k-1) && tree.weakly_closed(k,j))) m3 = std::min(m3,acc + WMB->get_WMB(k,j) + PS_penalty);
 			}
 		W[j] = std::min({m1,m2,m3});
 	}

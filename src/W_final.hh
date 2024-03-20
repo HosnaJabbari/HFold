@@ -27,7 +27,7 @@ bool compare_hotspot_ptr(Hotspot &a, Hotspot &b);
 
 class W_final{
 	public:
-		W_final(std::string seq, std::string res, bool pk_free, bool pk_only);
+		W_final(std::string seq, std::string res, bool pk_free, bool pk_only, int dangle);
         // constructor for the restricted mfe case
 
         ~W_final ();

@@ -70,8 +70,8 @@ void validateSequence(std::string sequence){
   }
 }
 
-std::string hfold(std::string seq,std::string res, double &energy, sparse_tree &tree, bool pk_free, bool pk_only){
-	W_final min_fold(seq,res, pk_free, pk_only);
+std::string hfold(std::string seq,std::string res, double &energy, sparse_tree &tree, bool pk_free, bool pk_only, int dangle){
+	W_final min_fold(seq,res, pk_free, pk_only, dangle);
 	energy = min_fold.hfold(tree);
     std::string structure = min_fold.structure;
     return structure;
@@ -114,6 +114,8 @@ int main (int argc, char *argv[])
 
 	bool pk_only = args_info.pk_only_given;
 
+	int dangles = args_info.dangles_given ? dangle_model : 1;
+
 	if(fileI != ""){
 		
 		if(exists(fileI)){
@@ -153,7 +155,7 @@ int main (int argc, char *argv[])
 		std::string structure = hotspot_list[i].get_structure();
 
 		sparse_tree tree(structure,n);
-		std::string final_structure = hfold(seq,structure, energy,tree,pk_free,pk_only);
+		std::string final_structure = hfold(seq,structure, energy,tree,pk_free,pk_only, dangles);
 		
 		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy);
 		result_list.push_back(result);

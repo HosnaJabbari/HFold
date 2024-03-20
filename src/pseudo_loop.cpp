@@ -119,7 +119,7 @@ void pseudo_loop::compute_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	}
 	m1 += PPS_penalty;
 	m2 += PSP_penalty + PPS_penalty;
-	m3 = get_WI(i,j-1) + PUP_penalty; 
+	if (tree.tree[j].pair < 0) m3 = get_WI(i,j-1) + PUP_penalty; 
 	m4 = V->get_energy(i,j) + PPS_penalty;
 	m5 = get_WMB(i,j) + PSP_penalty + PPS_penalty;
 
@@ -147,7 +147,7 @@ void pseudo_loop::compute_WIP(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 	m3 += bp_penalty;
 	m4 += PSM_penalty + bp_penalty;
 	// branch 2:
-	if (tree.tree[j].pair < -1){
+	if (tree.tree[j].pair < 0){
 		m5 = get_WIP(i,j-1) + cp_penalty;
 	}
 	m6 = V->get_energy(i,j) + bp_penalty;
@@ -1196,12 +1196,13 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 						best_t = t;
 					}
 				}
-
-				tmp = get_WI(i,j-1) + PUP_penalty;
-				if(tmp<min){
-					min = tmp;
-					best_row = 5;
-				}  
+				if (tree.tree[j].pair < 0){
+					tmp = get_WI(i,j-1) + PUP_penalty; 
+					if(tmp<min){
+						min = tmp;
+						best_row = 5;
+					} 
+				} 
 			
 			switch (best_row)
 			{
