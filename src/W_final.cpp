@@ -436,8 +436,13 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 				energy_ij = V->get_energy(i,j);
 
 				if (energy_ij < INF)
-				{
-					tmp = energy_ij + E_ExtLoop(pair[S_[i]][S_[j]],-1,-1,params_) + acc;
+				{	
+					if(params_->model_details.dangles == 2){
+						base_type si1 = i>1 ? S_[i-1] : -1;
+						base_type sj1 = j<n ? S_[j+1] : -1;
+						tmp = energy_ij + E_ExtLoop(pair[S_[i]][S_[j]],si1,sj1,params_) + acc;
+					} else 
+						tmp = energy_ij + E_ExtLoop(pair[S_[i]][S_[j]],-1,-1,params_) + acc; 
 					if (tmp < min)
 					{
 					min = tmp;
@@ -446,48 +451,49 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 					}
 					
 				}
-
-				if (tree.tree[i].pair <= -1)
-				{
-					energy_ij = V->get_energy(i+1,j);
-					if (energy_ij < INF)
+				if(params_->model_details.dangles ==1){
+					if (tree.tree[i].pair <= -1)
 					{
-						tmp = energy_ij + E_ExtLoop(pair[S_[i+1]][S_[j]],S_[i],-1,params_) + acc;
-						
-						if (tmp < min)
+						energy_ij = V->get_energy(i+1,j);
+						if (energy_ij < INF)
 						{
-							min = tmp;
-							best_i = i;
-							best_row = 2;
-						}
-						
-					}
-				}
-				if (tree.tree[j].pair <= -1)
-				{
-					energy_ij = V->get_energy(i,j-1);
-					if (energy_ij < INF)
-					{
-						tmp = energy_ij + E_ExtLoop(pair[S_[i]][S_[j-1]],-1,S_[j],params_) + acc;
-						if (tmp < min)
-						{
-							min = tmp;
-							best_i = i;
-							best_row = 3;
+							tmp = energy_ij + E_ExtLoop(pair[S_[i+1]][S_[j]],S_[i],-1,params_) + acc;
+							
+							if (tmp < min)
+							{
+								min = tmp;
+								best_i = i;
+								best_row = 2;
+							}
+							
 						}
 					}
-				}
-				if (tree.tree[i].pair <= -1 && tree.tree[j].pair <= -1)
-				{
-					energy_ij = V->get_energy(i+1,j-1);
-					if (energy_ij < INF)
+					if (tree.tree[j].pair <= -1)
 					{
-						tmp = energy_ij + E_ExtLoop(pair[S_[i+1]][S_[j-1]],S_[i],S_[j],params_) + acc;
-						if (tmp < min)
+						energy_ij = V->get_energy(i,j-1);
+						if (energy_ij < INF)
 						{
-							min = tmp;
-							best_i = i;
-							best_row = 4;
+							tmp = energy_ij + E_ExtLoop(pair[S_[i]][S_[j-1]],-1,S_[j],params_) + acc;
+							if (tmp < min)
+							{
+								min = tmp;
+								best_i = i;
+								best_row = 3;
+							}
+						}
+					}
+					if (tree.tree[i].pair <= -1 && tree.tree[j].pair <= -1)
+					{
+						energy_ij = V->get_energy(i+1,j-1);
+						if (energy_ij < INF)
+						{
+							tmp = energy_ij + E_ExtLoop(pair[S_[i+1]][S_[j-1]],S_[i],S_[j],params_) + acc;
+							if (tmp < min)
+							{
+								min = tmp;
+								best_i = i;
+								best_row = 4;
+							}
 						}
 					}
 				}
