@@ -692,7 +692,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 						if (best_l > -1){
 							insert_node(i,best_l,P_WMBP);
 							insert_node(best_l +1,tree.Bp(best_l,j)-1,P_WI);
-							insert_node(tree.tree[j].pair,tree.tree[tree.Bp(best_l,j)+1].pair, P_BE);
+							insert_node(tree.tree[j].pair,tree.tree[tree.Bp(best_l,j)].pair, P_BE);
 						}
 						break;
 					case 2:
