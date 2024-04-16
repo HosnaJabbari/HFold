@@ -286,7 +286,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 		
 		m6 += ap_penalty + 2*bp_penalty;
 
-		for(cand_pos_t k = max_i_bp+TURN+1; k<j; ++k){
+		for(cand_pos_t k = max_i_bp+1; k<j; ++k){
 			m7 = std::min(m7,get_VP(i+1,k) + get_WIP(k+1,j-1));
 		}
 
@@ -298,7 +298,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 
 		m8 += ap_penalty + 2*bp_penalty;
 
-		for(cand_pos_t k = max_i_bp+TURN+1; k<j; ++k){
+		for(cand_pos_t k = max_i_bp+1; k<j; ++k){
 			m9 = std::min(m9,get_VPL(i+1,k) + get_WIP(k+1,j-1));
 		}
 
