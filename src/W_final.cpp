@@ -584,7 +584,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 					//printf("W(%d) case 2: inserting Loop(%d,%d) and Free (0,%d)\n",j,best_i+1,j,best_i);
 					insert_node (best_i+1, j, LOOP);
 					if (best_i >= 1)// Hosna, March 26, 2012, was best_i-1 instead of best_i
-						insert_node (0, best_i, FREE);
+						insert_node (1, best_i, FREE);
 					break;
 				case 3:
 					//printf("W(%d) case 3: inserting Loop(%d,%d) and Free (0,%d)\n",j,best_i,j-1,best_i-1);
@@ -603,26 +603,26 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 				case 5:
 					//printf("W(%d) case 5: inserting WMB(%d,%d) and Free (0,%d)\n",j,best_i,j,best_i-1);
 					insert_node (best_i, j, P_WMB);
-					if (best_i-1 > 0)     // it was TURN instead of 0  - not sure if TURN shouldn't be here
-						insert_node (0, best_i-1, FREE);
+					if (best_i-1 > 1)     // it was TURN instead of 0  - not sure if TURN shouldn't be here
+						insert_node (1, best_i-1, FREE);
 					break;
 				case 6:
 					//printf("W(%d) case 6: inserting WMB(%d,%d) and Free (0,%d)\n",j,best_i+1,j,best_i);
 					insert_node (best_i+1, j, P_WMB);
-					if (best_i >= 0) // Hosna, March 26, 2012, was best_i-1 instead of best_i
-						insert_node (0, best_i, FREE);
+					if (best_i >= 1) // Hosna, March 26, 2012, was best_i-1 instead of best_i
+						insert_node (1, best_i, FREE);
 					break;
 				case 7:
 					//printf("W(%d) case 7: inserting WMB(%d,%d) and Free (0,%d)\n",j,best_i,j-1,best_i-1);
 					insert_node (best_i, j-1, P_WMB);
-					if (best_i-1 > 0)
-						insert_node (0, best_i-1, FREE);
+					if (best_i-1 > 1)
+						insert_node (1, best_i-1, FREE);
 					break;
 				case 8:
 					//printf("W(%d) case 8: inserting WMB(%d,%d) and Free (0,%d)\n",j,best_i+1,j-1,best_i);
 					insert_node (best_i+1, j-1, P_WMB);
-					if (best_i >= 0) // Hosna, March 26, 2012, was best_i-1 instead of best_i
-						insert_node (0, best_i, FREE);
+					if (best_i >= 1) // Hosna, March 26, 2012, was best_i-1 instead of best_i
+						insert_node (1, best_i, FREE);
 					break;
 			}
 		}

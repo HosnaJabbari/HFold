@@ -749,18 +749,20 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				if (tree.tree[j].pair < 0){
 					energy_t acc = INF;
 					cand_pos_t l3 = -1;
+					cand_pos_t b_ij = tree.b(i,j);
 					for (cand_pos_t l = i+1; l<j ; l++)	{
 						cand_pos_t bp_il = tree.bp(i,l);
 						cand_pos_t Bp_lj = tree.Bp(l,j);
-
-						if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ // bp(i,l) < l < Bp(l,j)
-	
-							cand_pos_t B_lj = tree.B(l,j);
-							if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-								energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
-								if (acc > sum){
-									acc = sum;
-									l3 = l;
+						if(b_ij > 0 && l < b_ij){
+							if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ // bp(i,l) < l < Bp(l,j)
+		
+								cand_pos_t B_lj = tree.B(l,j);
+								if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
+									energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
+									if (acc > sum){
+										acc = sum;
+										l3 = l;
+									}
 								}
 							}
 						}
