@@ -19,7 +19,7 @@ static char *package_name = 0;
 
 const char *args_info_purpose = "Possibly pseudoknotted minimum free energy folding of RNAs";
 
-const char *args_info_usage = "Usage: Iterative-HFold"  "[options] [sequence]";
+const char *args_info_usage = "Usage: HFold"  "[options] [sequence]";
 
 const char *args_info_versiontext = "";
 
@@ -35,7 +35,7 @@ const char *args_info_help[] = {
   "  -n, --opt              Specify the number of suboptimal structures to output (default is 1)",
   "  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated",
   "  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added"
-  "  -d  --dangles          Specify the dangle model to be used"
+  "  -d  --dangles          Specify the dangle model to be used",
 
   "\nThe input sequence is read from standard input, unless it is\ngiven on the command line.\n",
   
