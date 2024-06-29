@@ -71,11 +71,10 @@ static void init_args_info(struct args_info *args_info)
 void
 cmdline_parser_print_version (void)
 {
-  printf (" %s\n",(strlen(package_name) ? package_name : "HFold"));
 
   printf ("%s %s\n",
-     (strlen(Iterative_HFold_CMDLINE_PACKAGE_NAME) ? Iterative_HFold_CMDLINE_PACKAGE_NAME : "HFold"),
-     Iterative_HFold_CMDLINE_VERSION);
+     (strlen(HFold_CMDLINE_PACKAGE_NAME) ? HFold_CMDLINE_PACKAGE_NAME : "HFold"),
+     HFold_CMDLINE_VERSION);
 
   if (strlen(args_info_versiontext) > 0)
     printf("\n%s\n", args_info_versiontext);

@@ -2,9 +2,9 @@
 #define CMDLINE_H
 #include <string>
 
-#define Iterative_HFold_CMDLINE_PACKAGE_NAME "HFold"
+#define HFold_CMDLINE_PACKAGE_NAME "HFold"
 
-#define Iterative_HFold_CMDLINE_VERSION "2.0"
+#define HFold_CMDLINE_VERSION "2.0"
 
 
 // The restricted structure
