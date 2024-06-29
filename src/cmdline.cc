@@ -12,6 +12,7 @@
 std::string input_struct;
 std::string input_file;
 std::string output_file;
+std::string parameter_file;
 int dangle_model;
 int subopt;
 
@@ -36,6 +37,7 @@ const char *args_info_help[] = {
   "  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated",
   "  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added"
   "  -d  --dangles          Specify the dangle model to be used",
+  "  -P, --paramFile        Read energy parameters from paramfile, instead of using the default parameter set.\n"
 
   "\nThe input sequence is read from standard input, unless it is\ngiven on the command line.\n",
   
@@ -62,6 +64,7 @@ static void init_args_info(struct args_info *args_info)
   args_info->pk_free_help = args_info_help[8] ;
   args_info->pk_only_help = args_info_help[9] ;
   args_info->dangles_help = args_info_help[10] ;
+  args_info->paramFile_help = args_info_help[11] ;
 
 
 
@@ -120,6 +123,7 @@ static void clear_given (struct args_info *args_info)
   args_info->pk_free_given = 0 ;
   args_info->pk_only_given = 0 ;
   args_info->dangles_given = 0 ;
+  args_info->paramFile_given = 0 ;
 }
 
 static void clear_args (struct args_info *args_info)
@@ -315,10 +319,11 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
         { "pk-free",	0, NULL, 'p' },
         { "pk-only",	0, NULL, 'k' },
         { "dangles",	0, NULL, 'd' },
+        { "paramFile",	required_argument, NULL, 'P' },
         { 0,  0, 0, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVvr:i:o:n:pkd:", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVvr:i:o:n:pkd:P:", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -342,6 +347,17 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
               &(local_args_info.verbose_given), optarg, 0, 0, ARG_NO,0, 0,"verbose", 'v',additional_error))
             goto failure;
         
+          break;
+
+          case 'P':	/* Take in a different Parameter File.  */
+        
+        
+          if (update_arg( 0 , 
+               0 , &(args_info->paramFile_given),
+              &(local_args_info.paramFile_given), optarg, 0, 0, ARG_NO,0, 0,"paramFile", 'P',additional_error))
+            goto failure;
+
+            parameter_file = optarg;
           break;
 
           case 'n':	/* Specify number of outputs.  */

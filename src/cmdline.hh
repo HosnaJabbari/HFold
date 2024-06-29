@@ -22,6 +22,9 @@ extern int subopt;
 // Number for dangle model
 extern int dangle_model;
 
+// The parameter file location
+extern std::string parameter_file;
+
 
 
 /** @brief Where the command line options are stored */
@@ -37,6 +40,8 @@ struct args_info
   const char *pk_free_help; /**< @brief Specify if the structures calculated should be pseudoknot-free  */
   const char *pk_only_help; /**< @brief Specify if the structures added should all cross the input   */
   const char *dangles_help; /**< @brief Specify the dangle model*/
+  const char *paramFile_help; /**< @brief Use a separate parameter list */
+
 
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
@@ -49,6 +54,8 @@ struct args_info
   unsigned int pk_free_given ;	/**< @brief Whether pk_free was given.  */
   unsigned int pk_only_given ;	/**< @brief Whether pk_only was given.  */
   unsigned int dangles_given ;  /**< @brief Whether dangle model was given.  */
+  unsigned int paramFile_given ; /** <@brief whether a parameter file was given */
+
 
   char **inputs ; /**< @brief unnamed options (options without names) */
   unsigned inputs_num ; /**< @brief unnamed options number */

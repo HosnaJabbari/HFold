@@ -61,15 +61,30 @@ cmake --build build
 ```   
 This can be useful if you are getting errors about your compiler not having C++11 features.
 
-After installing you can move the executables wherever you wish, but you should not delete or move the simfold folder, or you must recompile the executables. If you move the folders and wish to recompile, you should first delete the created "build" folder before recompiling.
+Help
+========================================
+
+```
+Usage: HFold[options] [input sequence]
+```
+
+Read input file from cmdline; predict minimum free energy and optimum structure using the RNA folding algorithm.
+
+
+```
+  -h, --help             Print help and exit
+  -V, --version          Print version and exit
+  -r, --input-structure  Give a restricted structure as an input structure
+  -i, --input-file       Give a path to an input file containing the sequence (and input structure if known)
+  -o, --output-file      Give a path to an output file which will the sequence, and its structure and energy
+  -n, --opt              Specify the number of suboptimal structures to output (default is 1)
+  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated
+  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added
+  -d  --dangles          Specify the dangle model to be used
+  -P, --paramFile        Read energy parameters from paramfile, instead of using the default parameter set.\n
+```
 
 #### How to use:
-    Arguments:
-        HFold:
-            -s <sequence>
-            -r <structure>
-            -i </path/to/file>
-            -o </path/to/file>
 
         Remarks:
             make sure the <arguments> are enclosed in "", for example -r "..().." instead of -r ..()..
@@ -77,34 +92,41 @@ After installing you can move the executables wherever you wish, but you should 
             if -i is provided with just a file name without a path, it is assuming the file is in the diretory where the executable is called
             if -o is provided with just a file name without a path, the output file will be generated in the diretory where the executable is called
             if -o is provided with just a file name without a path, and if -i is provided, then the output file will be generated in the directory where the input file is located
+            if suboptimal structures are specified, repeated structures are skipped. That is, if different input structures come to the same conclusion, only those that are different are shown
+            If no input structure is given, or suboptimal structures are greater than the number given, CParty generates hotspots to be used as input structures -- where hotspots are energetically favorable stems
+            The default parameter file is Turner2004. This can be changed via -P and specifying the parameter file you would like
     
     Sequence requirements:
-        containing only characters GCAUT
+        containing only characters GCAU
 
     Structure requirements:
         -pseudoknot free
-        -containing only characters ._(){}[]
+        -containing only characters .()
         Remarks:
             Restricted structure symbols:
                 () restricted base pair
-                _ no restriction
+                . no restriction
 
 
     Input file requirements:
-            Line1: Sequence
-            Line2: Structure
+            Line1: FASTA name (optional)
+            Line2: Sequence
+            Line3: Structure
         sample:
+            >Sequence1 (optional)
             GCAACGAUGACAUACAUCGCUAGUCGACGC
-            (____________________________)
+            (............................)
 
 #### Example:
     assume you are in the directory where the HFold executable is loacted
-    ./HFold --i "/home/username/Desktop/myinputfile.txt"
-    ./HFold --i "/home/username/Desktop/myinputfile.txt" --o "outputfile.txt"
-    ./HFold --i "/home/username/Desktop/myinputfile.txt" --o "/home/username/Desktop/some_folder/outputfile.txt"
-    ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)"
-    ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "outputfile.txt"
-    ./HFold --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "/home/username/Desktop/some_folder/outputfile.txt"
+    ./build/HFold -i "/home/username/Desktop/myinputfile.txt"
+    ./build/HFold -i "/home/username/Desktop/myinputfile.txt" -o "outputfile.txt"
+    ./build/HFold -r "(............................)" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/HFold -r "(((((.........................)))))................" -d1 GGGGGAAAAAAAGGGGGGGGGGAAAAAAAACCCCCAAAAAACCCCCCCCCC
+    ./build/HFold -p -r "(............................)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/HFold -n 3 -r "(............................)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/HFold -k -r "(............................)" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/HFold -P "src/params/parameters_DP09.txt" -r "(............................)" GCAACGAUGACAUACAUCGCUAGUCGACGC
 
 
 #### Changes
@@ -120,17 +142,5 @@ After installing you can move the executables wherever you wish, but you should 
                      Bp(l,j) to fix this
 
     
-#### Exit code:
-    0       success
-    1	    invalid argument error 
-    3	    thread error
-    4       i/o error
-    5       pipe error
-    error code with special meaning: http://tldp.org/LDP/abs/html/exitcodes.html
-    2	    Misuse of shell builtins (according to Bash documentation)
-    126	    Command invoked cannot execute
-    127	    "command not found"
-    128	    Invalid argument to exit	
-    128+n	Fatal error signal "n"
-    130	    Script terminated by Control-C
-    255	    Exit status out of range (range is 0-255)
+## Questions
+For questions, you can email mateo2@ualberta.ca
