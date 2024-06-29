@@ -101,11 +101,12 @@ Read input file from cmdline; predict minimum free energy and optimum structure 
 
     Structure requirements:
         -pseudoknot free
-        -containing only characters .()
+        -containing only characters .x()
         Remarks:
             Restricted structure symbols:
                 () restricted base pair
                 . no restriction
+                x restricted to unpaired
 
 
     Input file requirements:
