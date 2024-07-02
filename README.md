@@ -79,9 +79,10 @@ Read input file from cmdline; predict minimum free energy and optimum structure 
   -o, --output-file      Give a path to an output file which will the sequence, and its structure and energy
   -n, --opt              Specify the number of suboptimal structures to output (default is 1)
   -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated
-  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added
+  -k  --pk-only          Only add base pairs which cross the constraint structure. The constraint structure is returned if there are no energetically favorable crossing base pairs
   -d  --dangles          Specify the dangle model to be used
   -P, --paramFile        Read energy parameters from paramfile, instead of using the default parameter set.\n
+      --noConv           Do not convert DNA into RNA. This will use the Matthews 2004 parameters for DNA
 ```
 
 #### How to use:

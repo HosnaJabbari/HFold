@@ -77,6 +77,12 @@ std::string hfold(std::string seq,std::string res, double &energy, sparse_tree &
     return structure;
 }
 
+void seqtoRNA(std::string &sequence){
+    for (char &c : sequence) {
+      	if (c == 'T') c = 'U';
+    }
+}
+
 
 int main (int argc, char *argv[])
 {
@@ -123,7 +129,7 @@ int main (int argc, char *argv[])
 	}
 	int n = seq.length();
 	std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
-
+	if(!args_info.noConv_given) seqtoRNA(seq);
 
 	validateSequence(seq);
 	if(restricted != "") validateStructure(seq,restricted);
