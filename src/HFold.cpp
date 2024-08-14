@@ -189,7 +189,7 @@ Result::Result_comp result_comp;
 	if(fileO != ""){
 		std::ofstream out(fileO);
 		out << seq << std::endl;
-		for (int i=0; i < number_of_output; i++) {
+		for (int i=0; i < result_list.size(); i++) {
 			out << "Restricted_" << i << ": " << result_list[i].get_restricted() << std::endl;;
 			out << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ")" << std::endl;	
 		}
@@ -204,7 +204,9 @@ Result::Result_comp result_comp;
 			std::cout << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ")" << std::endl;
 		}
 		else{
-			for (int i=0; i < number_of_output; i++) {
+			std::cout << "Restricted_" << 0 << ": " << result_list[0].get_restricted() << std::endl;;
+			std::cout << "Result_" << 0 << ":     " << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ")" << std::endl;
+			for (int i=1; i < result_list.size(); i++) {
 				if(result_list[i].get_final_structure() == result_list[i-1].get_final_structure()) continue;
 				std::cout << "Restricted_" << i << ": " << result_list[i].get_restricted() << std::endl;;
 				std::cout << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ")" << std::endl;
