@@ -1,4 +1,0 @@
-GACAUAUAAUCGCGUGGAUAUGGCACGCAAGUUUCUACCGGGCACCGUAAAUGUCCGAUUAUGUC
-((((((_____(((_(_______)_)))__________((((___________))))__))))))
-((((((.....((([(.......)])))..........(((([[.......]]))))..))))))
-energy: -12.89

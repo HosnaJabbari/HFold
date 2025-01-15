@@ -1,4 +1,0 @@
-UGCGGUGUAAGUGCAGCCCGUCUUACACCGUGCGGCACAGGCACUAGUACUGAUGUCGUCUACAGGGCU
-((_(((____(__________)____)))_))((_____(_________)______))___________
-(([((([[[[(..........)]]]])))]))(([[[[[(.........)]].]]]))...........
-energy: -16.04

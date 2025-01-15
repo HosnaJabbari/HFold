@@ -1,4 +1,0 @@
-gcUCCACAGAGCAGGAUGCCGGCUAACGGCCGGACGCCGCGAGGCGAGGAAUAGGGCCACAGAGACGAGCGUAUUCAGUUACGGUGAAACGCGGUAACCUCCAUCCGGAGCAACACCAAAUAGGCAGGCGAUGAAGCGGCUCGCUGAGUCUGCGGGUAGGUGGCUUGAGCCGGUCAGCAAUGGCCGGCC
-_((((________((((_(_(((_____)))_)_((((____))))__((___(__((____________((________))__________))____)))_))))))))___(((_______(((_((_____(((_____)))__))_)))______)))______(((((_((____))_)))))_
-[((((........((((.([(((.....)))]).((((....)))).[((...([[((...[...[[..[(([......]))].]]...]..))]..])))]))))))))]..((([......((([((.....((([...])))..))]))).....])))......((((([((....))]))))).
-energy: -44.44
