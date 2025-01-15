@@ -421,21 +421,6 @@ get_scaled_params(vrna_md_t *md)
   params->TerminalAU            = RESCALE_dG(TerminalAU37, TerminalAUdH, tempf);
   params->DuplexInit            = RESCALE_dG(DuplexInit37, DuplexInitdH, tempf);
   params->MLbase                = RESCALE_dG(ML_BASE37, ML_BASEdH, tempf);
-  // Pseudoknot -- added by Mateo 2/14/23
-  params->PS_penalty            = -138;
-  params->PSM_penalty           = 1007; 
-  params->PSP_penalty           = 1500; 
-  params->PB_penalty            = 246; 
-  params->PUP_penalty           = 6; 
-  params->PPS_penalty           = 96; 
-  params->e_stP_penalty         = .89; 
-  params->e_intP_penalty        = .74;
-  params->ap_penalty            = 341;
-  params->bp_penalty            = 56;
-  params->cp_penalty            = 12;
-  params->a_penalty            = 339; // Fix later
-  params->b_penalty            = 3;
-  params->c_penalty            = 2;
   //
   params->MLclosing             = RESCALE_dG(ML_closing37, ML_closingdH, tempf);
   params->gquadLayerMismatch    = RESCALE_dG(GQuadLayerMismatch37, GQuadLayerMismatchH, tempf);
