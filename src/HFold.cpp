@@ -13,8 +13,6 @@
 #include <string>
 #include <getopt.h>
 
-int is_invalid_restriction(char* restricted_structure, char* current_structure);
-
 bool exists (const std::string path) {
   struct stat buffer;   
   return (stat (path.c_str(), &buffer) == 0); 
@@ -163,7 +161,8 @@ int main (int argc, char *argv[])
 
     //double min_energy;
 	// Iterate through all hotspots or the single given input structure
-	for(int i = 0;i<hotspot_list.size();++i){
+	cand_pos_t size = hotspot_list.size();
+	for(int i = 0;i<size;++i){
 		double energy;
 		std::string structure = hotspot_list[i].get_structure();
 
@@ -189,7 +188,7 @@ Result::Result_comp result_comp;
 	if(fileO != ""){
 		std::ofstream out(fileO);
 		out << seq << std::endl;
-		for (int i=0; i < result_list.size(); i++) {
+		for (int i=0; i < number_of_output; i++) {
 			out << "Restricted_" << i << ": " << result_list[i].get_restricted() << std::endl;;
 			out << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ")" << std::endl;	
 		}
@@ -206,7 +205,7 @@ Result::Result_comp result_comp;
 		else{
 			std::cout << "Restricted_" << 0 << ": " << result_list[0].get_restricted() << std::endl;;
 			std::cout << "Result_" << 0 << ":     " << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ")" << std::endl;
-			for (int i=1; i < result_list.size(); i++) {
+			for (int i=1; i < number_of_output; i++) {
 				if(result_list[i].get_final_structure() == result_list[i-1].get_final_structure()) continue;
 				std::cout << "Restricted_" << i << ": " << result_list[i].get_restricted() << std::endl;;
 				std::cout << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ")" << std::endl;
@@ -216,26 +215,4 @@ Result::Result_comp result_comp;
 	cmdline_parser_free(&args_info);
 
     return 0;
-}
-
-//---------------------------------------this function is suppose to be the same as the one in Hfold_interacting, if any changes are made, please change that one too--------------------
-//kevin 30 Aug 2017
-//check if the computed structure matches the restricted structure
-int is_invalid_restriction(char* restricted_structure, char* current_structure){
-	std::string openBracketArray ("({[");
-	std::string closeBracketArray (")}]");
-
-	for (int i=0; i < strlen(restricted_structure); i++){
-        if(restricted_structure[i] != '_' && restricted_structure[i] != current_structure[i]){
-			if( (openBracketArray.find_first_of(restricted_structure[i]) != -1) && ((openBracketArray.find_first_of(current_structure[i]) != -1)) ){
-				continue;
-			}else if ( (closeBracketArray.find_first_of(restricted_structure[i]) != -1) && ((closeBracketArray.find_first_of(current_structure[i]) != -1)) ){
-				continue;
-			}else{
-				return 1;
-			}
-		}
-
-    }
-	return 0;
 }
