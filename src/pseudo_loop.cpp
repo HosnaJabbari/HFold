@@ -118,7 +118,7 @@ void pseudo_loop::compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree
 }
 // Added +1 to fres/tree indices as they are 1 ahead at the moment
 void pseudo_loop::compute_WI(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
-	energy_t min = INF, m1 = INF, m2= INF, m3= INF, m4= INF, m5 = INF;
+	energy_t m1 = INF, m2= INF, m3= INF, m4= INF, m5 = INF;
 	cand_pos_t ij = index[i]+j-i;
 	// branch 4, one base
 	if (i == j){
@@ -207,8 +207,6 @@ void pseudo_loop::compute_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 
 void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	cand_pos_t ij = index[i]+j-i;
-
-	const pair_type ptype_closing = pair[S_[i]][S_[j]];	
 	
 	energy_t m1 = INF, m2 = INF, m3 = INF, m4= INF, m5 = INF, m6 = INF, m7 = INF, m8 = INF, m9 = INF; //different branches
 	
@@ -521,8 +519,6 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 			// and in BE energy calculation we are looking for the oepn region (i,l)
 			// we have to look at not_paired_all[i+1,l-1]
 			cand_pos_t lp = tree.tree[l].pair;
-			cand_pos_t il = index[i]+l-i;
-			cand_pos_t lpj = index[lp]+j-lp;
 			// 2)
 			// Hosna June 29, 2007
 			// when we pass a stacked pair instead of an internal loop to e_int, it returns underflow,
@@ -758,7 +754,6 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				energy_t min = INF;
 
 				// case 1
-				cand_pos_t b_ij = tree.b(i,j);
 				if (tree.tree[j].pair < 0){
 					energy_t acc = INF;
 					cand_pos_t l3 = -1;
@@ -1433,7 +1428,6 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 			}
 
 			for (cand_pos_t k = i+1; k < j-TURN-1; ++k){
-				bool can_pair = tree.up[k-1] >= (k-i);
 				energy_t wi_1 = get_WIP(i,k-1);
 				tmp = wi_1 + V->get_energy(k,j);
 				if (tmp < min){
