@@ -98,4 +98,7 @@ add_executable(HFold ${SOURCE})
 
 target_link_libraries(HFold PRIVATE RNA)
 
+# Install HFold into the bin directory
+install(TARGETS HFold RUNTIME DESTINATION bin)
+
 include_directories(src)
