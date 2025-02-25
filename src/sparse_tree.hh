@@ -6,7 +6,7 @@
 #include <string>
 #include <cstdint>
 
-#define maxSize 14 // 2^14 for sparse table
+#define maxSize 15 // 2^14 for sparse table
 
 class Node {
 
@@ -42,7 +42,6 @@ class sparse_tree{
         sparse_tree(std::string structure,int n);
         ~sparse_tree();
 
-        // const int maxSize = 14; 
         std::vector<Node> tree; // A vector of Nodes corresponding to each index in the structure
         std::vector<int> FAI; // The index of the First appearance of a node
         std::vector<int> level; // Stores depths for each node of the tree

@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <vector>
 
-#define maxSize 14 // 2^14 for sparse table
+#define maxSize 15 // 2^14 for sparse table
 
 
 
