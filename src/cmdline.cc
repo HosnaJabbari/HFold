@@ -35,9 +35,9 @@ const char *args_info_help[] = {
   "  -o  --output-file      Give a path to an output file which will the sequence, and its structure and energy",
   "  -n, --opt              Specify the number of suboptimal structures to output (default is 1)",
   "  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated",
-  "  -k  --pk-only          Only add base pairs which cross the constraint structure. The constraint structure is returned if there are no energetically favorable crossing base pairs"
+  "  -k  --pk-only          Only add base pairs which cross the constraint structure. The constraint structure is returned if there are no energetically favorable crossing base pairs",
   "  -d  --dangles          Specify the dangle model to be used (base is 2)",
-  "  -P, --paramFile        Read energy parameters from paramfile, instead of using the default parameter set.\n",
+  "  -P, --paramFile        Read energy parameters from paramfile, instead of using the default parameter set.",
   "      --noConv           Do not convert DNA into RNA. This will use the Matthews 2004 parameters for DNA",
 
   "\nThe input sequence is read from standard input, unless it is\ngiven on the command line.\n",
