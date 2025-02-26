@@ -10,7 +10,7 @@ This guide was tested on a linux machine
 ## How to build the package
 - Start in the HFold folder
 - Run `conda build ./conda_recipe` to build package
-- Run `conda install --use-local hfold` to install
+- Run `conda install --use-local hfold` to install (case sensitive)
 - Run `HFold --help` to insure it installed properly (case sensitive)
 
 ## Upload package
