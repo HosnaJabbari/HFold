@@ -1,6 +1,6 @@
 package:
   name: hfold
-  version: "1.0.0"
+  version: "1.0.1"
 
 source:
   path: ..
@@ -17,13 +17,18 @@ requirements:
     - cmake >=3.1
     - make
   host:
-    - libstdcxx-ng  # Ensures compatibility on Linux
+    - libstdcxx-ng    # [linux]
+    - libcxx          # [osx]
+    - vs_runtime      # [win]
   run:
-    - libstdcxx-ng  # Runtime requirement
+    - libstdcxx-ng    # [linux]
+    - libcxx          # [osx]
+    - vs_runtime      # [win]
 
 about:
   home: https://github.com/HosnaJabbari/HFold
-  license: "MIT" 
+  license: "MIT"
+  license_file: LICENSE
   summary: "HFold is an algorithm for predicting pseudoknotted secondary structures of RNA using strict Hierarchical Folding."
   description: |
     HFold predicts RNA secondary structure using a hierarchical folding approach.
@@ -32,3 +37,7 @@ about:
 extra:
   recipe-maintainers:
     - PointlessUser
+
+test:
+  commands:
+    - HFold --help
