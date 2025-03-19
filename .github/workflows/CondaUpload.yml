@@ -1,0 +1,47 @@
+name: Conda Build & Upload
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          auto-activate-base: false
+          miniconda-version: latest
+          channels: conda-forge,defaults
+          channel-priority: strict
+
+      - name: Install conda-build & anaconda-client
+        run: |
+          # On Mac, also install clang_osx-64 to get newer Clang that supports Xcode 15 TAPI.
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            conda install -y conda-build anaconda-client clang_osx-64 clangxx_osx-64
+          else
+            conda install -y conda-build anaconda-client
+          fi
+
+      - name: Build Conda Package
+        run: |
+          conda build .
+
+      - name: Upload Package to Anaconda
+        if: success()  # or only if build is successful
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+        run: |
+          built_pkg=$(conda build . --output)
+          echo "Built package: $built_pkg"
+          conda run -n base anaconda -t "$ANACONDA_API_TOKEN" upload \
+            --user COBRALab --label main --force "$built_pkg"
